@@ -4,21 +4,29 @@
 
 namespace Maragi
 {
-	template<typename EventArg>
-	class Controller
+	struct WindowEventArgs
+	{
+		HWND window;
+		void *param1; // TODO: Change required
+		void *param2;
+	};
+
+	template<typename EventArg = EventArgs>
+	class Window
 	{
 	private:
 		std::multimap<std::wstring, std::function<bool(EventArg)>> eventMap;
 
 	public:
-		bool addEvent(const std::wstring &eventName, std::function<bool(EventArg)> fn)
+		virtual ~Window() {}
+
+	public:
+		bool addEventListener(const std::wstring &eventName, std::function<bool(EventArg)> fn)
 		{
 			return eventMap.insert(make_pair(eventName, fn)).second;
 		}
 
-		bool removeEvent(const std::wstring &eventName, std::function<bool(EventArg)> fn);
-
-		bool callEvent(const std::wstring &eventName, const EventArg &arg)
+		bool fireEvent(const std::wstring &eventName, const EventArg &arg)
 		{
 			auto range = eventMap.equal_range(eventName);
 			for(auto it = range.first; it != range.second; ++ it)
@@ -29,12 +37,5 @@ namespace Maragi
 
 			return true;
 		}
-	};
-
-	struct EventArgs
-	{
-		HWND window;
-		void *param1; // TODO: Change required
-		void *param2;
 	};
 }

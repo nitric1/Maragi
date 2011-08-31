@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClCompile Include="Defaults.cpp" />
     <ClCompile Include="MainController.cpp" />
+    <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="TwitterClient.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -320,11 +321,12 @@
     <ClInclude Include="..\External\include64\openssl\x509_vfy.h" />
     <ClInclude Include="..\External\include64\zconf.h" />
     <ClInclude Include="..\External\include64\zlib.h" />
-    <ClInclude Include="Controller.h" />
     <ClInclude Include="Defaults.h" />
     <ClInclude Include="MainController.h" />
+    <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="TwitterClient.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

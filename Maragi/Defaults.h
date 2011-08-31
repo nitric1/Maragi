@@ -2,8 +2,10 @@
 
 #pragma once
 
+#include <exception>
 #include <functional>
 #include <map>
+#include <stdexcept>
 #include <string>
 
 #include <curl/curl.h>
