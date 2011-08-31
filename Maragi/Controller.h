@@ -30,4 +30,11 @@ namespace Maragi
 			return true;
 		}
 	};
+
+	struct EventArgs
+	{
+		HWND window;
+		void *param1; // TODO: Change required
+		void *param2;
+	};
 }
