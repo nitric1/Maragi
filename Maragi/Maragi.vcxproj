@@ -149,6 +149,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Constants.cpp" />
     <ClCompile Include="Defaults.cpp" />
     <ClCompile Include="MainController.cpp" />
     <ClCompile Include="MainWindow.cpp" />
@@ -321,6 +322,7 @@
     <ClInclude Include="..\External\include64\openssl\x509_vfy.h" />
     <ClInclude Include="..\External\include64\zconf.h" />
     <ClInclude Include="..\External\include64\zlib.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="Defaults.h" />
     <ClInclude Include="MainController.h" />
     <ClInclude Include="MainWindow.h" />
