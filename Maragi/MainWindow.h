@@ -7,7 +7,7 @@
 
 namespace Maragi
 {
-	class MainWindow : public Window<>, Singleton<MainWindow>
+	class MainWindow : public Window<>, public Singleton<MainWindow>
 	{
 	public:
 		MainWindow();

@@ -6,7 +6,8 @@
     <IncludePath>$(SolutionDir)External\include32;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup>
-    <LibraryPath>$(SolutionDir)External\lib32;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)External\bin32;$(LibraryPath)</LibraryPath>
+    <ReferencePath>$(SolutionDir)External\bin32;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup />

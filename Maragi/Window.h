@@ -11,7 +11,7 @@ namespace Maragi
 		void *param2;
 	};
 
-	template<typename EventArg = EventArgs>
+	template<typename EventArg = WindowEventArgs>
 	class Window
 	{
 	private:

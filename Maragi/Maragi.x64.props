@@ -7,6 +7,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <LibraryPath>$(SolutionDir)External\bin64;$(LibraryPath)</LibraryPath>
+    <ReferencePath>$(SolutionDir)External\bin64;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup />

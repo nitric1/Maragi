@@ -46,9 +46,12 @@ namespace Maragi
 	size_t TwitterClient::curlWriteCallback(void *data, size_t size, size_t nmemb, void *param)
 	{
 		CurlWriteCallbackData *cbd = static_cast<CurlWriteCallbackData *>(param);
+		size_t realSize = size * nmemb;
 
-		cbd->data.insert(cbd->data.end(), static_cast<char *>(data), static_cast<char *>(data) + (size * nmemb));
+		cbd->data.insert(cbd->data.end(), static_cast<char *>(data), static_cast<char *>(data) + realSize);
 
 		// TODO: Call callback function
+
+		return realSize;
 	}
 }
