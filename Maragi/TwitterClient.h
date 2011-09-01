@@ -13,6 +13,12 @@ namespace Maragi
 			std::vector<char> data;
 		};
 
+	public:
+		enum
+		{
+
+		};
+
 	private:
 		CURL *curl;
 		CurlWriteCallbackData cbd;
