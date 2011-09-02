@@ -335,5 +335,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Tokens.h.in" />
+    <None Include="Tokens.txt" />
   </ItemGroup>
 </Project>

@@ -254,6 +254,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Tokens.h.in" />
+    <None Include="Tokens.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
