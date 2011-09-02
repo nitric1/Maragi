@@ -1,0 +1,14 @@
+// $Id$
+
+#pragma once
+
+#define MARAGI_CONSUMER_KEY "$1"
+#define MARAGI_CONSUMER_SECRET "$2"
+
+namespace Maragi
+{
+	namespace AppTokens
+	{
+		extern const char *consumerKey, *consumerSecret;
+	}
+}

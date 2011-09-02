@@ -155,6 +155,7 @@
     <ClCompile Include="Defaults.cpp" />
     <ClCompile Include="MainController.cpp" />
     <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="Tokens.cpp" />
     <ClCompile Include="TwitterClient.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -247,8 +248,12 @@
     <ClInclude Include="MainController.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="Tokens.h" />
     <ClInclude Include="TwitterClient.h" />
     <ClInclude Include="Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Tokens.h.in" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -51,6 +51,9 @@
     <ClCompile Include="..\External\src\json\jsoncpp.cpp">
       <Filter>External Files\jsoncpp</Filter>
     </ClCompile>
+    <ClCompile Include="Tokens.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainController.h">
@@ -326,5 +329,11 @@
     <ClInclude Include="..\External\include\json\json-forwards.h">
       <Filter>External Files\jsoncpp</Filter>
     </ClInclude>
+    <ClInclude Include="Tokens.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Tokens.h.in" />
   </ItemGroup>
 </Project>
