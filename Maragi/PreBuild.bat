@@ -1,16 +1,24 @@
 @echo off
+setlocal
 
 rem $Id$
 
 if "%1" == "" goto end
-if not exist %1\Tokens.txt goto create
+
+set PreBuildPath=###%1###
+set PreBuildPath=%PreBuildPath:"###=%
+set PreBuildPath=%PreBuildPath:###"=%
+set PreBuildPath=%PreBuildPath:###=%
+
+if not exist %PreBuildPath%\Tokens.txt goto create
 goto process
 
 :create
-echo > %1\Tokens.txt
+echo Creating empty Tokens.txt...
+echo > "%PreBuildPath%\Tokens.txt"
 
 :process
 echo Merging Tokens.h.in and Tokens.txt into Tokens.h...
-perl %1\TextReplacer.pl %1\Tokens.h.in %1\Tokens.txt > %1\Tokens.h
+perl "%PreBuildPath%\TextReplacer.pl" "%PreBuildPath%\Tokens.h.in" "%PreBuildPath%\Tokens.txt" > "%PreBuildPath%\Tokens.h"
 
 :end

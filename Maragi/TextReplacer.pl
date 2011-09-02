@@ -17,7 +17,6 @@ my $content = '';
 if(-e $infile)
 {
 	open(INFILE, $infile);
-	binmode(INFILE);
 
 	my ($read, $data);
 	while(($read = read(INFILE, $data, 1024)) > 0)
