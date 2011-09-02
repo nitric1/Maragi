@@ -13,6 +13,9 @@
     <ClCompile>
       <PreprocessorDefinitions>JSON_IS_AMALGAMATION;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <PreBuildEvent>
+      <Command>$(ProjectDir)PreBuild.bat "$(ProjectDir)TextReplacer.pl" "$(ProjectDir)Tokens.h.in" "$(ProjectDir)Tokens.txt" "$(ProjectDir)Tokens.h"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
