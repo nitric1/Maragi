@@ -8,7 +8,7 @@ namespace Maragi
 {
 	namespace AppTokens
 	{
-		const char *consumerKey = MARAGI_CONSUMER_KEY;
-		const char *consumerSecret = MARAGI_CONSUMER_SECRET;
+		const char * const consumerKey = MARAGI_CONSUMER_KEY;
+		const char * const consumerSecret = MARAGI_CONSUMER_SECRET;
 	}
 }
