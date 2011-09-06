@@ -5,6 +5,8 @@
 #define MARAGI_CONSUMER_KEY "$1"
 #define MARAGI_CONSUMER_SECRET "$2"
 
+// Fill above tokens into Tokens.txt, not here.
+
 namespace Maragi
 {
 	namespace AppTokens

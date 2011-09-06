@@ -15,7 +15,8 @@ goto process
 
 :create
 echo Creating empty Tokens.txt...
-echo > "%PreBuildPath%\Tokens.txt"
+echo $1= > "%PreBuildPath%\Tokens.txt"
+echo $2= >> "%PreBuildPath%\Tokens.txt"
 
 :process
 echo Merging Tokens.h.in and Tokens.txt into Tokens.h...

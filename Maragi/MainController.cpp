@@ -4,6 +4,12 @@
 
 #include "MainController.h"
 
+#include "CommandLineParser.h"
+#include "Tokens.h"
+
+#pragma warning(push)
+#pragma warning(disable:4702)
+
 namespace Maragi
 {
 	MainController::MainController()
@@ -13,10 +19,6 @@ namespace Maragi
 	}
 	
 	MainController::~MainController()
-	{
-	}
-
-	void MainController::registerEvents()
 	{
 	}
 
@@ -37,6 +39,12 @@ namespace Maragi
 		try
 		{
 			appInst = instance;
+
+			if(!checkPrerequisites())
+				return false;
+
+			processCommandLine(commandLine);
+
 			return true;
 		}
 		catch(std::exception &e)
@@ -45,6 +53,10 @@ namespace Maragi
 			MessageBoxA(nullptr, str.c_str(), "Error occured", MB_ICONSTOP | MB_OK);
 			return false;
 		}
+	}
+
+	void MainController::registerEvents()
+	{
 	}
 
 	int MainController::filterOSException(unsigned icode, EXCEPTION_POINTERS *iep)
@@ -60,9 +72,29 @@ namespace Maragi
 		// TODO: Implementaion exception showing
 		return false;
 	}
+
+	bool MainController::checkPrerequisites()
+	{
+		if(strcmp(AppTokens::consumerKey, "") == 0 || strcmp(AppTokens::consumerSecret, "") == 0)
+		{
+			throw(std::logic_error("Tokens for authorization are not filled. Check Tokens.h.in."));
+			return false;
+		}
+
+		return true;
+	}
+
+	void MainController::processCommandLine(const std::wstring &commandLine)
+	{
+		CommandLineParser parser;
+
+		parser.parse(commandLine);
+	}
 }
 
 int __stdcall wWinMain(HINSTANCE instance, HINSTANCE, wchar_t *commandLine, int showCommand)
 {
 	return Maragi::MainController::instance().run(instance, commandLine, showCommand) ? 0 : 1;
 }
+
+#pragma warning(pop)

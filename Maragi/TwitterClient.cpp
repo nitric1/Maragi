@@ -2,8 +2,9 @@
 
 #include "Defaults.h"
 
-#include "Constants.h"
 #include "TwitterClient.h"
+
+#include "Constants.h"
 
 namespace Maragi
 {

@@ -20,10 +20,14 @@ namespace Maragi
 		~MainController();
 
 	public:
-		void registerEvents();
 		bool run(HINSTANCE, const std::wstring &, int);
 		bool runImpl(HINSTANCE, const std::wstring &, int);
+
+	private:
+		void registerEvents();
 		int filterOSException(unsigned, EXCEPTION_POINTERS *);
 		bool showOSException();
+		bool checkPrerequisites();
+		void processCommandLine(const std::wstring &);
 	};
 }
