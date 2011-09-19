@@ -8,9 +8,18 @@ namespace Maragi
 {
 	namespace Constants
 	{
-		const wchar_t * const title = MARAGI_TITLE;
-		const wchar_t * const version = MARAGI_VERSION;
-		const wchar_t * const fullName = MARAGI_TITLE L" " MARAGI_VERSION;
-		const wchar_t * const userAgent = MARAGI_TITLE L"/" MARAGI_VERSION L" (Twitter Client Agent with libcurl, openssl, zlib)";
+		const wchar_t * const TITLE = MARAGI_TITLE;
+		const wchar_t * const VERSION = MARAGI_VERSION;
+		const wchar_t * const FULL_NAME = MARAGI_TITLE L" " MARAGI_VERSION;
+		const wchar_t * const USER_AGENT = MARAGI_TITLE L"/" MARAGI_VERSION L" (Twitter Client Agent with libcurl, openssl, zlib)";
+	}
+
+	namespace PATHs
+	{
+		const char * const METHOD = "https";
+		const char * const HOST = "api.twitter.com";
+		const char * const REQUEST_TOKEN = "/oauth/request_token";
+		const char * const AUTHORIZE = "/oauth/authorize";
+		const char * const ACCESS_TOKEN = "/oauth/access_token";
 	}
 }

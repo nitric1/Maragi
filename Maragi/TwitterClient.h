@@ -22,6 +22,7 @@ namespace Maragi
 	private:
 		CURL *curl;
 		CurlWriteCallbackData cbd;
+		std::string accessToken, accessTokenSecret;
 
 	public:
 		TwitterClient();
@@ -30,5 +31,8 @@ namespace Maragi
 	private:
 		static bool initializeCurl();
 		static size_t curlWriteCallback(void *, size_t, size_t, void *);
+
+	public:
+		;
 	};
 }

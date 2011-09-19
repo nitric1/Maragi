@@ -9,6 +9,12 @@ namespace Maragi
 {
 	namespace Constants
 	{
-		extern const wchar_t * const title, * const version, * const fullName, * const userAgent;
+		extern const wchar_t * const TITLE, * const VERSION, * const FULL_NAME, * const USER_AGENT;
+	}
+
+	namespace URIs
+	{
+		extern const char * const METHOD, * const HOST;
+		extern const char * const REQUEST_TOKEN, * const AUTHORIZE, * const ACCESS_TOKEN;
 	}
 }
