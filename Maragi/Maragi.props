@@ -12,6 +12,7 @@
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>JSON_IS_AMALGAMATION;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <PreBuildEvent>
       <Command>$(ProjectDir)PreBuild.bat "$(ProjectDir)"</Command>

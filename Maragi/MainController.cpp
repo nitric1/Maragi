@@ -75,7 +75,7 @@ namespace Maragi
 
 	bool MainController::checkPrerequisites()
 	{
-		if(strcmp(AppTokens::consumerKey, "") == 0 || strcmp(AppTokens::consumerSecret, "") == 0)
+		if(strcmp(AppTokens::CONSUMER_KEY, "") == 0 || strcmp(AppTokens::CONSUMER_SECRET, "") == 0)
 		{
 			throw(std::logic_error("Tokens for authorization are not filled. Check Tokens.h.in."));
 			return false;

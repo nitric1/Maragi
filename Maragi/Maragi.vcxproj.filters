@@ -28,9 +28,6 @@
     <Filter Include="External Files\jsoncpp">
       <UniqueIdentifier>{5f55805d-74a6-4380-b3ef-db5418769b91}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Standard Header Files">
-      <UniqueIdentifier>{8861954a-8389-4a47-ba55-902bfc1f85e2}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MainController.cpp">
@@ -347,12 +344,6 @@
     <ClInclude Include="CommandLineParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="inttypes.h">
-      <Filter>Standard Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdint.h">
-      <Filter>Standard Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -366,11 +357,5 @@
   <ItemGroup>
     <None Include="Tokens.h.in" />
     <None Include="Tokens.txt" />
-    <None Include="cstdint">
-      <Filter>Standard Header Files</Filter>
-    </None>
-    <None Include="cinttypes">
-      <Filter>Standard Header Files</Filter>
-    </None>
   </ItemGroup>
 </Project>

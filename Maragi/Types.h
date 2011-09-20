@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <cinttypes>
 #include <climits>
 
 #ifndef LONG32_T_DEFINED

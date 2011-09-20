@@ -98,7 +98,6 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>Defaults.h</PrecompiledHeaderFile>
@@ -250,11 +249,9 @@
     <ClInclude Include="Configure.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Defaults.h" />
-    <ClInclude Include="inttypes.h" />
     <ClInclude Include="MainController.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Singleton.h" />
-    <ClInclude Include="stdint.h" />
     <ClInclude Include="Tokens.h" />
     <ClInclude Include="TwitterClient.h" />
     <ClInclude Include="Types.h" />
@@ -262,8 +259,6 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cinttypes" />
-    <None Include="cstdint" />
     <None Include="Tokens.h.in" />
     <None Include="Tokens.txt" />
   </ItemGroup>

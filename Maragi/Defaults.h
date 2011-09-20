@@ -4,9 +4,11 @@
 
 #define NOMINMAX
 
+#include <algorithm>
 #include <exception>
 #include <functional>
 #include <map>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>

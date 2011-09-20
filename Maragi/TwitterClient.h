@@ -10,7 +10,7 @@ namespace Maragi
 		struct CurlWriteCallbackData
 		{
 			TwitterClient *client;
-			std::vector<char> data;
+			std::vector<uint8_t> data;
 		};
 
 	public:
@@ -33,6 +33,6 @@ namespace Maragi
 		static size_t curlWriteCallback(void *, size_t, size_t, void *);
 
 	public:
-		;
+		void authorize();
 	};
 }
