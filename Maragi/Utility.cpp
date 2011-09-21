@@ -179,4 +179,63 @@ namespace Maragi
 	//std::vector<uint8_t> base64Decode(const std::string &str)
 	//{
 	//}
+
+	namespace
+	{
+		char hexDigits[16] =
+		{
+			'0', '1', '2', '3', '4', '5', '6', '7',
+			'8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+		};
+
+		bool isSafeURIChar(char ch)
+		{
+			return (ch >= '0' && ch <= '9') // <DIGIT>
+				|| (ch >= 'A' && ch <= 'Z') // <UPPER>
+				|| (ch >= 'a' && ch <= 'z') // <LOWER>
+				|| (ch == '$' || ch == '-' || ch == '_' || ch == '@' || ch == '.') // <SAFE>
+				|| (ch == '!' || ch == '*' || ch == '"' || ch == '\''
+					|| ch == '(' || ch == ')' || ch == ','); // <EXTRA>
+		}
+	}
+
+	std::string encodeURI(const std::string &str)
+	{
+		std::string buf;
+		buf.reserve(str.size());
+		for(auto it = str.begin(); it != str.end(); ++ it)
+		{
+			if(isSafeURIChar(*it))
+				buf.push_back(*it);
+			else
+			{
+				buf += "%";
+				buf.push_back(hexDigits[*it >> 4]);
+				buf.push_back(hexDigits[*it & 0x0F]);
+			}
+		}
+			
+		return buf;
+	}
+
+	std::string encodeURIParam(const std::string &str)
+	{
+		std::string buf;
+		buf.reserve(str.size());
+		for(auto it = str.begin(); it != str.end(); ++ it)
+		{
+			if(isSafeURIChar(*it))
+				buf.push_back(*it);
+			else if(*it == ' ')
+				buf += "+";
+			else
+			{
+				buf += "%";
+				buf.push_back(hexDigits[*it >> 4]);
+				buf.push_back(hexDigits[*it & 0x0F]);
+			}
+		}
+			
+		return buf;
+	}
 }

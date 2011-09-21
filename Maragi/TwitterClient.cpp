@@ -4,6 +4,7 @@
 
 #include "TwitterClient.h"
 
+#include "URI.h"
 #include "Constants.h"
 #include "Utility.h"
 
@@ -72,94 +73,19 @@ namespace Maragi
 			return str;
 		}
 
-		char hexDigits[16] =
-		{
-			'0', '1', '2', '3', '4', '5', '6', '7',
-			'8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
-		};
-
-		std::string encodeURI(const std::string &str)
-		{
-			static auto isSafeURIChar = [](char ch)
-			{
-				return (ch >= '0' && ch <= '9') // <DIGIT>
-				|| (ch >= 'A' && ch <= 'Z') // <UPPER>
-				|| (ch >= 'a' && ch <= 'z') // <LOWER>
-				|| (ch == '$' || ch == '-' || ch == '_' || ch == '@' || ch == '.') // <SAFE>
-				|| (ch == '!' || ch == '*' || ch == '"' || ch == '\''
-					|| ch == '(' || ch == ')' || ch == ','); // <EXTRA>
-			};
-			std::string buf;
-			buf.reserve(str.size());
-			for(auto it = str.begin(); it != str.end(); ++ it)
-			{
-				if(isSafeURIChar(*it))
-					buf.push_back(*it);
-				else
-				{
-					buf += "%";
-					buf.push_back(hexDigits[*it >> 4]);
-					buf.push_back(hexDigits[*it & 0x0F]);
-				}
-			}
-			
-			return buf;
-		}
-
-		std::string encodeURIParam(const std::string &str)
-		{
-			static auto isSafeURIChar = [](char ch)
-			{
-				return (ch >= '0' && ch <= '9') // <DIGIT>
-				|| (ch >= 'A' && ch <= 'Z') // <UPPER>
-				|| (ch >= 'a' && ch <= 'z') // <LOWER>
-				|| (ch == '$' || ch == '-' || ch == '_' || ch == '@' || ch == '.') // <SAFE>
-				|| (ch == '!' || ch == '*' || ch == '"' || ch == '\''
-					|| ch == '(' || ch == ')' || ch == ','); // <EXTRA>
-			};
-			std::string buf;
-			buf.reserve(str.size());
-			for(auto it = str.begin(); it != str.end(); ++ it)
-			{
-				if(isSafeURIChar(*it))
-					buf.push_back(*it);
-				else if(*it == ' ')
-					buf += "+";
-				else
-				{
-					buf += "%";
-					buf.push_back(hexDigits[*it >> 4]);
-					buf.push_back(hexDigits[*it & 0x0F]);
-				}
-			}
-			
-			return buf;
-		}
-
-		std::string makeRequestURI(const std::string &path, const std::map<std::string, std::string> &param)
+		URI makeRequestURI(const std::string &path)
 		{
 			std::string uri = Paths::PROTOCOL;
 			uri += "://";
 			uri += Paths::HOST;
 			uri += "/";
 			uri += path;
-			if(!param.empty())
-			{
-				auto it = param.begin();
-				uri += "?";
-				uri += encodeURIParam(it->first);
-				uri += "=";
-				uri += encodeURIParam(it->second);
-				for(++ it; it != param.end(); ++ it)
-				{
-					uri += "&";
-					uri += encodeURIParam(it->first);
-					uri += "=";
-					uri += encodeURIParam(it->second);
-				}
-			}
 
-			return uri;
+			return URI(uri);
+		}
+
+		void signRequestURI(URI &uri)
+		{
 		}
 
 		std::string makePostField(const std::map<std::string, std::string> &ve)
@@ -194,10 +120,6 @@ namespace Maragi
 			SHA1(&*opad.begin(), opad.size(), &*result.begin());
 
 			return result;
-		}
-
-		std::string signRequestURI(std::string &path, const std::map<std::string, std::string> &param)
-		{
 		}
 	}
 

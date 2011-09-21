@@ -13,4 +13,6 @@ namespace Maragi
 	std::wstring decodeUTF8(const std::string &);
 	std::string base64Encode(const std::vector<uint8_t> &);
 	std::vector<uint8_t> base64Decode(const std::string &);
+	std::string encodeURI(const std::string &);
+	std::string encodeURIParams(const std::string &);
 }

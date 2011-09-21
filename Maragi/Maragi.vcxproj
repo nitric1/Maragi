@@ -158,6 +158,7 @@
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Tokens.cpp" />
     <ClCompile Include="TwitterClient.cpp" />
+    <ClCompile Include="URI.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -255,6 +256,7 @@
     <ClInclude Include="Tokens.h" />
     <ClInclude Include="TwitterClient.h" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="URI.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
