@@ -42,6 +42,31 @@ namespace Maragi
 		params = iparams;
 	}
 
+	void URI::assign(const std::map<std::string, std::string> &iparams)
+	{
+		params = iparams;
+	}
+
+	bool URI::addParam(const std::string &key, const std::string &value)
+	{
+		return params.insert(make_pair(key, value)).second;
+	}
+
+	void URI::removeParam(const std::string &key)
+	{
+		params.erase(key);
+	}
+
+	const std::string &URI::getBaseURI() const
+	{
+		return baseURI;
+	}
+
+	const std::map<std::string, std::string> &URI::getParams() const
+	{
+		return params;
+	}
+
 	std::string URI::getStringURI() const
 	{
 		if(changed)

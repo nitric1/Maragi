@@ -188,7 +188,7 @@ namespace Maragi
 			'8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
 		};
 
-		bool isSafeURIChar(char ch)
+		inline bool isSafeURIChar(char ch)
 		{
 			return (ch >= '0' && ch <= '9') // <DIGIT>
 				|| (ch >= 'A' && ch <= 'Z') // <UPPER>

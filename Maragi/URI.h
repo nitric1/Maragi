@@ -20,6 +20,11 @@ namespace Maragi
 	public:
 		void assign(const std::string &);
 		void assign(const std::string &, const std::map<std::string, std::string> &);
+		void assign(const std::map<std::string, std::string> &);
+		bool addParam(const std::string &, const std::string &);
+		void removeParam(const std::string &);
+		const std::string &getBaseURI() const;
+		const std::map<std::string, std::string> &getParams() const;
 		std::string getStringURI() const;
 
 	public:
