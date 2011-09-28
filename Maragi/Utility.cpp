@@ -218,7 +218,7 @@ namespace Maragi
 		return buf;
 	}
 
-	std::string encodeURIParam(const std::string &str)
+	std::string encodeURIParams(const std::string &str)
 	{
 		std::string buf;
 		buf.reserve(str.size());

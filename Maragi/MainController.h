@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "CommandLineParser.h"
 #include "Singleton.h"
 #include "MainWindow.h"
 
@@ -14,6 +15,7 @@ namespace Maragi
 		EXCEPTION_POINTERS exceptionPointers;
 		HINSTANCE appInst;
 		MainWindow *mainWin;
+		CommandLineParser cmdLine;
 
 	public:
 		MainController();
@@ -28,6 +30,6 @@ namespace Maragi
 		int filterOSException(unsigned, EXCEPTION_POINTERS *);
 		bool showOSException();
 		bool checkPrerequisites();
-		void processCommandLine(const std::wstring &);
+		void parseCommandLine(const std::wstring &);
 	};
 }

@@ -4,7 +4,6 @@
 
 #include "MainController.h"
 
-#include "CommandLineParser.h"
 #include "Tokens.h"
 
 #pragma warning(push)
@@ -49,7 +48,9 @@ namespace Maragi
 		}
 		catch(std::exception &e)
 		{
-			std::string str = std::string("Unexpected exception occured: ") + e.what() + std::string("\nThe program will be terminated.");
+			std::string str = std::string("Unexpected exception occured: ")
+				+ e.what()
+				+ std::string("\nThe program will be terminated.");
 			MessageBoxA(nullptr, str.c_str(), "Error occured", MB_ICONSTOP | MB_OK);
 			return false;
 		}
@@ -84,11 +85,17 @@ namespace Maragi
 		return true;
 	}
 
-	void MainController::processCommandLine(const std::wstring &commandLine)
+	void MainController::parseCommandLine(const std::wstring &commandLine)
 	{
-		CommandLineParser parser;
+		cmdLine.addAbbr(L"h", L"help");
+		cmdLine.addAbbr(L"?", L"help");
 
-		parser.parse(commandLine);
+		cmdLine.parse(commandLine);
+
+		if(!cmdLine.getArgs(L"help").empty())
+		{
+			// HELP
+		}
 	}
 }
 

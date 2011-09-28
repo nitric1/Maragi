@@ -31,18 +31,18 @@ namespace Maragi
 	{
 	}
 
-	void URI::assign(const std::string &ibaseURI)
-	{
-		baseURI = ibaseURI;
-	}
-
 	void URI::assign(const std::string &ibaseURI, const std::map<std::string, std::string> &iparams)
 	{
 		baseURI = ibaseURI;
 		params = iparams;
 	}
 
-	void URI::assign(const std::map<std::string, std::string> &iparams)
+	void URI::assignBaseURI(const std::string &ibaseURI)
+	{
+		baseURI = ibaseURI;
+	}
+
+	void URI::assignParam(const std::map<std::string, std::string> &iparams)
 	{
 		params = iparams;
 	}
@@ -69,6 +69,9 @@ namespace Maragi
 
 	std::string URI::getStringURI() const
 	{
+		int *b;
+		int *& a = b;
+
 		if(changed)
 		{
 			uriString = baseURI;
