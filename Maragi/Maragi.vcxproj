@@ -261,6 +261,7 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="TextReplacer.pl" />
     <None Include="Tokens.h.in" />
     <None Include="Tokens.txt" />
   </ItemGroup>

@@ -74,26 +74,29 @@ namespace Maragi
 		return getDataDirectoryPath() + confFileName;
 	}
 
-	uint8_t Configure::hexDigit(wchar_t ch)
+	namespace
 	{
-		if(ch >= L'0' && ch <= L'9')
-			return static_cast<uint8_t>(ch - L'0');
-		else if(ch >= L'A' && ch <= L'F')
-			return static_cast<uint8_t>(ch - L'A' + 10);
-		else if(ch >= L'a' && ch <= L'f')
-			return static_cast<uint8_t>(ch - L'a' + 10);
-		return 0xFF;
-	}
-
-	wchar_t Configure::digitHex(uint8_t low)
-	{
-		static wchar_t digits[16] =
+		inline uint8_t hexDigit(wchar_t ch)
 		{
-			L'0', L'1', L'2', L'3', L'4', L'5',
-			L'6', L'7', L'8', L'9', L'A', L'B',
-			L'C', L'D', L'E', L'F'
-		};
-		return digits[low];
+			if(ch >= L'0' && ch <= L'9')
+				return static_cast<uint8_t>(ch - L'0');
+			else if(ch >= L'A' && ch <= L'F')
+				return static_cast<uint8_t>(ch - L'A' + 10);
+			else if(ch >= L'a' && ch <= L'f')
+				return static_cast<uint8_t>(ch - L'a' + 10);
+			return 0xFF;
+		}
+
+		inline wchar_t digitHex(uint8_t low)
+		{
+			static wchar_t digits[16] =
+			{
+				L'0', L'1', L'2', L'3', L'4', L'5',
+				L'6', L'7', L'8', L'9', L'A', L'B',
+				L'C', L'D', L'E', L'F'
+			};
+			return digits[low];
+		}
 	}
 
 	map<wstring, wstring>::iterator Configure::find(const wstring &name)
@@ -151,6 +154,18 @@ namespace Maragi
 	{
 		confMap[name] = value;
 		changed = setChanged;
+	}
+
+	void Configure::setBinary(const std::wstring &name, const std::vector<uint8_t> &ve)
+	{
+		std::wstring str;
+		str.reserve(ve.size() * 2);
+		for(auto it = ve.begin(); it != ve.end(); ++ it)
+		{
+			str.push_back(digitHex(*it >> 4));
+			str.push_back(digitHex(*it & 0x0F));
+		}
+		set(name, str);
 	}
 
 	void Configure::remove(const wstring &name)

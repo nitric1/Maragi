@@ -42,7 +42,7 @@ namespace Maragi
 			if(!checkPrerequisites())
 				return false;
 
-			processCommandLine(commandLine);
+			parseCommandLine(commandLine);
 
 			return true;
 		}
@@ -87,14 +87,15 @@ namespace Maragi
 
 	void MainController::parseCommandLine(const std::wstring &commandLine)
 	{
+		cmdLine.addKey(L"help", false);
 		cmdLine.addAbbr(L"h", L"help");
 		cmdLine.addAbbr(L"?", L"help");
 
 		cmdLine.parse(commandLine);
 
-		if(!cmdLine.getArgs(L"help").empty())
+		if(!cmdLine.isArgEmpty(L"help"))
 		{
-			// HELP
+			// TODO: Maragi.exe --help
 		}
 	}
 }

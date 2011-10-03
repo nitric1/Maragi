@@ -52,7 +52,9 @@ namespace Maragi
 	std::vector<std::wstring> CommandLineParser::getArgs(const std::wstring &key) const
 	{
 		auto range = args.equal_range(key);
-		return std::vector<std::wstring>(range.first, range.second);
+		std::vector<std::wstring> values;
+		std::for_each(range.first, range.second, [&values](const decltype(*range.first) &value) -> void { values.push_back(value.first); });
+		return values;
 	}
 
 	bool CommandLineParser::isArgEmpty(const std::wstring &key) const

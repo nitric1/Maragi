@@ -363,5 +363,6 @@
   <ItemGroup>
     <None Include="Tokens.h.in" />
     <None Include="Tokens.txt" />
+    <None Include="TextReplacer.pl" />
   </ItemGroup>
 </Project>
