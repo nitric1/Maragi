@@ -154,8 +154,10 @@
     <ClCompile Include="Configure.cpp" />
     <ClCompile Include="Constants.cpp" />
     <ClCompile Include="Defaults.cpp" />
+    <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="MainController.cpp" />
     <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="ShortcutKey.cpp" />
     <ClCompile Include="Tokens.cpp" />
     <ClCompile Include="TwitterClient.cpp" />
     <ClCompile Include="URI.cpp" />
@@ -250,8 +252,11 @@
     <ClInclude Include="Configure.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Defaults.h" />
+    <ClInclude Include="Dialog.h" />
     <ClInclude Include="MainController.h" />
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="ShortcutKey.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Tokens.h" />
     <ClInclude Include="TwitterClient.h" />
@@ -264,6 +269,9 @@
     <None Include="TextReplacer.pl" />
     <None Include="Tokens.h.in" />
     <None Include="Tokens.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Maragi.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

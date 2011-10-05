@@ -190,6 +190,17 @@ namespace Maragi
 			'8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
 		};
 
+		int hexDigitToNum(char ch)
+		{
+			if(ch >= '0' && ch <= '9')
+				return ch - '0';
+			else if(ch >= 'A' && ch <= 'F')
+				return ch - 'A' + 10;
+			else if(ch >= 'a' && ch <= 'f')
+				return ch - 'a' + 10;
+			return -1;
+		}
+
 		inline bool isSafeURIChar(char ch)
 		{
 			return (ch >= '0' && ch <= '9') // <DIGIT>
@@ -216,11 +227,11 @@ namespace Maragi
 				buf.push_back(hexDigits[*it & 0x0F]);
 			}
 		}
-			
+
 		return buf;
 	}
 
-	std::string encodeURIParams(const std::string &str)
+	std::string encodeURIParam(const std::string &str)
 	{
 		std::string buf;
 		buf.reserve(str.size());
@@ -238,6 +249,59 @@ namespace Maragi
 			}
 		}
 			
+		return buf;
+	}
+
+	std::string decodeURI(const std::string &str)
+	{
+		std::string buf;
+		char percentFirstChar;
+		int num;
+		enum
+		{
+			NORMAL,
+			IN_PERCENT_FIRST,
+			IN_PERCENT_SECOND
+		} token = NORMAL;
+		for(auto it = str.begin(); it != str.end(); ++ it)
+		{
+			switch(token)
+			{
+			case NORMAL:
+				if(*it == '%')
+					token = IN_PERCENT_FIRST;
+				else
+					buf += *it;
+				break;
+
+			case IN_PERCENT_FIRST:
+				if(hexDigitToNum(*it))
+				{
+					buf += '%';
+					buf += *it;
+					token = NORMAL;
+				}
+				else
+				{
+					percentFirstChar = *it;
+					token = IN_PERCENT_SECOND;
+				}
+				break;
+
+			case IN_PERCENT_SECOND:
+				num = hexDigitToNum(*it);
+				if(num < 0)
+				{
+					buf += '%';
+					buf += percentFirstChar;
+					buf += *it;
+				}
+				else
+					buf += static_cast<char>(hexDigitToNum(percentFirstChar) << 4 | num);
+				token = NORMAL;
+				break;
+			}
+		}
 		return buf;
 	}
 }

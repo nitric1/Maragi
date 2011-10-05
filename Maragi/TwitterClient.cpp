@@ -4,8 +4,10 @@
 
 #include "TwitterClient.h"
 
-#include "URI.h"
 #include "Constants.h"
+#include "Dialog.h"
+#include "Singleton.h"
+#include "Tokens.h"
 #include "Utility.h"
 
 namespace Maragi
@@ -84,16 +86,60 @@ namespace Maragi
 			return URI(uri);
 		}
 
-		void signRequestURI(URI &uri)
+		class CryptProvider : public Singleton<CryptProvider>
 		{
+		private:
+			HCRYPTPROV cp;
+
+		public:
+			CryptProvider(const wchar_t *containerName = nullptr) : cp(0)
+			{
+				if(!CryptAcquireContextW(&cp, containerName, nullptr, PROV_RSA_FULL, 0))
+				{
+					if(GetLastError() == NTE_BAD_KEYSET)
+					{
+						if(!CryptAcquireContextW(&cp, containerName, nullptr, PROV_RSA_FULL, CRYPT_NEWKEYSET))
+							throw(std::runtime_error("Cannot initialize pseudo-random number generator."));
+					}
+					else
+						throw(std::runtime_error("Cannot initialize pseudo-random number generator."));
+				}
+			}
+
+			~CryptProvider()
+			{
+				CryptReleaseContext(cp, 0);
+			}
+
+			HCRYPTPROV get()
+			{
+				return cp;
+			}
+		};
+
+		std::string toBase(unsigned long long num, int radix)
+		{
+			static const char digit[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+			std::string str;
+			do
+			{
+				str += digit[num % radix];
+				num /= radix;
+			}
+			while(num != 0);
+			return str;
 		}
 
-		std::string makePostField(const std::map<std::string, std::string> &ve)
+		std::string generateNonce()
 		{
-			return std::string();
+			static CryptProvider cp(L"MaragiPRNG");
+			unsigned long long rnd = 0;
+			if(!CryptGenRandom(cp.get(), sizeof(rnd), reinterpret_cast<uint8_t *>(&rnd)))
+				throw(std::runtime_error("Cannot generate pseudo-random number."));
+			return toBase(rnd, 62);
 		}
 
-		std::vector<uint8_t> HMACSHA1(const std::vector<uint8_t> &key, const std::vector<uint8_t> &message)
+		std::string HMACSHA1(const std::vector<uint8_t> &key, const std::vector<uint8_t> &message)
 		{
 			std::vector<uint8_t> normKey(20);
 
@@ -119,12 +165,209 @@ namespace Maragi
 			opad.insert(opad.end(), result.begin(), result.end());
 			SHA1(&*opad.begin(), opad.size(), &*result.begin());
 
-			return result;
+			return base64Encode(result);
 		}
+
+		std::string makePostField(const std::map<std::string, std::string> &field)
+		{
+			std::string text;
+			if(!field.empty())
+			{
+				auto it = field.begin();
+				text += encodeURIParam(it->first);
+				text += "=";
+				text += encodeURIParam(it->second);
+				for(++ it; it != field.end(); ++ it)
+				{
+					text += "&";
+					text += encodeURIParam(it->first);
+					text += "=";
+					text += encodeURIParam(it->second);
+				}
+			}
+
+			return text;
+		}
+
+		std::string makeOAuthHeader(const std::map<std::string, std::string> &field)
+		{
+			std::string text = "Authorization: OAuth ";
+			if(!field.empty())
+			{
+				auto it = field.begin();
+				text += encodeURI(it->first);
+				text += "=\"";
+				text += encodeURI(it->second);
+				text += "\"";
+				for(++ it; it != field.end(); ++ it)
+				{
+					text += ", ";
+					text += encodeURI(it->first);
+					text += "=\"";
+					text += encodeURI(it->second);
+					text += "\"";
+				}
+			}
+
+			return text;
+		}
+
+		std::string signRequestURI(URI &uri, const std::string &tokenSecret = std::string())
+		{
+			FILETIME ft;
+			GetSystemTimeAsFileTime(&ft);
+			unsigned long long ts = (static_cast<unsigned long long>(ft.dwHighDateTime) << 32) | ft.dwLowDateTime;
+			ts -= 116444736000000000;
+			ts /= 10000000;
+
+			std::stringstream s;
+			s << ts;
+
+			std::string nonce = generateNonce();
+
+			uri.addOAuthParam("oauth_consumer_key", AppTokens::CONSUMER_KEY);
+			uri.addOAuthParam("oauth_version", "1.0");
+			uri.addOAuthParam("oauth_timestamp", s.str());
+			uri.addOAuthParam("oauth_nonce", nonce);
+			uri.addOAuthParam("oauth_callback", "oob");
+			uri.addOAuthParam("oauth_signature_method", "HMAC-SHA1");
+			uri.removeOAuthParam("oauth_signature");
+
+			std::string message = "POST&";
+			message += encodeURI(uri.getBaseURI());
+			message += "&";
+			std::map<std::string, std::string> totalParams = uri.getParams();
+			const auto &oauthParams = uri.getOAuthParams();
+			totalParams.insert(oauthParams.begin(), oauthParams.end());
+			message += encodeURI(makePostField(totalParams));
+
+			std::string key = AppTokens::CONSUMER_SECRET;
+			key += "&";
+			key += tokenSecret;
+
+			uri.addOAuthParam("oauth_signature", HMACSHA1(std::vector<uint8_t>(key.begin(), key.end()), std::vector<uint8_t>(message.begin(), message.end())));
+
+			return nonce;
+		}
+
+		std::map<std::string, std::string> parsePostField(const std::string &str)
+		{
+			std::map<std::string, std::string> field;
+			std::string key, value;
+			bool inValue = false;
+			for(auto it = str.begin(); it != str.end(); ++ it)
+			{
+				if(*it == '&')
+				{
+					field.insert(std::make_pair(decodeURI(key), decodeURI(value)));
+					inValue = false;
+				}
+				else if(*it == '=' && !inValue)
+					inValue = true;
+				else if(inValue)
+					value += *it;
+				else
+					key += *it;
+			}
+			return field;
+		}
+
+		class ConfirmDialog : public UI::Dialog, public Singleton<ConfirmDialog>
+		{
+		private:
+			ConfirmDialog() : Dialog(nullptr) {}
+
+		public:
+			std::wstring text;
+
+		public:
+			virtual const wchar_t *getDialogName()
+			{
+				return MAKEINTRESOURCEW(IDD_CONFIRM);
+			}
+
+			bool show()
+			{
+				return showModal(procMessage) == IDOK;
+			}
+
+			static intptr_t __stdcall procMessage(HWND window, unsigned message, WPARAM wParam, LPARAM lParam)
+			{
+				ConfirmDialog &self = instance();
+
+				switch(message)
+				{
+				case WM_COMMAND:
+					switch(LOWORD(wParam))
+					{
+					case IDOK:
+						{
+							HWND text = GetDlgItem(window, IDC_TEXT);
+							int len = GetWindowTextLengthW(text) + 1;
+							std::vector<wchar_t> buf(static_cast<size_t>(len));
+							GetWindowTextW(text, &*buf.begin(), len);
+							self.text = &*buf.begin();
+						}
+
+					case IDCANCEL:
+						self.endDialog(LOWORD(wParam));
+						return 1;
+					}
+					break;
+
+				case WM_CLOSE:
+					{
+						self.endDialog(IDCANCEL);
+					}
+					return 1;
+				}
+
+				return 0;
+			}
+
+			friend class Singleton<ConfirmDialog>;
+		};
 	}
 
 	void TwitterClient::authorize()
 	{
-		;
+		ConfirmDialog &cfd = ConfirmDialog::inst();
+
+		URI uri = makeRequestURI(Paths::REQUEST_TOKEN);
+		signRequestURI(uri);
+		sendRequest(uri);
+
+		std::map<std::string, std::string> recvParams = parsePostField(reinterpret_cast<char *>(&*cbd.data.begin()));
+		std::string token = recvParams["oauth_token"], tokenSecret = recvParams["oauth_token_secret"];
+
+		std::string msg = "Authorize URI: ";
+		uri = makeRequestURI(Paths::AUTHORIZE);
+		uri.addParam("oauth_token", token);
+		msg += uri;
+		MessageBoxA(nullptr, msg.c_str(), "Authorization", MB_OK);
+
+		cfd.show();
+
+		uri = makeRequestURI(Paths::ACCESS_TOKEN);
+		uri.addOAuthParam("oauth_verifier", encodeUTF8(cfd.text));
+		signRequestURI(uri, tokenSecret);
+		sendRequest(uri);
+		
+		std::string fields = reinterpret_cast<char *>(&*cbd.data.begin());
+		MessageBoxA(nullptr, fields.c_str(), "Access Token", MB_OK);
+	}
+
+	bool TwitterClient::sendRequest(const URI &uri)
+	{
+		curl_easy_setopt(curl, CURLOPT_URL, uri.getBaseURI().c_str());
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, makePostField(uri.getParams()).c_str());
+
+		curl_slist *header = curl_slist_append(nullptr, makeOAuthHeader(uri.getOAuthParams()).c_str());
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, header);
+		curl_slist_free_all(header);
+
+		cbd.data.clear();
+
+		return curl_easy_perform(curl) == CURLE_OK;
 	}
 }

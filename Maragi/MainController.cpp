@@ -5,6 +5,7 @@
 #include "MainController.h"
 
 #include "Tokens.h"
+#include "TwitterClient.h"
 
 #pragma warning(push)
 #pragma warning(disable:4702)
@@ -14,11 +15,16 @@ namespace Maragi
 	MainController::MainController()
 	{
 		registerEvents();
-		mainWin = &MainWindow::instance();
+//		mainWin = &MainWindow::instance();
 	}
 	
 	MainController::~MainController()
 	{
+	}
+
+	HINSTANCE MainController::getInstance() const
+	{
+		return appInst;
 	}
 
 	bool MainController::run(HINSTANCE instance, const std::wstring &commandLine, int showCommand)
@@ -43,6 +49,9 @@ namespace Maragi
 				return false;
 
 			parseCommandLine(commandLine);
+
+			TwitterClient tc;
+			tc.authorize();
 
 			return true;
 		}

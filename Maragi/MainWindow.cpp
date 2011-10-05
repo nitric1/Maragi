@@ -6,11 +6,11 @@
 
 namespace Maragi
 {
-	MainWindow::MainWindow()
+	/*MainWindow::MainWindow()
 	{
 	}
 
 	MainWindow::~MainWindow()
 	{
-	}
+	}*/
 }

@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "URI.h"
+
 namespace Maragi
 {
 	class TwitterClient
@@ -11,12 +13,6 @@ namespace Maragi
 		{
 			TwitterClient *client;
 			std::vector<uint8_t> data;
-		};
-
-	public:
-		enum
-		{
-
 		};
 
 	private:
@@ -34,5 +30,8 @@ namespace Maragi
 
 	public:
 		void authorize();
+
+	private:
+		bool sendRequest(const URI &uri);
 	};
 }

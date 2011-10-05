@@ -14,12 +14,15 @@ namespace Maragi
 		unsigned exceptionCode;
 		EXCEPTION_POINTERS exceptionPointers;
 		HINSTANCE appInst;
-		MainWindow *mainWin;
+//		MainWindow *mainWin;
 		CommandLineParser cmdLine;
 
-	public:
+	private:
 		MainController();
 		~MainController();
+
+	public:
+		HINSTANCE getInstance() const;
 
 	public:
 		bool run(HINSTANCE, const std::wstring &, int);
@@ -31,5 +34,7 @@ namespace Maragi
 		bool showOSException();
 		bool checkPrerequisites();
 		void parseCommandLine(const std::wstring &);
+
+		friend class Singleton<MainController>;
 	};
 }
