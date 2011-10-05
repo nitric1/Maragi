@@ -229,7 +229,6 @@ namespace Maragi
 			uri.addOAuthParam("oauth_version", "1.0");
 			uri.addOAuthParam("oauth_timestamp", s.str());
 			uri.addOAuthParam("oauth_nonce", nonce);
-			uri.addOAuthParam("oauth_callback", "oob");
 			uri.addOAuthParam("oauth_signature_method", "HMAC-SHA1");
 			uri.removeOAuthParam("oauth_signature");
 
@@ -260,6 +259,7 @@ namespace Maragi
 				if(*it == '&')
 				{
 					field.insert(std::make_pair(decodeURI(key), decodeURI(value)));
+					key.clear(); value.clear();
 					inValue = false;
 				}
 				else if(*it == '=' && !inValue)
@@ -334,6 +334,7 @@ namespace Maragi
 		ConfirmDialog &cfd = ConfirmDialog::inst();
 
 		URI uri = makeRequestURI(Paths::REQUEST_TOKEN);
+		uri.addOAuthParam("oauth_callback", "oob");
 		signRequestURI(uri);
 		sendRequest(uri);
 
@@ -349,11 +350,12 @@ namespace Maragi
 		cfd.show();
 
 		uri = makeRequestURI(Paths::ACCESS_TOKEN);
+		uri.addOAuthParam("oauth_token", token);
 		uri.addOAuthParam("oauth_verifier", encodeUTF8(cfd.text));
 		signRequestURI(uri, tokenSecret);
 		sendRequest(uri);
 		
-		std::string fields = reinterpret_cast<char *>(&*cbd.data.begin());
+		std::string fields(cbd.data.begin(), cbd.data.end());
 		MessageBoxA(nullptr, fields.c_str(), "Access Token", MB_OK);
 	}
 
@@ -364,10 +366,12 @@ namespace Maragi
 
 		curl_slist *header = curl_slist_append(nullptr, makeOAuthHeader(uri.getOAuthParams()).c_str());
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, header);
-		curl_slist_free_all(header);
 
 		cbd.data.clear();
 
-		return curl_easy_perform(curl) == CURLE_OK;
+		CURLcode res = curl_easy_perform(curl);
+		curl_slist_free_all(header);
+
+		return res == CURLE_OK;
 	}
 }

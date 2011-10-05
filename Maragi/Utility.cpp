@@ -145,7 +145,7 @@ namespace Maragi
 			if(i >= 3)
 			{
 				cand[0] = hashChar[(buf[0] & 0xFC) >> 2];
-				cand[1] = hashChar[((buf[0] & 0x03) << 4) | ((buf[0] & 0xF0) >> 4)];
+				cand[1] = hashChar[((buf[0] & 0x03) << 4) | ((buf[1] & 0xF0) >> 4)];
 				cand[2] = hashChar[((buf[1] & 0x0F) << 2) | ((buf[2] & 0xC0) >> 6)];
 				cand[3] = hashChar[buf[2] & 0x3F];
 				str.insert(str.end(), cand, cand + 4);
@@ -159,7 +159,7 @@ namespace Maragi
 			for(j = i; j < 3; ++ j)
 				buf[j] = 0;
 			cand[0] = hashChar[(buf[0] & 0xFC) >> 2];
-			cand[1] = hashChar[((buf[0] & 0x03) << 4) | ((buf[0] & 0xF0) >> 4)];
+			cand[1] = hashChar[((buf[0] & 0x03) << 4) | ((buf[1] & 0xF0) >> 4)];
 			cand[2] = hashChar[((buf[1] & 0x0F) << 2) | ((buf[2] & 0xC0) >> 6)];
 			cand[3] = hashChar[buf[2] & 0x3F];
 			str.insert(str.end(), cand, cand + (i + 1));
