@@ -16,6 +16,7 @@ namespace Maragi
 			LPARAM lParam;
 		};
 
+		// TODO: General-purpose delegate
 		class WindowEventCallback
 		{
 		public:
