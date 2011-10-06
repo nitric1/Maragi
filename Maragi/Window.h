@@ -6,111 +6,72 @@ namespace Maragi
 {
 	namespace UI
 	{
-		/*struct WindowEventArgs
-		{
-			HWND window;
-			void *param1; // TODO: Change required
-			void *param2;
-		};
-
-		template<typename EventArg = WindowEventArgs>
-		class Window
-		{
-		private:
-			std::multimap<std::wstring, std::function<bool(EventArg)>> eventMap;
-
-		public:
-			virtual ~Window() {}
-
-		public:
-			bool addEventListener(const std::wstring &eventName, std::function<bool(EventArg)> fn)
-			{
-				return eventMap.insert(make_pair(eventName, fn)).second;
-			}
-
-			bool fireEvent(const std::wstring &eventName, const EventArg &arg)
-			{
-				auto range = eventMap.equal_range(eventName);
-				for(auto it = range.first; it != range.second; ++ it)
-				{
-					if(!it->second(arg))
-						return false;
-				}
-
-				return true;
-			}
-		};*/
-
-		// XXX: Temporary code from EACRipper
 		class Window;
 
-		struct WindowEventArgs
+		struct WindowEventArg
 		{
 			Window *window;
-			HWND windowHandle;
 			unsigned message;
 			WPARAM wParam;
 			LPARAM lParam;
 		};
 
-		class WindowEventDelegate
+		class WindowEventCallback
 		{
 		public:
-			virtual bool run(WindowEventArgs e) = 0;
-			bool operator ()(WindowEventArgs e) { return run(e); }
+			virtual bool run(WindowEventArg e) = 0;
+			bool operator ()(WindowEventArg e) { return run(e); }
 		};
 
 		template<typename Func>
-		class WindowEventFunctionDelegate : public WindowEventDelegate
+		class WindowEventFunctionCallback : public WindowEventCallback
 		{
 		private:
 			Func fn;
 
 		private:
-			explicit WindowEventFunctionDelegate(Func ifn) : fn(ifn) {}
+			explicit WindowEventFunctionCallback(Func ifn) : fn(ifn) {}
 
 		public:
-			virtual bool run(WindowEventArgs e) { return fn(e); }
+			virtual bool run(WindowEventArg e) { return fn(e); }
 
 			template<typename Func>
-			friend std::shared_ptr<WindowEventFunctionDelegate<Func>> delegateWindowEvent(Func);
+			friend std::shared_ptr<WindowEventFunctionCallback<Func>> delegateWindowEvent(Func);
 		};
 
 		template<typename Class, typename Func>
-		class WindowEventMemberFunctionDelegate : public WindowEventDelegate
+		class WindowEventMemberFunctionCallback : public WindowEventCallback
 		{
 		private:
 			Class *p;
 			Func fn;
 
 		private:
-			explicit WindowEventMemberFunctionDelegate(Class *ip, Func ifn) : p(ip), fn(ifn) {}
+			explicit WindowEventMemberFunctionCallback(Class *ip, Func ifn) : p(ip), fn(ifn) {}
 
 		public:
-			virtual bool run(WindowEventArgs e) { return (p->*fn)(e); }
+			virtual bool run(WindowEventArg e) { return (p->*fn)(e); }
 
 			template<typename Class, typename Func>
-			friend std::shared_ptr<WindowEventMemberFunctionDelegate<Class, Func>> delegateWindowEvent(Class *, Func);
+			friend std::shared_ptr<WindowEventMemberFunctionCallback<Class, Func>> delegateWindowEvent(Class *, Func);
 		};
 
 		template<typename Func>
-		std::shared_ptr<WindowEventFunctionDelegate<Func>> delegateWindowEvent(Func fn)
+		std::shared_ptr<WindowEventFunctionCallback<Func>> delegateWindowEvent(Func fn)
 		{
-			typedef decltype(delegateWindowEvent(fn)) returnType;
-			return returnType(new WindowEventFunctionDelegate<Func>(fn));
+			return decltype(delegateWindowEvent(fn))(new WindowEventFunctionCallback<Func>(fn));
 		}
 
 		template<typename Class, typename Func>
-		std::shared_ptr<WindowEventMemberFunctionDelegate<Class, Func>> delegateWindowEvent(Class *p, Func fn)
+		std::shared_ptr<WindowEventMemberFunctionCallback<Class, Func>> delegateWindowEvent(Class *p, Func fn)
 		{
-			typedef decltype(delegateWindowEvent(p, fn)) returnType;
-			return returnType(new WindowEventMemberFunctionDelegate<Class, Func>(p, fn));
+			return decltype(delegateWindowEvent(p, fn))(new WindowEventMemberFunctionCallback<Class, Func>(p, fn));
 		}
 
 		class Window
 		{
 		private:
-			std::map<std::wstring, std::vector<std::shared_ptr<WindowEventDelegate>>> eventMap;
+			std::multimap<std::wstring, std::shared_ptr<WindowEventCallback>> eventMap;
 
 		private:
 			HWND window;
@@ -118,74 +79,25 @@ namespace Maragi
 			Window *parent;
 
 		protected:
-			explicit Window(HWND iwindow = nullptr) : window(iwindow) {}
-			virtual ~Window() = 0 {}
+			explicit Window(HWND = nullptr);
+			virtual ~Window() = 0;
 
 		public:
-			virtual int getShowStatus() const
-			{
-				return showCommand;
-			}
-
-			virtual void setShowStatus(int ishowCommand)
-			{
-				showCommand = ishowCommand;
-			}
+			virtual int getShowStatus() const;
+			virtual void setShowStatus(int);
 
 			virtual bool show() = 0;
 
-			virtual HWND getWindow() const
-			{
-				return window;
-			}
-
-			virtual void setWindow(HWND iwindow)
-			{
-				window = iwindow;
-			}
-
-			Window *getParent()
-			{
-				return parent;
-			}
-
-			const Window *getParent() const
-			{
-				return parent;
-			}
-
-			void setParent(Window *iparent)
-			{
-				parent = iparent;
-			}
-
-			virtual bool showWithParent(Window *parent)
-			{
-				setParent(parent);
-				return show();
-			}
-
-			virtual bool addEventListener(const std::wstring &name, std::shared_ptr<WindowEventDelegate> listener)
-			{
-				eventMap[name].push_back(listener);
-				return true;
-			}
+			virtual HWND getWindow() const;
+			virtual void setWindow(HWND);
+			Window *getParent();
+			const Window *getParent() const;
+			void setParent(Window *);
+			virtual bool showWithParent(Window *);
+			virtual bool addEventListener(const std::wstring &, std::shared_ptr<WindowEventCallback>);
 
 		protected:
-			bool runEventListener(const std::wstring &name, WindowEventArgs e)
-			{
-				if(eventMap.find(name) == eventMap.end())
-					return true;
-
-				auto &v = eventMap[name];
-				for(auto it = v.begin(); it != v.end(); ++ it)
-				{
-					if(!(*it)->run(e))
-						return false;
-				}
-
-				return true;
-			}
+			bool fireEvent(const std::wstring &, WindowEventArg);
 		};
 	}
 }
