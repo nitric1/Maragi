@@ -272,18 +272,24 @@ namespace Maragi
 			return field;
 		}
 
+		// TODO: Separate the dialog into whole complete class and file.
 		class ConfirmDialog : public UI::Dialog, public Singleton<ConfirmDialog>
 		{
 		private:
 			ConfirmDialog() : Dialog(nullptr) {}
 
-		public:
+		private:
 			std::wstring text;
 
 		public:
 			virtual const wchar_t *getDialogName()
 			{
 				return MAKEINTRESOURCEW(IDD_CONFIRM);
+			}
+
+			const std::wstring &getText()
+			{
+				return text;
 			}
 
 			bool show()
@@ -297,6 +303,25 @@ namespace Maragi
 
 				switch(message)
 				{
+				case WM_INITDIALOG:
+					{
+						HWND text = GetDlgItem(window, IDC_TEXT);
+
+						HFONT font = reinterpret_cast<HFONT>(SendMessageW(text, WM_GETFONT, 0, 0));
+						LOGFONTW lf;
+						GetObjectW(font, sizeof(lf), &lf);
+
+						lf.lfWeight = FW_BOLD;
+						lf.lfHeight *= 4;
+
+						font = CreateFontIndirectW(&lf);
+
+						SendMessageW(text, WM_SETFONT, reinterpret_cast<WPARAM>(font), 1);
+
+						SetFocus(text);
+					}
+					return 1;
+
 				case WM_COMMAND:
 					switch(LOWORD(wParam))
 					{
@@ -341,17 +366,17 @@ namespace Maragi
 		std::map<std::string, std::string> recvParams = parsePostField(reinterpret_cast<char *>(&*cbd.data.begin()));
 		std::string token = recvParams["oauth_token"], tokenSecret = recvParams["oauth_token_secret"];
 
-		std::string msg = "Authorize URI: ";
 		uri = makeRequestURI(Paths::AUTHORIZE);
 		uri.addParam("oauth_token", token);
-		msg += uri;
-		MessageBoxA(nullptr, msg.c_str(), "Authorization", MB_OK);
+
+		std::wstring wuri = decodeUTF8(uri);
+		ShellExecuteW(nullptr, nullptr, wuri.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 
 		cfd.show();
 
 		uri = makeRequestURI(Paths::ACCESS_TOKEN);
 		uri.addOAuthParam("oauth_token", token);
-		uri.addOAuthParam("oauth_verifier", encodeUTF8(cfd.text));
+		uri.addOAuthParam("oauth_verifier", encodeUTF8(cfd.getText()));
 		signRequestURI(uri, tokenSecret);
 		sendRequest(uri);
 		
