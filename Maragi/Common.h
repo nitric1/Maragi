@@ -4,7 +4,7 @@
 
 #define NOMINMAX
 
-// Dictionary order
+// All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ Library Inclusion
 
 #include <algorithm>

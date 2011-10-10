@@ -4,6 +4,7 @@
 
 #include "TwitterClient.h"
 
+#include "Configure.h"
 #include "Constants.h"
 #include "Dialog.h"
 #include "Singleton.h"
@@ -12,6 +13,25 @@
 
 namespace Maragi
 {
+	NotAuthorizedError::NotAuthorizedError(const char *message) throw()
+		: std::runtime_error(message)
+	{
+	}
+
+	NotAuthorizedError::NotAuthorizedError(const std::string &message) throw()
+		: std::runtime_error(message)
+	{
+	}
+
+	NotAuthorizedError::NotAuthorizedError(const NotAuthorizedError &obj) throw()
+		: std::runtime_error(obj)
+	{
+	}
+
+	NotAuthorizedError::~NotAuthorizedError() throw()
+	{
+	}
+
 	TwitterClient::TwitterClient()
 	{
 		initializeCurl();
@@ -29,6 +49,15 @@ namespace Maragi
 
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0l);
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0l);
+	}
+
+	TwitterClient::TwitterClient(const std::string &iscreenName, const std::string &iaccessToken, const std::string &iaccessTokenSecret)
+		: screenName(iscreenName), accessToken(iaccessToken), accessTokenSecret(iaccessTokenSecret)
+	{
+	}
+
+	TwitterClient::TwitterClient(const TwitterClient &)
+	{
 	}
 
 	TwitterClient::~TwitterClient()
@@ -240,11 +269,17 @@ namespace Maragi
 			totalParams.insert(oauthParams.begin(), oauthParams.end());
 			message += encodeURI(makePostField(totalParams));
 
-			std::string key = AppTokens::CONSUMER_SECRET;
+			std::string key = encodeURI(AppTokens::CONSUMER_SECRET);
 			key += "&";
-			key += tokenSecret;
+			key += encodeURI(tokenSecret);
 
-			uri.addOAuthParam("oauth_signature", HMACSHA1(std::vector<uint8_t>(key.begin(), key.end()), std::vector<uint8_t>(message.begin(), message.end())));
+			uri.addOAuthParam(
+				"oauth_signature",
+				HMACSHA1(
+					std::vector<uint8_t>(key.begin(), key.end()),
+					std::vector<uint8_t>(message.begin(), message.end())
+				)
+			);
 
 			return nonce;
 		}
@@ -332,18 +367,18 @@ namespace Maragi
 							std::vector<wchar_t> buf(static_cast<size_t>(len));
 							GetWindowTextW(text, &*buf.begin(), len);
 							self.text = &*buf.begin();
+							self.endDialog(IDOK);
 						}
+						return 1;
 
 					case IDCANCEL:
-						self.endDialog(LOWORD(wParam));
+						self.endDialog(IDCANCEL);
 						return 1;
 					}
 					break;
 
 				case WM_CLOSE:
-					{
-						self.endDialog(IDCANCEL);
-					}
+					self.endDialog(IDCANCEL);
 					return 1;
 				}
 
@@ -354,7 +389,7 @@ namespace Maragi
 		};
 	}
 
-	void TwitterClient::authorize()
+	bool TwitterClient::authorize()
 	{
 		ConfirmDialog &cfd = ConfirmDialog::inst();
 
@@ -382,6 +417,15 @@ namespace Maragi
 		
 		std::string fields(cbd.data.begin(), cbd.data.end());
 		MessageBoxA(nullptr, fields.c_str(), "Access Token", MB_OK);
+
+		return true;
+	}
+
+	bool TwitterClient::saveAccessToken()
+	{
+		Configure &conf = Configure::instance();
+
+		return true;
 	}
 
 	bool TwitterClient::sendRequest(const URI &uri)
