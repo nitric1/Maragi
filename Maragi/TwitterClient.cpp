@@ -83,6 +83,8 @@ namespace Maragi
 		cbd->data.insert(cbd->data.end(), static_cast<uint8_t *>(data), static_cast<uint8_t *>(data) + realSize);
 
 		// TODO: Call callback function
+		if(cbd->cb)
+			cbd->cb(cbd->data.size());
 
 		return realSize;
 	}
@@ -121,7 +123,7 @@ namespace Maragi
 			HCRYPTPROV cp;
 
 		public:
-			CryptProvider(const wchar_t *containerName = nullptr) : cp(0)
+			CryptProvider(const wchar_t *containerName = nullptr)
 			{
 				if(!CryptAcquireContextW(&cp, containerName, nullptr, PROV_RSA_FULL, 0))
 				{
@@ -284,12 +286,13 @@ namespace Maragi
 			return nonce;
 		}
 
-		std::map<std::string, std::string> parsePostField(const std::string &str)
+		template<typename It>
+		std::map<std::string, std::string> parsePostField(It begin, It end)
 		{
 			std::map<std::string, std::string> field;
 			std::string key, value;
 			bool inValue = false;
-			for(auto it = str.begin(); it != str.end(); ++ it)
+			for(It &it = begin; it != end; ++ it)
 			{
 				if(*it == '&')
 				{
@@ -347,7 +350,7 @@ namespace Maragi
 						GetObjectW(font, sizeof(lf), &lf);
 
 						lf.lfWeight = FW_BOLD;
-						lf.lfHeight *= 4;
+						lf.lfHeight *= 5;
 
 						font = CreateFontIndirectW(&lf);
 
@@ -398,7 +401,7 @@ namespace Maragi
 		signRequestURI(uri);
 		sendRequest(uri);
 
-		std::map<std::string, std::string> recvParams = parsePostField(reinterpret_cast<char *>(&*cbd.data.begin()));
+		std::map<std::string, std::string> recvParams = parsePostField(cbd.data.begin(), cbd.data.end());
 		std::string token = recvParams["oauth_token"], tokenSecret = recvParams["oauth_token_secret"];
 
 		uri = makeRequestURI(Paths::AUTHORIZE);
@@ -421,11 +424,19 @@ namespace Maragi
 		return true;
 	}
 
-	bool TwitterClient::saveAccessToken()
+	const std::string &TwitterClient::getScreenName()
 	{
-		Configure &conf = Configure::instance();
+		return screenName;
+	}
 
-		return true;
+	const std::string &TwitterClient::getAccessToken()
+	{
+		return accessToken;
+	}
+
+	const std::string &TwitterClient::getAccessTokenSecret()
+	{
+		return accessTokenSecret;
 	}
 
 	bool TwitterClient::sendRequest(const URI &uri)

@@ -22,6 +22,7 @@ namespace Maragi
 		{
 			TwitterClient *client;
 			std::vector<uint8_t> data;
+			std::function<void (size_t)> cb;
 		};
 
 	private:
@@ -41,7 +42,9 @@ namespace Maragi
 
 	public:
 		bool authorize();
-		bool saveAccessToken();
+		const std::string &getScreenName();
+		const std::string &getAccessToken();
+		const std::string &getAccessTokenSecret();
 
 	private:
 		bool sendRequest(const URI &uri);
