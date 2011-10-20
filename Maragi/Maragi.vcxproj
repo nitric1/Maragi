@@ -258,6 +258,7 @@
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Tokens.h" />
     <ClInclude Include="TwitterClient.h" />
+    <ClInclude Include="TwitterClientError.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="URI.h" />
     <ClInclude Include="Utility.h" />

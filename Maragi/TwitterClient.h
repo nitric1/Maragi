@@ -3,18 +3,10 @@
 #pragma once
 
 #include "URI.h"
+#include "TwitterClientError.h"
 
 namespace Maragi
 {
-	class NotAuthorizedError : public std::runtime_error
-	{
-	public:
-		explicit NotAuthorizedError(const char *) throw();
-		explicit NotAuthorizedError(const std::string &) throw();
-		NotAuthorizedError(const NotAuthorizedError &) throw();
-		virtual ~NotAuthorizedError() throw();
-	};
-
 	class TwitterClient
 	{
 	private:
