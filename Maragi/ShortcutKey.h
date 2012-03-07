@@ -42,7 +42,7 @@ namespace Maragi
 				};
 
 				uint32_t len;
-				ConfigureField f[1];
+				ConfigureField f[0];
 			};
 
 			struct Command
@@ -64,7 +64,7 @@ namespace Maragi
 			static Key makeKey(Modifier, uint32_t);
 
 		public:
-			bool addShortcut(const Window *, uint32_t, Key, bool, bool);
+			bool addShortcut(const Window *, uint32_t, Key, bool = true, bool = true);
 			bool modifyShortcut(const Window *, uint32_t, Key, bool, bool);
 			bool removeShortcut(const Window *, uint32_t);
 			uint32_t processShortcut(const Window *, Key, bool, bool) const;

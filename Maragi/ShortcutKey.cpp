@@ -47,6 +47,7 @@ namespace Maragi
 			return skey;
 		}
 
+		// Extended key: other side's key (e.g. numpad keys, right-hand control keys, ...)
 		bool ShortcutKey::addShortcut(const Window *window, uint32_t id, Key key, bool canExtended, bool canRepeated)
 		{
 			Command cmd;
@@ -82,7 +83,7 @@ namespace Maragi
 
 		uint32_t ShortcutKey::processShortcut(const Window *window, Key key, bool extended, bool repeated) const
 		{
-			map<pair<Key, const Window *>, Command>::const_iterator it = keyMap.find(make_pair(key, window));
+			auto it = keyMap.find(make_pair(key, window));
 			if(it == keyMap.end())
 				return 0;
 

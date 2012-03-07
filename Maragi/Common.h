@@ -5,7 +5,7 @@
 #define NOMINMAX
 
 // All inclusion listing is dictionary order; Ordering is case insensitive.
-// Standard C/C++ Library Inclusion
+// Standard C/C++ library inclusion
 
 #include <algorithm>
 #include <exception>
@@ -19,13 +19,13 @@
 
 using std::max; using std::min;
 
-// External Library Inclusion
+// External library inclusion
 
 #include <curl/curl.h>
 #include <json/json.h>
 #include <openssl/sha.h>
 
-// Windows API Inclusion; <windows.h> should be first.
+// Windows API inclusion; <windows.h> should be first.
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -39,7 +39,7 @@ using std::max; using std::min;
 #include <wincrypt.h>
 #include <windowsx.h>
 
-// Other Common Inclusion
+// Other common inclusion
 
 #include "resource.h"
 #include "Types.h"

@@ -7,13 +7,15 @@
 
 namespace Maragi
 {
-	/*//class MainWindow : public Window<>, public Singleton<MainWindow>
+	//class MainWindow : public Window<>, public Singleton<MainWindow>
 	class MainWindow : public UI::Window, public Singleton<MainWindow>
 	{
 	private:
 		MainWindow();
 		virtual ~MainWindow();
 
+	public:
+
 		friend class Singleton<MainWindow>;
-	};*/
+	};
 }

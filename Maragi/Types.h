@@ -6,7 +6,7 @@
 #include <climits>
 
 #ifndef LONG32_T_DEFINED
-#  if LONG_MAX == 2147483647 // 32-bit long type
+#  if ((LONG_MAX - 4) <= 2147483647) // 32-bit long type
 typedef signed long long32_t;
 typedef int64_t long64_t;
 
@@ -20,7 +20,7 @@ typedef uint32_t ulong32_t;
 typedef unsigned long ulong64_t;
 #  endif
 
-#  if SIZE_MAX == 4294967295 // 32-bit platform
+#  if ((SIZE_MAX - 4) <= 4294967295) // 32-bit platform
 #    ifndef _W64
 #      if defined(_MSC_VER) && _MSC_VER >= 1300 && !defined(__midl) && (defined(_X86_) || defined(_M_IX86))
 #        define _W64 __w64
