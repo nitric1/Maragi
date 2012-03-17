@@ -67,9 +67,7 @@ namespace Maragi
 
 		bool ShortcutKey::removeShortcut(const Window *window, uint32_t id)
 		{
-			for(map<pair<Key, const Window *>, Command>::iterator it = keyMap.begin();
-				it != keyMap.end();
-				++ it)
+			for(auto it = keyMap.begin(); it != keyMap.end(); ++ it)
 			{
 				if(it->first.second == window && it->second.id == id)
 				{
