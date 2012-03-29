@@ -13,18 +13,37 @@
 
 namespace Maragi
 {
-	NotAuthorizedError::NotAuthorizedError(const char *message) throw()
+	TwitterClientError::TwitterClientError(const char *message) throw()
 		: std::runtime_error(message)
+	{
+	}
+
+	TwitterClientError::TwitterClientError(const std::string &message) throw()
+		: std::runtime_error(message)
+	{
+	}
+
+	TwitterClientError::TwitterClientError(const TwitterClientError &obj) throw()
+		: std::runtime_error(obj)
+	{
+	}
+
+	TwitterClientError::~TwitterClientError() throw()
+	{
+	}
+
+	NotAuthorizedError::NotAuthorizedError(const char *message) throw()
+		: TwitterClientError(message)
 	{
 	}
 
 	NotAuthorizedError::NotAuthorizedError(const std::string &message) throw()
-		: std::runtime_error(message)
+		: TwitterClientError(message)
 	{
 	}
 
 	NotAuthorizedError::NotAuthorizedError(const NotAuthorizedError &obj) throw()
-		: std::runtime_error(obj)
+		: TwitterClientError(obj)
 	{
 	}
 

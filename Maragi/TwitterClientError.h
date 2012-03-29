@@ -4,7 +4,7 @@
 
 namespace Maragi
 {
-	class TwitterClientError: public std::runtime_error
+	class TwitterClientError : public std::runtime_error
 	{
 	public:
 		explicit TwitterClientError(const char *) throw();
