@@ -15,6 +15,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 using std::max; using std::min;
@@ -28,6 +29,7 @@ using std::max; using std::min;
 // Windows API inclusion; <windows.h> should be first.
 
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 
 #include <windows.h>
 

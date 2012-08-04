@@ -14,7 +14,7 @@ namespace Maragi
 		unsigned exceptionCode;
 		EXCEPTION_POINTERS exceptionPointers;
 		HINSTANCE appInst;
-//		MainWindow *mainWin;
+		MainWindow *mainWin;
 		CommandLineParser cmdLine;
 
 	private:

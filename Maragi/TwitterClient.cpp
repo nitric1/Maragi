@@ -6,10 +6,10 @@
 
 #include "Configure.h"
 #include "Constants.h"
-#include "Dialog.h"
 #include "Singleton.h"
 #include "Tokens.h"
 #include "Utility.h"
+#include "UI/Dialog.h"
 
 namespace Maragi
 {

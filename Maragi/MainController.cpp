@@ -15,7 +15,7 @@ namespace Maragi
 	MainController::MainController()
 	{
 		registerEvents();
-//		mainWin = &MainWindow::instance();
+		mainWin = &MainWindow::instance();
 	}
 	
 	MainController::~MainController()
@@ -50,16 +50,17 @@ namespace Maragi
 
 			parseCommandLine(commandLine);
 
-			TwitterClient tc;
-			tc.authorize();
+			// TwitterClient tc;
+			// tc.authorize();
 
-			return true;
+			mainWin->setShowStatus(showCommand);
+			return mainWin->show();
 		}
 		catch(std::exception &e)
 		{
-			std::string str = std::string("Unexpected exception occured: ")
-				+ e.what()
-				+ std::string("\nThe program will be terminated.");
+			std::string str = "Unexpected exception occured: ";
+			str += e.what();
+			str += "\nThe program will be terminated.";
 			MessageBoxA(nullptr, str.c_str(), "Error occured", MB_ICONSTOP | MB_OK);
 			return false;
 		}

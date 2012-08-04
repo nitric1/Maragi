@@ -156,15 +156,19 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="MainController.cpp" />
     <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="ShortcutKey.cpp" />
     <ClCompile Include="Tokens.cpp" />
     <ClCompile Include="TwitterClient.cpp" />
+    <ClCompile Include="UI\Controls.cpp" />
+    <ClCompile Include="UI\Dialog.cpp" />
+    <ClCompile Include="UI\FrameWindow.cpp" />
+    <ClCompile Include="UI\Layouts.cpp" />
+    <ClCompile Include="UI\ShortcutKey.cpp" />
+    <ClCompile Include="UI\Utilities.cpp" />
+    <ClCompile Include="UI\Window.cpp" />
     <ClCompile Include="URI.cpp" />
     <ClCompile Include="Utility.cpp" />
-    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\External\include\curl\curl.h" />
@@ -176,6 +180,8 @@
     <ClInclude Include="..\External\include\curl\multi.h" />
     <ClInclude Include="..\External\include\curl\stdcheaders.h" />
     <ClInclude Include="..\External\include\curl\typecheck-gcc.h" />
+    <ClInclude Include="..\External\include\ERDelegate.h" />
+    <ClInclude Include="..\External\include\ERDelegateStub.h" />
     <ClInclude Include="..\External\include\json\json-forwards.h" />
     <ClInclude Include="..\External\include\json\json.h" />
     <ClInclude Include="..\External\include\openssl\aes.h" />
@@ -255,19 +261,24 @@
     <ClInclude Include="Configure.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Common.h" />
-    <ClInclude Include="Dialog.h" />
+    <ClInclude Include="Delegate.h" />
     <ClInclude Include="MainController.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="ShortcutKey.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Tokens.h" />
     <ClInclude Include="TwitterClient.h" />
     <ClInclude Include="TwitterClientError.h" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="UI\Controls.h" />
+    <ClInclude Include="UI\Dialog.h" />
+    <ClInclude Include="UI\FrameWindow.h" />
+    <ClInclude Include="UI\Layouts.h" />
+    <ClInclude Include="UI\ShortcutKey.h" />
+    <ClInclude Include="UI\Utilities.h" />
+    <ClInclude Include="UI\Window.h" />
     <ClInclude Include="URI.h" />
     <ClInclude Include="Utility.h" />
-    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TextReplacer.pl" />

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Singleton.h"
+#include "../Singleton.h"
 #include "Window.h"
 
 namespace Maragi
@@ -42,7 +42,7 @@ namespace Maragi
 				};
 
 				uint32_t len;
-				ConfigureField f[0];
+				ConfigureField f[1];
 			};
 
 			struct Command

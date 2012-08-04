@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Singleton.h"
-#include "Window.h"
+#include "UI/Window.h"
 
 namespace Maragi
 {

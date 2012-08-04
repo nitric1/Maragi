@@ -1,8 +1,8 @@
 // $Id$
 
-#include "Common.h"
+#include "../Common.h"
 
-#include "Configure.h"
+#include "../Configure.h"
 #include "ShortcutKey.h"
 
 using namespace std;
