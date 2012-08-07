@@ -8,23 +8,75 @@ namespace Maragi
 {
 	namespace UI
 	{
-		Window::Window(Window *iparent)
-			: parent(iparent)
+		class Window::Impl
 		{
+		private:
+			Window *self;
+
+		public:
+			Impl(Window *iself)
+				: self(iself)
+			{
+			}
+
+			Window *getParent()
+			{
+				return self->_parent;
+			}
+
+			WindowID getId()
+			{
+				return self->_id;
+			}
+
+			int32_t getX()
+			{
+			}
+
+			void setX(int32_t x)
+			{
+			}
+
+			int32_t getY()
+			{
+			}
+
+			void setY(int32_t y)
+			{
+			}
+
+			int32_t getWidth()
+			{
+			}
+
+			void setWidth(int32_t width)
+			{
+			}
+
+			int32_t getHeight()
+			{
+			}
+
+			void setHeight(int32_t height)
+			{
+			}
+		};
+
+		Window::Window(Window *iparent, WindowID iid)
+			: _parent(iparent)
+			, _id(iid)
+		{
+			impl = std::shared_ptr<Impl *>(new Impl(this));
+			parent.init(impl.get(), &Impl::getParent);
+			id.init(impl.get(), &Impl::getId);
+			x.init(impl.get(), &Impl::getX, &Impl::setX);
+			y.init(impl.get(), &Impl::getY, &Impl::setY);
+			width.init(impl.get(), &Impl::getWidth, &Impl::setWidth);
+			height.init(impl.get(), &Impl::getHeight, &Impl::setHeight);
 		}
 
 		Window::~Window()
 		{
-		}
-
-		Window *Window::getParent()
-		{
-			return parent;
-		}
-
-		const Window *Window::getParent() const
-		{
-			return parent;
 		}
 
 		WindowID Window::getID() const
@@ -73,6 +125,8 @@ namespace Maragi
 			handle = ihandle;
 		}
 
+		uintptr_t VirtualControl::newId = 0;
+
 		Shell::Shell(Shell *parent)
 			: Window(parent)
 		{
@@ -80,12 +134,12 @@ namespace Maragi
 
 		Shell *Shell::getParent()
 		{
-			return static_cast<Shell *>(Window::getParent());
+			return static_cast<Shell *>(parent);
 		}
 
 		const Shell *Shell::getParent() const
 		{
-			return static_cast<const Shell *>(Window::getParent());
+			return static_cast<const Shell *>(parent);
 		}
 	}
 }

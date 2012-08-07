@@ -8,16 +8,86 @@ namespace Maragi
 {
 	namespace UI
 	{
-		template<typename T, typename Operation>
-		class Property
+		namespace Property
 		{
-		};
+			template<typename T>
+			class Base
+			{
+			};
+
+			template<typename T>
+			class R : public Base<T>
+			{
+			private:
+				std::function<T ()> getter;
+
+			public:
+				void init(std::function<T ()> igetter)
+				{
+					getter = igetter;
+				}
+
+				template<typename Class>
+				void init(Class *inst, T (Class::*igetter)())
+				{
+					getter = std::bind(std::mem_fun(igetter), inst);
+				}
+
+				template<typename Other>
+				operator Other()
+				{
+					return getter();
+				}
+
+				template<typename Other>
+				operator Other() const
+				{
+					return getter();
+				}
+			};
+
+			template<typename T>
+			class RW : public R<T>
+			{
+			private:
+				std::function<void (const T &)> setter;
+
+			public:
+				void init(std::function<T ()> igetter, std::function<void (const T &)> isetter)
+				{
+					R<T>::init(igetter);
+					setter = isetter;
+				}
+
+				template<typename Class>
+				void init(Class *inst, T (Class::*igetter)(), void (Class::*isetter)(T))
+				{
+					R<T>::init(inst, igetter);
+					setter = std::bind(std::mem_fun(isetter), inst, std::placeholders::_1);
+				}
+
+				template<typename Class>
+				void init(Class *inst, T (Class::*igetter)(), void (Class::*isetter)(const T &))
+				{
+					R<T>::init(inst, igetter);
+					setter = std::bind(std::mem_fun(isetter), inst, std::placeholders::_1);
+				}
+
+				template<typename Other>
+				RW &operator =(const Other &val)
+				{
+					setter(val);
+					return *this;
+				}
+			};
+		}
 
 #pragma pack(push)
 #pragma pack(4)
-		struct WindowID
+		struct __declspec(align(4)) WindowID
 		{
 			bool virtualWindow;
+			uint8_t padding[3];
 			union
 			{
 				uintptr_t id;
@@ -53,6 +123,36 @@ namespace Maragi
 			{
 				return id == 0;
 			}
+
+			bool operator <(const WindowID &obj) const
+			{
+				if(!virtualWindow && obj.virtualWindow)
+					return true;
+				else if(virtualWindow && !obj.virtualWindow)
+					return false;
+				else
+					return id < obj.id;
+			}
+
+			bool operator >(const WindowID &obj) const
+			{
+				if(!virtualWindow && obj.virtualWindow)
+					return false;
+				else if(virtualWindow && !obj.virtualWindow)
+					return true;
+				else
+					return id > obj.id;
+			}
+
+			bool operator <=(const WindowID &obj) const
+			{
+				return !(*this > obj);
+			}
+
+			bool operator >=(const WindowID &obj) const
+			{
+				return !(*this < obj);
+			}
 		};
 #pragma pack(pop)
 
@@ -84,29 +184,34 @@ namespace Maragi
 			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (WindowEventArg)>>> eventMap;
 
 		private:
-			Window *parent;
-			WindowID id;
+			Window *_parent;
+			WindowID _id;
 
 		protected:
-			explicit Window(Window *);
+			explicit Window(Window *, WindowID);
 			virtual ~Window() = 0;
 
 		public:
 			virtual void release();
 			virtual bool show() = 0;
 
-			Window *getParent();
-			const Window *getParent() const;
-
 			WindowID getID() const;
 
 			virtual bool addEventListener(const std::wstring &, std::shared_ptr<ERDelegate<bool (WindowEventArg)>>);
 
-		public:
-			;
-
 		protected:
 			bool fireEvent(const std::wstring &, WindowEventArg);
+
+		public:
+			Property::R<Window *> parent;
+			Property::R<WindowID> id;
+			Property::RW<int32_t> x, y, width, height;
+
+		private:
+			class Impl;
+			friend class Impl;
+
+			std::shared_ptr<Impl> impl;
 		};
 
 		class HWNDWindow
@@ -134,6 +239,14 @@ namespace Maragi
 
 		class VirtualControl : public Control
 		{
+		private:
+			static uintptr_t newId;
+
+		public:
+			static WindowID getNewId()
+			{
+				return WindowID(InterlockedIncrement(&newId));
+			}
 		};
 
 		class Shell : public Window, public HWNDWindow
