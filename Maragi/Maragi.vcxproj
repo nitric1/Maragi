@@ -96,10 +96,10 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeaderFile>Defaults.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>Common.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -127,7 +127,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -135,7 +135,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <PrecompiledHeaderFile>Defaults.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>Common.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,28 +145,55 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\External\src\json\jsoncpp.cpp" />
-    <ClCompile Include="..\External\src\openssl\applink.c" />
+    <ClCompile Include="..\External\src\json\jsoncpp.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="CommandLineParser.cpp" />
     <ClCompile Include="Configure.cpp" />
     <ClCompile Include="Constants.cpp" />
-    <ClCompile Include="Defaults.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    <ClCompile Include="Common.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="MainController.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Tokens.cpp" />
     <ClCompile Include="TwitterClient.cpp" />
-    <ClCompile Include="UI\Controls.cpp" />
-    <ClCompile Include="UI\Dialog.cpp" />
-    <ClCompile Include="UI\FrameWindow.cpp" />
-    <ClCompile Include="UI\Layouts.cpp" />
-    <ClCompile Include="UI\ShortcutKey.cpp" />
-    <ClCompile Include="UI\Utilities.cpp" />
-    <ClCompile Include="UI\Window.cpp" />
+    <ClCompile Include="UI\Controls.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="UI\Dialog.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="UI\FrameWindow.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="UI\Layouts.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="UI\Objects.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="UI\ShortcutKey.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="UI\Utilities.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="UI\Window.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="URI.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
@@ -274,6 +301,7 @@
     <ClInclude Include="UI\Dialog.h" />
     <ClInclude Include="UI\FrameWindow.h" />
     <ClInclude Include="UI\Layouts.h" />
+    <ClInclude Include="UI\Objects.h" />
     <ClInclude Include="UI\ShortcutKey.h" />
     <ClInclude Include="UI\Utilities.h" />
     <ClInclude Include="UI\Window.h" />

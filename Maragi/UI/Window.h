@@ -4,24 +4,26 @@
 
 #include "../Delegate.h"
 
+#include "Objects.h"
+
 namespace Maragi
 {
 	namespace UI
 	{
 		namespace Property
 		{
-			template<typename T>
+			template<typename Host, typename T>
 			class Base
 			{
 			};
 
-			template<typename T>
-			class R : public Base<T>
+			template<typename Host, typename T>
+			class R : public Base<Host, T>
 			{
 			private:
 				std::function<T ()> getter;
 
-			public:
+			protected:
 				void init(std::function<T ()> igetter)
 				{
 					getter = igetter;
@@ -33,6 +35,7 @@ namespace Maragi
 					getter = std::bind(std::mem_fun(igetter), inst);
 				}
 
+			public:
 				template<typename Other>
 				operator Other()
 				{
@@ -44,41 +47,58 @@ namespace Maragi
 				{
 					return getter();
 				}
+
+				friend Host;
 			};
 
-			template<typename T>
-			class RW : public R<T>
+			template<typename Host, typename T>
+			class RWProt : public R<Host, T>
 			{
 			private:
 				std::function<void (const T &)> setter;
 
-			public:
+			protected:
 				void init(std::function<T ()> igetter, std::function<void (const T &)> isetter)
 				{
-					R<T>::init(igetter);
+					R<Host, T>::init(igetter);
 					setter = isetter;
 				}
 
 				template<typename Class>
 				void init(Class *inst, T (Class::*igetter)(), void (Class::*isetter)(T))
 				{
-					R<T>::init(inst, igetter);
+					R<Host, T>::init(inst, igetter);
 					setter = std::bind(std::mem_fun(isetter), inst, std::placeholders::_1);
 				}
 
 				template<typename Class>
 				void init(Class *inst, T (Class::*igetter)(), void (Class::*isetter)(const T &))
 				{
-					R<T>::init(inst, igetter);
+					R<Host, T>::init(inst, igetter);
 					setter = std::bind(std::mem_fun(isetter), inst, std::placeholders::_1);
 				}
 
 				template<typename Other>
-				RW &operator =(const Other &val)
+				RWProt &operator =(const Other &val)
 				{
 					setter(val);
 					return *this;
 				}
+
+				friend Host;
+			};
+
+			template<typename Host, typename T>
+			class RW : public RWProt<Host, T>
+			{
+			public:
+				template<typename Other>
+				RW &operator =(const Other &val)
+				{
+					return RWProt<Host, T>::operator =(val);
+				}
+
+				friend Host;
 			};
 		}
 
@@ -86,6 +106,8 @@ namespace Maragi
 #pragma pack(4)
 		struct __declspec(align(4)) WindowID
 		{
+			static WindowID undefined;
+
 			bool virtualWindow;
 			uint8_t padding[3];
 			union
@@ -124,34 +146,71 @@ namespace Maragi
 				return id == 0;
 			}
 
-			bool operator <(const WindowID &obj) const
+			bool operator <(const WindowID &rhs) const
 			{
-				if(!virtualWindow && obj.virtualWindow)
+				if(!virtualWindow && rhs.virtualWindow)
 					return true;
-				else if(virtualWindow && !obj.virtualWindow)
+				else if(virtualWindow && !rhs.virtualWindow)
 					return false;
 				else
-					return id < obj.id;
+					return id < rhs.id;
 			}
 
-			bool operator >(const WindowID &obj) const
+			bool operator >(const WindowID &rhs) const
 			{
-				if(!virtualWindow && obj.virtualWindow)
+				if(!virtualWindow && rhs.virtualWindow)
 					return false;
-				else if(virtualWindow && !obj.virtualWindow)
+				else if(virtualWindow && !rhs.virtualWindow)
 					return true;
 				else
-					return id > obj.id;
+					return id > rhs.id;
 			}
 
-			bool operator <=(const WindowID &obj) const
+			bool operator <=(const WindowID &rhs) const
 			{
-				return !(*this > obj);
+				return !(*this > rhs);
 			}
 
-			bool operator >=(const WindowID &obj) const
+			bool operator >=(const WindowID &rhs) const
 			{
-				return !(*this < obj);
+				return !(*this < rhs);
+			}
+
+			WindowID &operator =(const WindowID &rhs)
+			{
+				virtualWindow = rhs.virtualWindow;
+				id = rhs.id;
+				return *this;
+			}
+
+			WindowID &operator =(uintptr_t iid)
+			{
+				virtualWindow = true;
+				id = iid;
+				return *this;
+			}
+
+			WindowID &operator =(HWND ihandle)
+			{
+				virtualWindow = false;
+				handle = ihandle;
+				return *this;
+			}
+
+			WindowID &operator =(nullptr_t)
+			{
+				*this = undefined;
+				return *this;
+			}
+
+			operator uintptr_t() const
+			{
+				return virtualWindow ? id : static_cast<uintptr_t>(-1);
+			}
+
+			operator HWND() const
+			{
+				return virtualWindow ? nullptr : handle;
 			}
 		};
 #pragma pack(pop)
@@ -191,11 +250,13 @@ namespace Maragi
 			explicit Window(Window *, WindowID);
 			virtual ~Window() = 0;
 
+		private: // no implementation
+			Window();
+			Window(const Window &);
+
 		public:
 			virtual void release();
 			virtual bool show() = 0;
-
-			WindowID getID() const;
 
 			virtual bool addEventListener(const std::wstring &, std::shared_ptr<ERDelegate<bool (WindowEventArg)>>);
 
@@ -203,9 +264,9 @@ namespace Maragi
 			bool fireEvent(const std::wstring &, WindowEventArg);
 
 		public:
-			Property::R<Window *> parent;
-			Property::R<WindowID> id;
-			Property::RW<int32_t> x, y, width, height;
+			Property::R<Window, Window *> parent;
+			Property::RWProt<Window, WindowID> id;
+			Property::RW<Window, Objects::Rectangle> rect;
 
 		private:
 			class Impl;
@@ -214,26 +275,11 @@ namespace Maragi
 			std::shared_ptr<Impl> impl;
 		};
 
-		class HWNDWindow
-		{
-		protected:
-			explicit HWNDWindow();
-
-		private:
-			HWND handle;
-
-		public:
-			HWND getHandle() const;
-
-		protected:
-			void setHandle(HWND);
-		};
-
 		class Control : public Window // Do not subclass this class directly
 		{
 		};
 
-		class ActualControl : public Control, public HWNDWindow
+		class ActualControl : public Control
 		{
 		};
 
@@ -249,16 +295,23 @@ namespace Maragi
 			}
 		};
 
-		class Shell : public Window, public HWNDWindow
+		class Shell : public Window
 		{
 		private:
 			Control *child; // Shell handles only one child.
 
-		public:
+		protected:
+			Shell();
 			explicit Shell(Shell *);
 
-			Shell *getParent();
-			const Shell *getParent() const;
+		public:
+			Property::R<Shell, Shell *> parent;
+
+		private:
+			class Impl;
+			friend class Impl;
+
+			std::shared_ptr<Impl> impl;
 		};
 	}
 }

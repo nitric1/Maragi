@@ -101,7 +101,7 @@ namespace Maragi
 			if(id == 0)
 				return false;
 
-			return PostMessageW(window->getWindow(), WM_COMMAND, id, 0) != FALSE;
+			return PostMessageW(window->id, WM_COMMAND, id, 0) != FALSE;
 		}
 	}
 }

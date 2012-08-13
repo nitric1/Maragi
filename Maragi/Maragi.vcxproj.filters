@@ -44,9 +44,6 @@
     <ClCompile Include="MainController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Defaults.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TwitterClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,9 +52,6 @@
     </ClCompile>
     <ClCompile Include="Constants.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\External\src\openssl\applink.c">
-      <Filter>External Files\openssl</Filter>
     </ClCompile>
     <ClCompile Include="..\External\src\json\jsoncpp.cpp">
       <Filter>External Files\jsoncpp</Filter>
@@ -97,6 +91,12 @@
     </ClCompile>
     <ClCompile Include="UI\Utilities.cpp">
       <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Objects.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Common.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -422,6 +422,9 @@
       <Filter>Header Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="UI\Utilities.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Objects.h">
       <Filter>Header Files\UI</Filter>
     </ClInclude>
   </ItemGroup>

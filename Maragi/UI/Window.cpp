@@ -8,13 +8,15 @@ namespace Maragi
 {
 	namespace UI
 	{
+		WindowID WindowID::undefined(static_cast<uintptr_t>(-1));
+
 		class Window::Impl
 		{
 		private:
 			Window *self;
 
 		public:
-			Impl(Window *iself)
+			explicit Impl(Window *iself)
 				: self(iself)
 			{
 			}
@@ -29,35 +31,18 @@ namespace Maragi
 				return self->_id;
 			}
 
-			int32_t getX()
+			void setId(const WindowID &id)
 			{
+				self->_id = id;
 			}
 
-			void setX(int32_t x)
+			Objects::Rectangle getRect()
 			{
+				RECT rc;
+				GetWindowRect(self->id, &rc);
 			}
 
-			int32_t getY()
-			{
-			}
-
-			void setY(int32_t y)
-			{
-			}
-
-			int32_t getWidth()
-			{
-			}
-
-			void setWidth(int32_t width)
-			{
-			}
-
-			int32_t getHeight()
-			{
-			}
-
-			void setHeight(int32_t height)
+			void setRect(const Objects::Rectangle &rc)
 			{
 			}
 		};
@@ -66,22 +51,14 @@ namespace Maragi
 			: _parent(iparent)
 			, _id(iid)
 		{
-			impl = std::shared_ptr<Impl *>(new Impl(this));
+			impl = std::shared_ptr<Impl>(new Impl(this));
 			parent.init(impl.get(), &Impl::getParent);
-			id.init(impl.get(), &Impl::getId);
-			x.init(impl.get(), &Impl::getX, &Impl::setX);
-			y.init(impl.get(), &Impl::getY, &Impl::setY);
-			width.init(impl.get(), &Impl::getWidth, &Impl::setWidth);
-			height.init(impl.get(), &Impl::getHeight, &Impl::setHeight);
+			id.init(impl.get(), &Impl::getId, &Impl::setId);
+			rect.init(impl.get(), &Impl::getRect, &Impl::setRect);
 		}
 
 		Window::~Window()
 		{
-		}
-
-		WindowID Window::getID() const
-		{
-			return id;
 		}
 
 		void Window::release()
@@ -110,36 +87,37 @@ namespace Maragi
 			return true;
 		}
 
-		HWNDWindow::HWNDWindow()
-			: handle(nullptr)
-		{
-		}
-
-		HWND HWNDWindow::getHandle() const
-		{
-			return handle;
-		}
-
-		void HWNDWindow::setHandle(HWND ihandle)
-		{
-			handle = ihandle;
-		}
-
 		uintptr_t VirtualControl::newId = 0;
 
-		Shell::Shell(Shell *parent)
-			: Window(parent)
+		class Shell::Impl
 		{
+		private:
+			Shell *self;
+
+		public:
+			explicit Impl(Shell *iself)
+				: self(iself)
+			{
+			}
+
+			Shell *getParent()
+			{
+				return static_cast<Shell *>(static_cast<Window *>(self->Window::parent));
+			}
+		};
+
+		Shell::Shell() // no parent
+			: Window(nullptr, WindowID::undefined)
+		{
+			impl = std::shared_ptr<Impl>(new Impl(this));
+			parent.init(impl.get(), &Impl::getParent);
 		}
 
-		Shell *Shell::getParent()
+		Shell::Shell(Shell *iparent) // with parent
+			: Window(iparent, WindowID::undefined)
 		{
-			return static_cast<Shell *>(parent);
-		}
-
-		const Shell *Shell::getParent() const
-		{
-			return static_cast<const Shell *>(parent);
+			impl = std::shared_ptr<Impl>(new Impl(this));
+			parent.init(impl.get(), &Impl::getParent);
 		}
 	}
 }

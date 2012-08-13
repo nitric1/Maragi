@@ -18,6 +18,6 @@ namespace Maragi
 
 		protected:
 			virtual ~FrameWindow();
-		}
+		};
 	}
 }
