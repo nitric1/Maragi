@@ -44,6 +44,7 @@ namespace Maragi
 
 			void setRect(const Objects::Rectangle &rc)
 			{
+				// TODO: MoveWindow
 			}
 		};
 
@@ -87,7 +88,23 @@ namespace Maragi
 			return true;
 		}
 
-		uintptr_t VirtualControl::newId = 0;
+		class Control::Impl
+		{
+		private:
+			Control *self;
+
+		public:
+			explicit Impl(Control *iself)
+				: self(iself)
+			{
+			}
+		};
+
+		Control::Control()
+			: Window(nullptr, WindowID::undefined)
+		{
+			impl = std::shared_ptr<Impl>(new Impl(this));
+		}
 
 		class Shell::Impl
 		{

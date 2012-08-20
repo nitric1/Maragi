@@ -277,6 +277,14 @@ namespace Maragi
 
 		class Control : public Window
 		{
+		protected:
+			Control();
+
+		private:
+			class Impl;
+			friend class Impl;
+
+			std::shared_ptr<Impl> impl;
 		};
 
 		class Shell : public Window
