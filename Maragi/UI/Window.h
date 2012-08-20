@@ -275,24 +275,8 @@ namespace Maragi
 			std::shared_ptr<Impl> impl;
 		};
 
-		class Control : public Window // Do not subclass this class directly
+		class Control : public Window
 		{
-		};
-
-		class ActualControl : public Control
-		{
-		};
-
-		class VirtualControl : public Control
-		{
-		private:
-			static uintptr_t newId;
-
-		public:
-			static WindowID getNewId()
-			{
-				return WindowID(InterlockedIncrement(&newId));
-			}
 		};
 
 		class Shell : public Window
