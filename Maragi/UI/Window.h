@@ -3,6 +3,7 @@
 #pragma once
 
 #include "../Delegate.h"
+#include "../Singleton.h"
 
 #include "Objects.h"
 
@@ -36,6 +37,23 @@ namespace Maragi
 				}
 
 			public:
+				template<typename Other>
+				bool operator ==(const Other &rhs) const
+				{
+					return getter() == rhs;
+				}
+
+				template<typename Other>
+				bool operator !=(const Other &rhs) const
+				{
+					return getter() == rhs;
+				}
+
+				T operator ->() const
+				{
+					return getter();
+				}
+
 				template<typename Other>
 				operator Other()
 				{
@@ -102,6 +120,71 @@ namespace Maragi
 			};
 		}
 
+		struct WindowID
+		{
+			static const WindowID undefined;
+
+			uintptr_t id;
+
+			WindowID()
+				: id(0)
+			{
+			}
+
+			explicit WindowID(uintptr_t iid)
+				: id(iid)
+			{
+			}
+
+			WindowID(const WindowID &that)
+				: id(that.id)
+			{
+			}
+
+			operator bool() const
+			{
+				return id != 0;
+			}
+
+			bool operator !() const
+			{
+				return id == 0;
+			}
+
+			bool operator <(const WindowID &rhs) const
+			{
+				return id < rhs.id;
+			}
+
+			bool operator >(const WindowID &rhs) const
+			{
+				return id > rhs.id;
+			}
+
+			bool operator <=(const WindowID &rhs) const
+			{
+				return id <= rhs.id;
+			}
+
+			bool operator >=(const WindowID &rhs) const
+			{
+				return id >= rhs.id;
+			}
+
+			WindowID &operator =(const WindowID &rhs)
+			{
+				id = rhs.id;
+				return *this;
+			}
+
+			WindowID &operator =(uintptr_t iid)
+			{
+				id = iid;
+				return *this;
+			}
+		};
+
+		/*
 #pragma pack(push)
 #pragma pack(4)
 		struct __declspec(align(4)) WindowID
@@ -214,6 +297,7 @@ namespace Maragi
 			}
 		};
 #pragma pack(pop)
+		*/
 
 		class Window;
 
@@ -245,6 +329,7 @@ namespace Maragi
 		private:
 			Window *_parent;
 			WindowID _id;
+			Objects::Rectangle _rect;
 
 		protected:
 			explicit Window(Window *, WindowID);
@@ -275,7 +360,31 @@ namespace Maragi
 			std::shared_ptr<Impl> impl;
 		};
 
-		class Control : public Window
+		class WindowManager : public Singleton<WindowManager>
+		{
+		private:
+			std::map<WindowID, Window *> windows;
+
+		private:
+			WindowID nextID;
+
+		public:
+			WindowManager();
+
+		private:
+			~WindowManager();
+
+		private:
+			WindowID getNextID();
+			void add(Window *);
+			Window *find(WindowID);
+			void remove(WindowID);
+
+			friend class Window;
+			friend class Singleton<WindowManager>;
+		};
+
+		/*class Control : public Window
 		{
 		protected:
 			Control();
@@ -285,12 +394,20 @@ namespace Maragi
 			friend class Impl;
 
 			std::shared_ptr<Impl> impl;
-		};
+		};*/
+		typedef Window Control;
 
-		class Shell : public Window
+		class Shell
 		{
 		private:
+			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (WindowEventArg)>>> eventMap;
+
+		private:
 			Control *child; // Shell handles only one child.
+
+		private:
+			Shell *_parent;
+			HWND _hwnd;
 
 		protected:
 			Shell();
@@ -298,6 +415,7 @@ namespace Maragi
 
 		public:
 			Property::R<Shell, Shell *> parent;
+			Property::RWProt<Shell, HWND> hwnd;
 
 		private:
 			class Impl;

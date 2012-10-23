@@ -370,9 +370,6 @@
     <ClInclude Include="Tokens.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CommandLineParser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -426,6 +423,9 @@
     </ClInclude>
     <ClInclude Include="UI\Objects.h">
       <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandLineParser.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

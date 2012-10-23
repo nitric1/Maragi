@@ -8,7 +8,7 @@ namespace Maragi
 {
 	namespace UI
 	{
-		class Layout : public VirtualControl
+		class Layout : public Control
 		{
 		};
 

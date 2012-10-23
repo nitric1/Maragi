@@ -8,7 +8,7 @@ namespace Maragi
 {
 	namespace UI
 	{
-		WindowID WindowID::undefined(static_cast<uintptr_t>(-1));
+		const WindowID WindowID::undefined(0);
 
 		class Window::Impl
 		{
@@ -38,13 +38,12 @@ namespace Maragi
 
 			Objects::Rectangle getRect()
 			{
-				RECT rc;
-				GetWindowRect(self->id, &rc);
+				return self->_rect;
 			}
 
-			void setRect(const Objects::Rectangle &rc)
+			void setRect(const Objects::Rectangle &rect)
 			{
-				// TODO: MoveWindow
+				self->_rect = rect;
 			}
 		};
 
@@ -88,6 +87,39 @@ namespace Maragi
 			return true;
 		}
 
+		WindowManager::WindowManager()
+		{
+		}
+
+		WindowManager::~WindowManager()
+		{
+		}
+
+		WindowID WindowManager::getNextID()
+		{
+			++ nextID.id;
+			return nextID;
+		}
+
+		void WindowManager::add(Window *window)
+		{
+			windows.insert(std::make_pair(static_cast<WindowID>(window->id), window));
+		}
+
+		Window *WindowManager::find(WindowID id)
+		{
+			auto it = windows.find(id);
+			if(it == windows.end())
+				return nullptr;
+			return it->second;
+		}
+
+		void WindowManager::remove(WindowID id)
+		{
+			windows.erase(id);
+		}
+
+		/*
 		class Control::Impl
 		{
 		private:
@@ -104,7 +136,7 @@ namespace Maragi
 			: Window(nullptr, WindowID::undefined)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
-		}
+		}*/
 
 		class Shell::Impl
 		{
@@ -119,22 +151,32 @@ namespace Maragi
 
 			Shell *getParent()
 			{
-				return static_cast<Shell *>(static_cast<Window *>(self->Window::parent));
+				return self->_parent;
+			}
+
+			HWND getHwnd()
+			{
+				return self->_hwnd;
+			}
+
+			void setHwnd(HWND hwnd)
+			{
+				self->_hwnd = hwnd;
 			}
 		};
 
 		Shell::Shell() // no parent
-			: Window(nullptr, WindowID::undefined)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			parent.init(impl.get(), &Impl::getParent);
+			hwnd.init(impl.get(), &Impl::getHwnd, &Impl::setHwnd);
 		}
 
 		Shell::Shell(Shell *iparent) // with parent
-			: Window(iparent, WindowID::undefined)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			parent.init(impl.get(), &Impl::getParent);
+			hwnd.init(impl.get(), &Impl::getHwnd, &Impl::setHwnd);
 		}
 	}
 }

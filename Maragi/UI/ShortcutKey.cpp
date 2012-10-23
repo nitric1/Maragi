@@ -26,23 +26,23 @@ namespace Maragi
 
 		ShortcutKey::Modifier ShortcutKey::getModifier(bool ctrl, bool alt, bool shift)
 		{
-			if(ctrl && shift && alt)
-				return Ctrl_Shift_Alt;
-			else if(ctrl && shift)
-				return Ctrl_Shift;
-			else if(ctrl && alt)
-				return Ctrl_Alt;
-			else if(ctrl)
-				return Ctrl;
-			else if(alt && shift)
-				return Alt_Shift;
-			else if(alt)
-				return Alt;
-			return None;
+			return static_cast<Modifier>(
+				static_cast<int>(ctrl)
+				| (static_cast<int>(alt) << 1)
+				| (static_cast<int>(shift) << 2)
+			);
+		}
+
+		bool ShortcutKey::verifyKey(Modifier modifier, uint32_t key)
+		{
+			// TODO: Verify (reject None+normal key, Shift+normal key)
+			return true;
 		}
 
 		ShortcutKey::Key ShortcutKey::makeKey(Modifier modifier, uint32_t key)
 		{
+			if(!verifyKey(modifier, key))
+				; // TODO: reject
 			Key skey = {modifier, key};
 			return skey;
 		}

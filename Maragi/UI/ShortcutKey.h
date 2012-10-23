@@ -14,13 +14,14 @@ namespace Maragi
 		public:
 			enum Modifier
 			{
-				None,
-				Ctrl,
-				Alt,
-				Ctrl_Alt,
-				Ctrl_Shift,
-				Alt_Shift,
-				Ctrl_Shift_Alt
+				None = 0,
+				Ctrl = 1,
+				Alt = 2,
+				Shift = 4
+				Ctrl_Alt = 3,
+				Ctrl_Shift = 5,
+				Alt_Shift = 6,
+				Ctrl_Alt_Shiftb = 7
 			};
 
 			struct Key
@@ -61,6 +62,7 @@ namespace Maragi
 
 		public:
 			static Modifier getModifier(bool, bool, bool);
+			static bool verifyKey(Modifier, uint32_t);
 			static Key makeKey(Modifier, uint32_t);
 
 		public:

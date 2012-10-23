@@ -129,9 +129,9 @@ namespace Maragi
 			return &*dlgData.begin();
 		}
 
-		HWND Dialog::getItemHandle(int32_t iid)
+		HWND Dialog::getItemHandle(int32_t id)
 		{
-			return GetDlgItem(id, iid);
+			return GetDlgItem(hwnd, id);
 		}
 
 		intptr_t Dialog::showModal(DLGPROC procMessage, int showCommand)
@@ -139,8 +139,8 @@ namespace Maragi
 			// From CDialog::DoModal in MFC.
 
 			HWND parentWin = nullptr;
-			if(static_cast<Shell *>(parent) != nullptr)
-				parentWin = static_cast<Shell *>(parent)->id;
+			if(parent != nullptr)
+				parentWin = parent->hwnd;
 
 			const DLGTEMPLATE *tpl = static_cast<const DLGTEMPLATE *>(getDialogTemplateWithSystemFont());
 			bool parentEnabled = false;
@@ -156,7 +156,7 @@ namespace Maragi
 			HWND window = CreateDialogIndirectParamW(MainController::instance().getInstance(), tpl, parentWin, procMessage, 0);
 			if(window != nullptr)
 			{
-				id = window;
+				hwnd = window;
 
 				MSG msg;
 				while(GetMessageW(&msg, nullptr, 0, 0))
@@ -205,7 +205,7 @@ namespace Maragi
 
 			DestroyWindow(window);
 
-			id = nullptr;
+			hwnd = nullptr;
 
 			return res;
 
@@ -216,7 +216,7 @@ namespace Maragi
 		{
 			isDialogEnd = true;
 			endDialogResult = res;
-			EndDialog(id, res);
+			EndDialog(hwnd, res);
 			return true;
 		}
 	}
