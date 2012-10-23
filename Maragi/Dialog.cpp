@@ -1,8 +1,8 @@
 // $Id$
 
-#include "../Common.h"
+#include "Common.h"
 
-#include "../MainController.h"
+#include "MainController.h"
 #include "Dialog.h"
 #include "ShortcutKey.h"
 

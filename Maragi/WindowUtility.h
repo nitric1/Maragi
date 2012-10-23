@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "Singleton.h"
 #include "Window.h"
-#include "../Singleton.h"
 
 namespace Maragi
 {
@@ -104,16 +104,24 @@ namespace Maragi
 		class WindowManager : public Singleton<WindowManager>
 		{
 		private:
-			std::map<WindowID, WindowPtr<>> windows;
-			uintptr_t newID;
+			std::map<WindowID, Window *> windows;
 
 		private:
-			WindowManager();
-			~WindowManager();
+			WindowID nextID;
 
 		public:
-			WindowID getNewVirtualID();
+			WindowManager();
 
+		private:
+			~WindowManager();
+
+		private:
+			WindowID getNextID();
+			void add(Window *);
+			Window *find(WindowID);
+			void remove(WindowID);
+
+			friend class Window;
 			friend class Singleton<WindowManager>;
 		};
 	}

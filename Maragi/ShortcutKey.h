@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../Singleton.h"
+#include "Singleton.h"
 #include "Window.h"
 
 namespace Maragi
@@ -17,11 +17,11 @@ namespace Maragi
 				None = 0,
 				Ctrl = 1,
 				Alt = 2,
-				Shift = 4
+				Shift = 4,
 				Ctrl_Alt = 3,
 				Ctrl_Shift = 5,
 				Alt_Shift = 6,
-				Ctrl_Alt_Shiftb = 7
+				Ctrl_Alt_Shift = 7,
 			};
 
 			struct Key

@@ -2,10 +2,9 @@
 
 #pragma once
 
-#include "../Delegate.h"
-#include "../Singleton.h"
-
+#include "Delegate.h"
 #include "Objects.h"
+#include "Singleton.h"
 
 namespace Maragi
 {
@@ -360,41 +359,6 @@ namespace Maragi
 			std::shared_ptr<Impl> impl;
 		};
 
-		class WindowManager : public Singleton<WindowManager>
-		{
-		private:
-			std::map<WindowID, Window *> windows;
-
-		private:
-			WindowID nextID;
-
-		public:
-			WindowManager();
-
-		private:
-			~WindowManager();
-
-		private:
-			WindowID getNextID();
-			void add(Window *);
-			Window *find(WindowID);
-			void remove(WindowID);
-
-			friend class Window;
-			friend class Singleton<WindowManager>;
-		};
-
-		/*class Control : public Window
-		{
-		protected:
-			Control();
-
-		private:
-			class Impl;
-			friend class Impl;
-
-			std::shared_ptr<Impl> impl;
-		};*/
 		typedef Window Control;
 
 		class Shell

@@ -158,44 +158,20 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Controls.cpp" />
+    <ClCompile Include="Dialog.cpp" />
+    <ClCompile Include="FrameWindow.cpp" />
+    <ClCompile Include="Layouts.cpp" />
     <ClCompile Include="MainController.cpp" />
     <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="Objects.cpp" />
+    <ClCompile Include="ShortcutKey.cpp" />
     <ClCompile Include="Tokens.cpp" />
     <ClCompile Include="TwitterClient.cpp" />
-    <ClCompile Include="UI\Controls.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="UI\Dialog.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="UI\FrameWindow.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="UI\Layouts.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="UI\Objects.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="UI\ShortcutKey.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="UI\Utilities.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="UI\Window.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">../Common.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">../Common.h</PrecompiledHeaderFile>
-    </ClCompile>
     <ClCompile Include="URI.cpp" />
+    <ClCompile Include="WindowUtility.cpp" />
     <ClCompile Include="Utility.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\External\include\curl\curl.h" />
@@ -288,25 +264,25 @@
     <ClInclude Include="Configure.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="Controls.h" />
     <ClInclude Include="Delegate.h" />
+    <ClInclude Include="Dialog.h" />
+    <ClInclude Include="FrameWindow.h" />
+    <ClInclude Include="Layouts.h" />
     <ClInclude Include="MainController.h" />
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="Objects.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ShortcutKey.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Tokens.h" />
     <ClInclude Include="TwitterClient.h" />
     <ClInclude Include="TwitterClientError.h" />
     <ClInclude Include="Types.h" />
-    <ClInclude Include="UI\Controls.h" />
-    <ClInclude Include="UI\Dialog.h" />
-    <ClInclude Include="UI\FrameWindow.h" />
-    <ClInclude Include="UI\Layouts.h" />
-    <ClInclude Include="UI\Objects.h" />
-    <ClInclude Include="UI\ShortcutKey.h" />
-    <ClInclude Include="UI\Utilities.h" />
-    <ClInclude Include="UI\Window.h" />
     <ClInclude Include="URI.h" />
+    <ClInclude Include="WindowUtility.h" />
     <ClInclude Include="Utility.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TextReplacer.pl" />

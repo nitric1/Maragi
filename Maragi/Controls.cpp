@@ -1,8 +1,8 @@
 // $Id$
 
-#include "../Common.h"
+#include "Common.h"
 
-#include "Layouts.h"
+#include "Control.h"
 
 namespace Maragi
 {

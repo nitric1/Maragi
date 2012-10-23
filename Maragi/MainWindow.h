@@ -2,12 +2,11 @@
 
 #pragma once
 
+#include "FrameWindow.h"
 #include "Singleton.h"
-#include "UI/FrameWindow.h"
 
 namespace Maragi
 {
-	//class MainWindow : public Window<>, public Singleton<MainWindow>
 	class MainWindow : public UI::FrameWindow, public Singleton<MainWindow>
 	{
 	private:
