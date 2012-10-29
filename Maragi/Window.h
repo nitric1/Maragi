@@ -119,23 +119,23 @@ namespace Maragi
 			};
 		}
 
-		struct WindowID
+		struct ControlID
 		{
-			static const WindowID undefined;
+			static const ControlID undefined;
 
 			uintptr_t id;
 
-			WindowID()
+			ControlID()
 				: id(0)
 			{
 			}
 
-			explicit WindowID(uintptr_t iid)
+			explicit ControlID(uintptr_t iid)
 				: id(iid)
 			{
 			}
 
-			WindowID(const WindowID &that)
+			ControlID(const ControlID &that)
 				: id(that.id)
 			{
 			}
@@ -150,207 +150,96 @@ namespace Maragi
 				return id == 0;
 			}
 
-			bool operator <(const WindowID &rhs) const
+			bool operator <(const ControlID &rhs) const
 			{
 				return id < rhs.id;
 			}
 
-			bool operator >(const WindowID &rhs) const
+			bool operator >(const ControlID &rhs) const
 			{
 				return id > rhs.id;
 			}
 
-			bool operator <=(const WindowID &rhs) const
+			bool operator <=(const ControlID &rhs) const
 			{
 				return id <= rhs.id;
 			}
 
-			bool operator >=(const WindowID &rhs) const
+			bool operator >=(const ControlID &rhs) const
 			{
 				return id >= rhs.id;
 			}
 
-			WindowID &operator =(const WindowID &rhs)
+			ControlID &operator =(const ControlID &rhs)
 			{
 				id = rhs.id;
 				return *this;
 			}
 
-			WindowID &operator =(uintptr_t iid)
+			ControlID &operator =(uintptr_t iid)
 			{
 				id = iid;
 				return *this;
 			}
 		};
 
-		/*
-#pragma pack(push)
-#pragma pack(4)
-		struct __declspec(align(4)) WindowID
+		class Control;
+
+		class Context
 		{
-			static WindowID undefined;
-
-			bool virtualWindow;
-			uint8_t padding[3];
-			union
-			{
-				uintptr_t id;
-				HWND handle;
-			};
-
-			WindowID()
-				: virtualWindow(false), id(0)
-			{
-			}
-
-			WindowID(const WindowID &that)
-				: virtualWindow(that.virtualWindow), id(that.id)
-			{
-			}
-
-			WindowID(uintptr_t iid)
-				: virtualWindow(true), id(iid)
-			{
-			}
-
-			WindowID(HWND ihandle)
-				: virtualWindow(false), handle(ihandle)
-			{
-			}
-
-			operator bool() const
-			{
-				return id != 0;
-			}
-
-			bool operator !() const
-			{
-				return id == 0;
-			}
-
-			bool operator <(const WindowID &rhs) const
-			{
-				if(!virtualWindow && rhs.virtualWindow)
-					return true;
-				else if(virtualWindow && !rhs.virtualWindow)
-					return false;
-				else
-					return id < rhs.id;
-			}
-
-			bool operator >(const WindowID &rhs) const
-			{
-				if(!virtualWindow && rhs.virtualWindow)
-					return false;
-				else if(virtualWindow && !rhs.virtualWindow)
-					return true;
-				else
-					return id > rhs.id;
-			}
-
-			bool operator <=(const WindowID &rhs) const
-			{
-				return !(*this > rhs);
-			}
-
-			bool operator >=(const WindowID &rhs) const
-			{
-				return !(*this < rhs);
-			}
-
-			WindowID &operator =(const WindowID &rhs)
-			{
-				virtualWindow = rhs.virtualWindow;
-				id = rhs.id;
-				return *this;
-			}
-
-			WindowID &operator =(uintptr_t iid)
-			{
-				virtualWindow = true;
-				id = iid;
-				return *this;
-			}
-
-			WindowID &operator =(HWND ihandle)
-			{
-				virtualWindow = false;
-				handle = ihandle;
-				return *this;
-			}
-
-			WindowID &operator =(nullptr_t)
-			{
-				*this = undefined;
-				return *this;
-			}
-
-			operator uintptr_t() const
-			{
-				return virtualWindow ? id : static_cast<uintptr_t>(-1);
-			}
-
-			operator HWND() const
-			{
-				return virtualWindow ? nullptr : handle;
-			}
 		};
-#pragma pack(pop)
-		*/
 
-		class Window;
-
-		struct WindowEventArg
+		struct ControlEventArg
 		{
-			Window *window;
-			unsigned message;
-			uintptr_t wParam;
-			longptr_t lParam;
+			Control *window;
 		};
 
 		template<typename Func>
-		std::shared_ptr<ERDelegate<bool (WindowEventArg)>> delegateWindowEvent(Func fn)
+		std::shared_ptr<ERDelegate<bool (ControlEventArg)>> delegateWindowEvent(Func fn)
 		{
-			return delegate<bool (WindowEventArg)>(fn);
+			return delegate<bool (ControlEventArg)>(fn);
 		}
 
 		template<typename Class, typename Func>
-		std::shared_ptr<ERDelegate<bool (WindowEventArg)>> delegateWindowEvent(Class *p, Func fn)
+		std::shared_ptr<ERDelegate<bool (ControlEventArg)>> delegateWindowEvent(Class *p, Func fn)
 		{
-			return delegate<bool (WindowEventArg)>(p, fn);
+			return delegate<bool (ControlEventArg)>(p, fn);
 		}
 
-		class Window
+		class Control
 		{
 		private:
-			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (WindowEventArg)>>> eventMap;
+			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (ControlEventArg)>>> eventMap;
 
 		private:
-			Window *_parent;
-			WindowID _id;
+			Control *_parent;
+			ControlID _id;
 			Objects::Rectangle _rect;
 
 		protected:
-			explicit Window(Window *, WindowID);
-			virtual ~Window() = 0;
+			explicit Control(Control *, ControlID);
+			virtual ~Control() = 0;
 
 		private: // no implementation
-			Window();
-			Window(const Window &);
+			Control();
+			Control(const Control &);
 
 		public:
-			virtual void release();
+			// virtual void release();
 			virtual bool show() = 0;
 
-			virtual bool addEventListener(const std::wstring &, std::shared_ptr<ERDelegate<bool (WindowEventArg)>>);
+			virtual bool addEventListener(const std::wstring &, std::shared_ptr<ERDelegate<bool (ControlEventArg)>>);
 
 		protected:
-			bool fireEvent(const std::wstring &, WindowEventArg);
+			bool fireEvent(const std::wstring &, ControlEventArg);
 
 		public:
-			Property::R<Window, Window *> parent;
-			Property::RWProt<Window, WindowID> id;
-			Property::RW<Window, Objects::Rectangle> rect;
+			virtual void draw(Context &);
+
+		public:
+			Property::R<Control, Control *> parent;
+			Property::RWProt<Control, ControlID> id;
+			Property::RW<Control, Objects::Rectangle> rect;
 
 		private:
 			class Impl;
@@ -359,12 +248,10 @@ namespace Maragi
 			std::shared_ptr<Impl> impl;
 		};
 
-		typedef Window Control;
-
 		class Shell
 		{
 		private:
-			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (WindowEventArg)>>> eventMap;
+			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (ControlEventArg)>>> eventMap;
 
 		private:
 			Control *child; // Shell handles only one child.

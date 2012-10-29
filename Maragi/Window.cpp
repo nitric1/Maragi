@@ -8,31 +8,32 @@ namespace Maragi
 {
 	namespace UI
 	{
-		const WindowID WindowID::undefined(0);
+		const ControlID ControlID::undefined(0);
 
-		class Window::Impl
+		class Control::Impl
 		{
 		private:
-			Window *self;
+			Control *self;
 
 		public:
-			explicit Impl(Window *iself)
+			explicit Impl(Control *iself)
 				: self(iself)
 			{
 			}
 
-			Window *getParent()
+			Control *getParent()
 			{
 				return self->_parent;
 			}
 
-			WindowID getId()
+			ControlID getId()
 			{
 				return self->_id;
 			}
 
-			void setId(const WindowID &id)
+			void setId(const ControlID &id)
 			{
+				::D2D1_SIZE_F;
 				self->_id = id;
 			}
 
@@ -47,7 +48,7 @@ namespace Maragi
 			}
 		};
 
-		Window::Window(Window *iparent, WindowID iid)
+		Control::Control(Control *iparent, ControlID iid)
 			: _parent(iparent)
 			, _id(iid)
 		{
@@ -57,22 +58,17 @@ namespace Maragi
 			rect.init(impl.get(), &Impl::getRect, &Impl::setRect);
 		}
 
-		Window::~Window()
+		Control::~Control()
 		{
 		}
 
-		void Window::release()
-		{
-			delete this;
-		}
-
-		bool Window::addEventListener(const std::wstring &name, std::shared_ptr<ERDelegate<bool (WindowEventArg)>> listener)
+		bool Control::addEventListener(const std::wstring &name, std::shared_ptr<ERDelegate<bool (ControlEventArg)>> listener)
 		{
 			eventMap.insert(make_pair(name, listener));
 			return true;
 		}
 
-		bool Window::fireEvent(const std::wstring &name, WindowEventArg e)
+		bool Control::fireEvent(const std::wstring &name, ControlEventArg e)
 		{
 			if(eventMap.find(name) == eventMap.end())
 				return true;
@@ -101,7 +97,7 @@ namespace Maragi
 		};
 
 		Control::Control()
-			: Window(nullptr, WindowID::undefined)
+			: Control(nullptr, ControlID::undefined)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 		}*/

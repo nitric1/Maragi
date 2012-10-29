@@ -35,8 +35,9 @@ using std::max; using std::min;
 
 #include <commctrl.h>
 #include <commdlg.h>
+#include <d2d1.h>
 #include <dlgs.h>
-#include <gdiplus.h>
+#include <dwrite.h>
 #include <shlwapi.h>
 #include <wincrypt.h>
 #include <windowsx.h>

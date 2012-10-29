@@ -54,7 +54,7 @@ namespace Maragi
 			};
 
 		private:
-			std::map<std::pair<Key, const Window *>, Command> keyMap;
+			std::map<std::pair<Key, const Shell *>, Command> keyMap;
 
 		private:
 			ShortcutKey();
@@ -66,11 +66,11 @@ namespace Maragi
 			static Key makeKey(Modifier, uint32_t);
 
 		public:
-			bool addShortcut(const Window *, uint32_t, Key, bool = true, bool = true);
-			bool modifyShortcut(const Window *, uint32_t, Key, bool, bool);
-			bool removeShortcut(const Window *, uint32_t);
-			uint32_t processShortcut(const Window *, Key, bool, bool) const;
-			bool processKey(const Window *, bool, bool, bool, uint32_t, bool, uint32_t) const;
+			bool addShortcut(const Shell *, uint32_t, Key, bool = true, bool = true);
+			bool modifyShortcut(const Shell *, uint32_t, Key, bool, bool);
+			bool removeShortcut(const Shell *, uint32_t);
+			uint32_t processShortcut(const Shell *, Key, bool, bool) const;
+			bool processKey(const Shell *, bool, bool, bool, uint32_t, bool, uint32_t) const;
 
 			friend class Singleton<ShortcutKey>;
 		};

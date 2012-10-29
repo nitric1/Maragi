@@ -8,60 +8,92 @@ namespace Maragi
 	{
 		namespace Objects
 		{
+			template<typename T>
+			struct Point
+			{
+				T x, y;
+
+				Point()
+					: x(), y()
+				{}
+
+				Point(const Point<T> &that)
+					: x(that.x), y(that.y)
+				{}
+
+				Point(T ix, T iy)
+					: x(ix), y(iy)
+				{}
+			};
+
+			typedef Point<int32_t> PointI;
+			typedef Point<float> PointF;
+
+			template<typename T>
+			struct Size
+			{
+				T width, height;
+
+				Size()
+					: width(), height()
+				{}
+
+				Size(const Size<T> &that)
+					: width(that.width), height(that.height)
+				{}
+
+				Size(T iwidth, T iheight)
+					: width(iwidth), height(iheight)
+				{}
+			};
+
+			typedef Size<int32_t> SizeI;
+			typedef Size<float> SizeF;
+
+			template<typename T>
 			struct Rectangle
 			{
-				int32_t left, top, right, bottom;
+				T left, top, right, bottom;
 
 				Rectangle()
-					: left(0), top(0), right(0), bottom(0)
+					: left(), top(), right(), bottom()
 				{}
 
-				Rectangle(const Rectangle &obj)
-					: left(obj.left), top(obj.top), right(obj.right), bottom(obj.bottom)
+				Rectangle(const Rectangle<T> &that)
+					: left(that.left), top(that.top), right(that.right), bottom(that.bottom)
 				{}
 
-				Rectangle(const RECT &rc)
-					: left(rc.left), top(rc.top), right(rc.right), bottom(rc.bottom)
-				{}
-
-				Rectangle(int32_t ileft, int32_t itop, int32_t iright, int32_t ibottom)
+				Rectangle(T ileft, T itop, T iright, T ibottom)
 					: left(ileft), top(itop), right(iright), bottom(ibottom)
 				{}
 
-				Rectangle &operator =(const Rectangle &rhs)
-				{
-					left = rhs.left;
-					top = rhs.top;
-					right = rhs.right;
-					bottom = rhs.bottom;
-					return *this;
-				}
+				Rectangle(const Point<T> &lt, const Point<T> &rb)
+					: left(lt.x), top(lt.y), right(rb.x), bottom(rb.y)
+				{}
 
-				Rectangle &operator =(const RECT &rc)
-				{
-					left = rc.left;
-					top = rc.top;
-					right = rc.right;
-					bottom = rc.bottom;
-					return *this;
-				}
+				Rectangle(const Point<T> &center, float width, float height) // like ellipse
+					: left(center.x - width / 2.0f), top(center.y - height / 2.0f), right(center.x + width / 2.0f), bottom(center.y + height / 2.0f)
+				{}
 
-				operator RECT()
-				{
-					RECT rc = {left, top, right, bottom};
-					return rc;
-				}
-
-				int32_t width()
+				T width() const
 				{
 					return right - left;
 				}
 
-				int32_t height()
+				T height() const
 				{
 					return bottom - top;
 				}
+
+				Size<T> size() const
+				{
+					Size<T> sz = { width(), height() };
+					return sz;
+				}
 			};
+
+			typedef Rectangle<int32_t> RectangleI;
+			typedef Rectangle<float> RectangleF;
 		}
 	}
 }

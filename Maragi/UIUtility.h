@@ -9,24 +9,24 @@ namespace Maragi
 {
 	namespace UI
 	{
-		template<typename = Window>
-		class WindowPtr;
+		template<typename = Control>
+		class ControlPtr;
 
 		template<typename T>
-		class WindowPtr
+		class ControlPtr
 		{
 		private:
-			std::shared_ptr<Window> ptr;
+			std::shared_ptr<Control> ptr;
 			T *castPtr;
 
 		public:
-			WindowPtr()
+			ControlPtr()
 				: castPtr(nullptr)
 			{
 			}
 
 			/*
-			WindowPtr(const Window *iptr) // TODO: window by GetDlgItem, ...
+			ControlPtr(const Control *iptr) // TODO: window by GetDlgItem, ...
 			{
 				if(iptr == nullptr)
 					castPtr = nullptr;
@@ -36,46 +36,46 @@ namespace Maragi
 				}
 			}*/
 
-			WindowPtr(std::shared_ptr<Window> iptr) // TODO: new handler required like egui's new_
+			ControlPtr(std::shared_ptr<Control> iptr) // TODO: new handler required like egui's new_
 				: ptr(iptr)
 			{
 				castPtr = dynamic_cast<T *>(ptr.get());
 			}
 
 			template<typename Other>
-			WindowPtr(const WindowPtr<Other> &that)
+			ControlPtr(const ControlPtr<Other> &that)
 				: ptr(that.ptr)
 			{
 				castPtr = dynamic_cast<T *>(ptr.get());
 			}
 
 		public:
-			bool operator ==(const WindowPtr &rhs)
+			bool operator ==(const ControlPtr &rhs)
 			{
 				return castPtr == rhs.castPtr;
 			}
 
-			bool operator !=(const WindowPtr &rhs)
+			bool operator !=(const ControlPtr &rhs)
 			{
 				return castPtr != rhs.castPtr;
 			}
 
-			bool operator <(const WindowPtr &rhs)
+			bool operator <(const ControlPtr &rhs)
 			{
 				return castPtr < rhs.castPtr;
 			}
 
-			bool operator >(const WindowPtr &rhs)
+			bool operator >(const ControlPtr &rhs)
 			{
 				return castPtr > rhs.castPtr;
 			}
 
-			bool operator <=(const WindowPtr &rhs)
+			bool operator <=(const ControlPtr &rhs)
 			{
 				return castPtr <= rhs.castPtr;
 			}
 
-			bool operator >=(const WindowPtr &rhs)
+			bool operator >=(const ControlPtr &rhs)
 			{
 				return castPtr >= rhs.castPtr;
 			}
@@ -101,28 +101,28 @@ namespace Maragi
 			}
 		};
 
-		class WindowManager : public Singleton<WindowManager>
+		class ControlManager : public Singleton<ControlManager>
 		{
 		private:
-			std::map<WindowID, Window *> windows;
+			std::map<ControlID, Control *> windows;
 
 		private:
-			WindowID nextID;
+			ControlID nextID;
 
 		public:
-			WindowManager();
+			ControlManager();
 
 		private:
-			~WindowManager();
+			~ControlManager();
 
 		private:
-			WindowID getNextID();
-			void add(Window *);
-			Window *find(WindowID);
-			void remove(WindowID);
+			ControlID getNextID();
+			void add(Control *);
+			Control *find(ControlID);
+			void remove(ControlID);
 
-			friend class Window;
-			friend class Singleton<WindowManager>;
+			friend class Control;
+			friend class Singleton<ControlManager>;
 		};
 	}
 }

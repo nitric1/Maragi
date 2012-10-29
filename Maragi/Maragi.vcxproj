@@ -169,7 +169,7 @@
     <ClCompile Include="Tokens.cpp" />
     <ClCompile Include="TwitterClient.cpp" />
     <ClCompile Include="URI.cpp" />
-    <ClCompile Include="WindowUtility.cpp" />
+    <ClCompile Include="UIUtility.cpp" />
     <ClCompile Include="Utility.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -280,7 +280,7 @@
     <ClInclude Include="TwitterClientError.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="URI.h" />
-    <ClInclude Include="WindowUtility.h" />
+    <ClInclude Include="UIUtility.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>

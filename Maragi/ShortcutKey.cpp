@@ -48,7 +48,7 @@ namespace Maragi
 		}
 
 		// Extended key: other side's key (e.g. numpad keys, right-hand control keys, ...)
-		bool ShortcutKey::addShortcut(const Window *window, uint32_t id, Key key, bool canExtended, bool canRepeated)
+		bool ShortcutKey::addShortcut(const Shell *window, uint32_t id, Key key, bool canExtended, bool canRepeated)
 		{
 			Command cmd;
 			cmd.canExtended = canExtended;
@@ -58,14 +58,14 @@ namespace Maragi
 			return keyMap.insert(make_pair(make_pair(key, window), cmd)).second;
 		}
 
-		bool ShortcutKey::modifyShortcut(const Window *window, uint32_t id, Key key, bool canExtended, bool canRepeated)
+		bool ShortcutKey::modifyShortcut(const Shell *window, uint32_t id, Key key, bool canExtended, bool canRepeated)
 		{
 			if(!removeShortcut(window, id))
 				return false;
 			return addShortcut(window, id, key, canExtended, canRepeated);
 		}
 
-		bool ShortcutKey::removeShortcut(const Window *window, uint32_t id)
+		bool ShortcutKey::removeShortcut(const Shell *window, uint32_t id)
 		{
 			for(auto it = keyMap.begin(); it != keyMap.end(); ++ it)
 			{
@@ -79,7 +79,7 @@ namespace Maragi
 			return false;
 		}
 
-		uint32_t ShortcutKey::processShortcut(const Window *window, Key key, bool extended, bool repeated) const
+		uint32_t ShortcutKey::processShortcut(const Shell *window, Key key, bool extended, bool repeated) const
 		{
 			auto it = keyMap.find(make_pair(key, window));
 			if(it == keyMap.end())
@@ -91,7 +91,7 @@ namespace Maragi
 			return it->second.id;
 		}
 
-		bool ShortcutKey::processKey(const Window *window, bool ctrl, bool alt, bool shift, uint32_t keycode, bool extended, uint32_t repeat) const
+		bool ShortcutKey::processKey(const Shell *window, bool ctrl, bool alt, bool shift, uint32_t keycode, bool extended, uint32_t repeat) const
 		{
 			Key key;
 			key.modifier = getModifier(ctrl, alt, shift);
@@ -101,7 +101,7 @@ namespace Maragi
 			if(id == 0)
 				return false;
 
-			return PostMessageW(window->id, WM_COMMAND, id, 0) != FALSE;
+			return PostMessageW(window->hwnd, WM_COMMAND, id, 0) != FALSE;
 		}
 	}
 }
