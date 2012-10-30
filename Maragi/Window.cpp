@@ -37,12 +37,12 @@ namespace Maragi
 				self->_id = id;
 			}
 
-			Objects::Rectangle getRect()
+			Objects::RectangleF getRect()
 			{
 				return self->_rect;
 			}
 
-			void setRect(const Objects::Rectangle &rect)
+			void setRect(const Objects::RectangleF &rect)
 			{
 				self->_rect = rect;
 			}

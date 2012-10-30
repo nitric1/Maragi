@@ -11,6 +11,8 @@ namespace Maragi
 			template<typename T>
 			struct Point
 			{
+				typedef typename D2D1::TypeTraits<T>::Point D2DPoint;
+
 				T x, y;
 
 				Point()
@@ -24,6 +26,11 @@ namespace Maragi
 				Point(T ix, T iy)
 					: x(ix), y(iy)
 				{}
+
+				operator D2DPoint() const
+				{
+					return D2D1::Point2(x, y);
+				}
 			};
 
 			typedef Point<int32_t> PointI;
@@ -32,6 +39,8 @@ namespace Maragi
 			template<typename T>
 			struct Size
 			{
+				typedef typename D2D1::TypeTraits<T>::Size D2DSize;
+
 				T width, height;
 
 				Size()
@@ -45,6 +54,11 @@ namespace Maragi
 				Size(T iwidth, T iheight)
 					: width(iwidth), height(iheight)
 				{}
+
+				operator D2DSize() const
+				{
+					return D2D1::Size(x, y);
+				}
 			};
 
 			typedef Size<int32_t> SizeI;
@@ -53,6 +67,8 @@ namespace Maragi
 			template<typename T>
 			struct Rectangle
 			{
+				typedef typename D2D1::TypeTraits<T>::Rect D2DRect;
+
 				T left, top, right, bottom;
 
 				Rectangle()
@@ -89,6 +105,16 @@ namespace Maragi
 				{
 					Size<T> sz = { width(), height() };
 					return sz;
+				}
+
+				bool isIn(const Point<T> &pt) const
+				{
+					return (pt.x >= left && pt.x < right && pt.y >= top && pt.y < bottom);
+				}
+
+				operator D2DRect() const
+				{
+					return D2D1::Rect(x, y);
 				}
 			};
 

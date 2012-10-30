@@ -5,7 +5,7 @@
 #define NOMINMAX
 
 // All inclusion listing is dictionary order; Ordering is case insensitive.
-// Standard C/C++ library inclusion
+// Standard C/C++ library & boost library inclusion
 
 #include <algorithm>
 #include <exception>
@@ -17,6 +17,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <boost/date_time.hpp>
 
 using std::max; using std::min;
 

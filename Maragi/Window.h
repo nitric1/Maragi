@@ -189,21 +189,73 @@ namespace Maragi
 		{
 		};
 
+		namespace Message
+		{
+			enum
+			{
+				KeyDown = WM_KEYDOWN,
+				KeyUp = WM_KEYUP,
+				KeyChar = WM_CHAR,
+				// TODO: IME messages
+				KeyImeStartComposition = WM_IME_STARTCOMPOSITION,
+				KeyImeEndComposition = WM_IME_ENDCOMPOSITION,
+				KeyImeComposition = WM_IME_COMPOSITION,
+
+				MouseMove = WM_MOUSEMOVE,
+				MouseLButtonDown = WM_LBUTTONDOWN,
+				MouseLButtonUp = WM_LBUTTONUP,
+				MouseLButtonDoubleClick = WM_LBUTTONDBLCLK,
+				MouseRButtonDown = WM_RBUTTONDOWN,
+				MouseRButtonUp = WM_RBUTTONUP,
+				MouseRButtonDoubleClick = WM_RBUTTONDBLCLK,
+				MouseMButtonDown = WM_MBUTTONDOWN,
+				MouseMButtonUp = WM_MBUTTONUP,
+				MouseMButtonDoubleClick = WM_MBUTTONDBLCLK,
+				MouseXButtonDown = WM_XBUTTONDOWN,
+				MouseXButtonUp = WM_XBUTTONUP,
+				MouseXButtonDoubleClick = WM_XBUTTONDBLCLK,
+				MouseWheel = WM_MOUSEWHEEL,
+				MouseWheelHorizontal = WM_MOUSEHWHEEL,
+			};
+		}
+
 		struct ControlEventArg
 		{
-			Control *window;
+			Control *control;
+			uint32_t message;
+			Objects::Time time;
+
+			// raw
+			uint32_t rawMessage;
+			uintptr_t wParam;
+			longptr_t lParam;
+
+			// mouse
+			uint32_t buttonNum;
+			Objects::PointF controlPoint;
+			Objects::PointF shellClientPoint;
+			Objects::PointF screenPoint;
+			float wheelAmount;
+
+			// key
+			bool altKey;
+			bool ctrlKey;
+			bool shiftKey;
+			char keyCode; // Not in Char, ImeChar?
+			wchar_t charCode; // Char, ImeChar?
+			uint32_t repeated;
 		};
 
 		template<typename Func>
-		std::shared_ptr<ERDelegate<bool (ControlEventArg)>> delegateWindowEvent(Func fn)
+		std::shared_ptr<ERDelegate<bool (ControlEventArg &)>> delegateControlEvent(Func fn)
 		{
 			return delegate<bool (ControlEventArg)>(fn);
 		}
 
 		template<typename Class, typename Func>
-		std::shared_ptr<ERDelegate<bool (ControlEventArg)>> delegateWindowEvent(Class *p, Func fn)
+		std::shared_ptr<ERDelegate<bool (ControlEventArg &)>> delegateControlEvent(Class *p, Func fn)
 		{
-			return delegate<bool (ControlEventArg)>(p, fn);
+			return delegate<bool (ControlEventArg &)>(p, fn);
 		}
 
 		class Control
@@ -214,7 +266,7 @@ namespace Maragi
 		private:
 			Control *_parent;
 			ControlID _id;
-			Objects::Rectangle _rect;
+			Objects::RectangleF _rect;
 
 		protected:
 			explicit Control(Control *, ControlID);
@@ -239,19 +291,41 @@ namespace Maragi
 		public:
 			Property::R<Control, Control *> parent;
 			Property::RWProt<Control, ControlID> id;
-			Property::RW<Control, Objects::Rectangle> rect;
+			Property::RW<Control, Objects::RectangleF> rect;
 
 		private:
 			class Impl;
 			friend class Impl;
 
 			std::shared_ptr<Impl> impl;
+
+			friend class Shell;
 		};
+
+		struct WindowEventArg
+		{
+			Shell *shell;
+			uint32_t message;
+			uintptr_t wParam;
+			longptr_t lParam;
+		};
+
+		template<typename Func>
+		std::shared_ptr<ERDelegate<bool (WindowEventArg)>> delegateWindowEvent(Func fn)
+		{
+			return delegate<bool (WindowEventArg)>(fn);
+		}
+
+		template<typename Class, typename Func>
+		std::shared_ptr<ERDelegate<bool (WindowEventArg)>> delegateWindowEvent(Class *p, Func fn)
+		{
+			return delegate<bool (WindowEventArg)>(p, fn);
+		}
 
 		class Shell
 		{
 		private:
-			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (ControlEventArg)>>> eventMap;
+			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (WindowEventArg)>>> eventMap;
 
 		private:
 			Control *child; // Shell handles only one child.
