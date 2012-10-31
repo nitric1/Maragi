@@ -8,5 +8,13 @@ namespace Maragi
 {
 	namespace UI
 	{
+		FrameWindow::FrameWindow()
+		{
+		}
+
+		FrameWindow::FrameWindow(Shell *parent)
+			: Shell(parent)
+		{
+		}
 	}
 }

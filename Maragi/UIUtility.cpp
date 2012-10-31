@@ -24,20 +24,20 @@ namespace Maragi
 
 		void ControlManager::add(Control *window)
 		{
-			windows.insert(std::make_pair(static_cast<ControlID>(window->id), window));
+			controls.insert(std::make_pair(static_cast<ControlID>(window->id), window));
 		}
 
 		Control *ControlManager::find(ControlID id)
 		{
-			auto it = windows.find(id);
-			if(it == windows.end())
+			auto it = controls.find(id);
+			if(it == controls.end())
 				return nullptr;
 			return it->second;
 		}
 
 		void ControlManager::remove(ControlID id)
 		{
-			windows.erase(id);
+			controls.erase(id);
 		}
 	}
 }

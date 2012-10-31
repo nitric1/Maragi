@@ -10,6 +10,14 @@ namespace Maragi
 {
 	namespace UI
 	{
+		/*
+		UI::ShellPtr<UI::FrameWindow> frm = UI::FrameWindow::create("Hello World", UI::Icon::fromResource(...), ...);
+		UI::ControlPtr<UI::GridLayout> layout = UI::GridLayout::create(frm, 1, 2);
+		UI::ControlPtr<UI::Button> button = UI::Button::create("Button Text");
+		button.onClick = delegate(this, &onButtonClick);
+		frm->show();
+		*/
+
 		namespace Property
 		{
 			template<typename Host, typename T>
@@ -45,7 +53,62 @@ namespace Maragi
 				template<typename Other>
 				bool operator !=(const Other &rhs) const
 				{
+					return getter() != rhs;
+				}
+
+				T operator ->() const
+				{
+					return getter();
+				}
+
+				template<typename Other>
+				operator Other()
+				{
+					return getter();
+				}
+
+				template<typename Other>
+				operator Other() const
+				{
+					return getter();
+				}
+
+				friend Host;
+			};
+
+			template<typename Host, typename T>
+			class RV /* readonly having value */ : public Base<Host, T>
+			{
+			private:
+				T val;
+
+			private:
+				RV()
+					: val()
+				{}
+
+			protected:
+				void init(const T &ival)
+				{
+					val = ival;
+				}
+
+				void init(T &&ival)
+				{
+					val = std::forward<T>(ival);
+				}
+
+			public:
+				template<typename Other>
+				bool operator ==(const Other &rhs) const
+				{
 					return getter() == rhs;
+				}
+
+				template<typename Other>
+				bool operator !=(const Other &rhs) const
+				{
+					return getter() != rhs;
 				}
 
 				T operator ->() const
@@ -223,7 +286,7 @@ namespace Maragi
 		{
 			Control *control;
 			uint32_t message;
-			Objects::Time time;
+			boost::posix_time::ptime time;
 
 			// raw
 			uint32_t rawMessage;
@@ -269,12 +332,13 @@ namespace Maragi
 			Objects::RectangleF _rect;
 
 		protected:
-			explicit Control(Control *, ControlID);
+			Control(Control *, ControlID);
+			// explicit Control(const ControlCreateParams &);
 			virtual ~Control() = 0;
 
 		private: // no implementation
-			Control();
-			Control(const Control &);
+			Control(); // = delete;
+			Control(const Control &); // = delete;
 
 		public:
 			// virtual void release();
@@ -337,6 +401,9 @@ namespace Maragi
 		protected:
 			Shell();
 			explicit Shell(Shell *);
+
+		private: // no implementation
+			Shell(const Shell &); // = delete;
 
 		public:
 			Property::R<Shell, Shell *> parent;

@@ -9,6 +9,14 @@ namespace Maragi
 {
 	namespace UI
 	{
+		typename<template = Shell>
+		class ShellPtr;
+
+		template<typename T>
+		class ShellPtr
+		{
+		};
+
 		template<typename = Control>
 		class ControlPtr;
 
@@ -25,18 +33,18 @@ namespace Maragi
 			{
 			}
 
-			/*
-			ControlPtr(const Control *iptr) // TODO: window by GetDlgItem, ...
+			ControlPtr(Control *iptr)
 			{
 				if(iptr == nullptr)
 					castPtr = nullptr;
 				else
 				{
-					iptr->id;
+					castPtr = dynamic_cast<T *>(iptr);
+					ptr = std::shared_ptr<Control>(iptr);
 				}
-			}*/
+			}
 
-			ControlPtr(std::shared_ptr<Control> iptr) // TODO: new handler required like egui's new_
+			ControlPtr(std::shared_ptr<Control> iptr)
 				: ptr(iptr)
 			{
 				castPtr = dynamic_cast<T *>(ptr.get());
@@ -101,10 +109,27 @@ namespace Maragi
 			}
 		};
 
+		class ShellManager : public Singleton<ShellManager>
+		{
+		private:
+			std::map<HWND, Shell *> shells;
+
+		public:
+			ShellManager();
+
+		private:
+			~ShellManager();
+
+		private:
+
+			friend class Shell;
+			friend class Singleton<ShellManager>;
+		};
+
 		class ControlManager : public Singleton<ControlManager>
 		{
 		private:
-			std::map<ControlID, Control *> windows;
+			std::map<ControlID, Control *> controls;
 
 		private:
 			ControlID nextID;
