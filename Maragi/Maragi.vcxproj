@@ -161,6 +161,7 @@
     <ClCompile Include="Controls.cpp" />
     <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="FrameWindow.cpp" />
+    <ClCompile Include="Initializer.cpp" />
     <ClCompile Include="Layouts.cpp" />
     <ClCompile Include="MainController.cpp" />
     <ClCompile Include="MainWindow.cpp" />
@@ -268,6 +269,7 @@
     <ClInclude Include="Delegate.h" />
     <ClInclude Include="Dialog.h" />
     <ClInclude Include="FrameWindow.h" />
+    <ClInclude Include="Initializer.h" />
     <ClInclude Include="Layouts.h" />
     <ClInclude Include="MainController.h" />
     <ClInclude Include="MainWindow.h" />

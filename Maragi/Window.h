@@ -292,15 +292,19 @@ namespace Maragi
 			uint32_t rawMessage;
 			uintptr_t wParam;
 			longptr_t lParam;
+		};
 
-			// mouse
+		struct ControlMouseEventArg : public ControlEventArg
+		{
 			uint32_t buttonNum;
 			Objects::PointF controlPoint;
 			Objects::PointF shellClientPoint;
 			Objects::PointF screenPoint;
 			float wheelAmount;
+		};
 
-			// key
+		struct ControlKeyEventArg : public ControlEventArg
+		{
 			bool altKey;
 			bool ctrlKey;
 			bool shiftKey;

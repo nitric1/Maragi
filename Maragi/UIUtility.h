@@ -9,13 +9,8 @@ namespace Maragi
 {
 	namespace UI
 	{
-		typename<template = Shell>
-		class ShellPtr;
-
-		template<typename T>
-		class ShellPtr
-		{
-		};
+		class Control;
+		class Shell;
 
 		template<typename = Control>
 		class ControlPtr;
@@ -109,21 +104,12 @@ namespace Maragi
 			}
 		};
 
-		class ShellManager : public Singleton<ShellManager>
+		template<typename = Shell>
+		class ShellPtr;
+
+		template<typename T>
+		class ShellPtr
 		{
-		private:
-			std::map<HWND, Shell *> shells;
-
-		public:
-			ShellManager();
-
-		private:
-			~ShellManager();
-
-		private:
-
-			friend class Shell;
-			friend class Singleton<ShellManager>;
 		};
 
 		class ControlManager : public Singleton<ControlManager>
@@ -148,6 +134,23 @@ namespace Maragi
 
 			friend class Control;
 			friend class Singleton<ControlManager>;
+		};
+
+		class ShellManager : public Singleton<ShellManager>
+		{
+		private:
+			std::map<HWND, Shell *> shells;
+
+		public:
+			ShellManager();
+
+		private:
+			~ShellManager();
+
+		private:
+
+			friend class Shell;
+			friend class Singleton<ShellManager>;
 		};
 	}
 }

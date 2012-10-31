@@ -19,6 +19,7 @@
 #include <vector>
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/thread/mutex.hpp>
 
 using std::max; using std::min;
 
@@ -40,6 +41,7 @@ using std::max; using std::min;
 #include <d2d1.h>
 #include <dlgs.h>
 #include <dwrite.h>
+#include <intrin.h>
 #include <shlwapi.h>
 #include <wincrypt.h>
 #include <windowsx.h>
