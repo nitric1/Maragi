@@ -4,7 +4,7 @@
 
 namespace Maragi
 {
-	class GlobalInitializerManager;
+	// class GlobalInitializerManager;
 
 	/*template<typename T>
 	class Singleton // thread-unsafe
@@ -85,4 +85,4 @@ namespace Maragi
 	};*/
 }
 
-#include "Initializer.h"
+// #include "Initializer.h"
