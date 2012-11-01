@@ -7,6 +7,8 @@
 // All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ library & boost library inclusion
 
+#include <cstring>
+
 #include <algorithm>
 #include <exception>
 #include <functional>
@@ -21,6 +23,8 @@
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/once.hpp>
+#include <boost/thread/tss.hpp>
+#include <boost/variant.hpp>
 
 using std::max; using std::min;
 

@@ -4,6 +4,7 @@
 
 #include "Delegate.h"
 #include "Objects.h"
+#include "Primitives.h"
 #include "Singleton.h"
 
 namespace Maragi
@@ -76,6 +77,7 @@ namespace Maragi
 				friend Host;
 			};
 
+			// TODO: wrapper
 			template<typename Host, typename T>
 			class RV /* readonly having value */ : public Base<Host, T>
 			{
@@ -182,70 +184,6 @@ namespace Maragi
 			};
 		}
 
-		struct ControlID
-		{
-			static const ControlID undefined;
-
-			uintptr_t id;
-
-			ControlID()
-				: id(0)
-			{
-			}
-
-			explicit ControlID(uintptr_t iid)
-				: id(iid)
-			{
-			}
-
-			ControlID(const ControlID &that)
-				: id(that.id)
-			{
-			}
-
-			operator bool() const
-			{
-				return id != 0;
-			}
-
-			bool operator !() const
-			{
-				return id == 0;
-			}
-
-			bool operator <(const ControlID &rhs) const
-			{
-				return id < rhs.id;
-			}
-
-			bool operator >(const ControlID &rhs) const
-			{
-				return id > rhs.id;
-			}
-
-			bool operator <=(const ControlID &rhs) const
-			{
-				return id <= rhs.id;
-			}
-
-			bool operator >=(const ControlID &rhs) const
-			{
-				return id >= rhs.id;
-			}
-
-			ControlID &operator =(const ControlID &rhs)
-			{
-				id = rhs.id;
-				return *this;
-			}
-
-			ControlID &operator =(uintptr_t iid)
-			{
-				id = iid;
-				return *this;
-			}
-		};
-
 		class Control;
 
 		class Context
@@ -292,37 +230,43 @@ namespace Maragi
 			uint32_t rawMessage;
 			uintptr_t wParam;
 			longptr_t lParam;
-		};
 
-		struct ControlMouseEventArg : public ControlEventArg
-		{
+			// mouse
 			uint32_t buttonNum;
 			Objects::PointF controlPoint;
 			Objects::PointF shellClientPoint;
 			Objects::PointF screenPoint;
 			float wheelAmount;
-		};
 
-		struct ControlKeyEventArg : public ControlEventArg
-		{
+			// key
 			bool altKey;
 			bool ctrlKey;
 			bool shiftKey;
 			char keyCode; // Not in Char, ImeChar?
 			wchar_t charCode; // Char, ImeChar?
 			uint32_t repeated;
+
+			void stopPropagation() const
+			{
+				propagatable = false;
+			}
+
+		private:
+			mutable bool propagatable;
+
+			friend class Shell;
 		};
 
 		template<typename Func>
-		std::shared_ptr<ERDelegate<bool (ControlEventArg &)>> delegateControlEvent(Func fn)
+		std::shared_ptr<ERDelegate<bool (const ControlEventArg &)>> delegateControlEvent(Func fn)
 		{
-			return delegate<bool (ControlEventArg)>(fn);
+			return delegate<bool (const ControlEventArg &)>(fn);
 		}
 
 		template<typename Class, typename Func>
-		std::shared_ptr<ERDelegate<bool (ControlEventArg &)>> delegateControlEvent(Class *p, Func fn)
+		std::shared_ptr<ERDelegate<bool (const ControlEventArg &)>> delegateControlEvent(Class *p, Func fn)
 		{
-			return delegate<bool (ControlEventArg &)>(p, fn);
+			return delegate<bool (const ControlEventArg &)>(p, fn);
 		}
 
 		class Control

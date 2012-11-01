@@ -3,15 +3,13 @@
 #pragma once
 
 #include "Singleton.h"
-#include "Window.h"
+#include "Primitives.h"
+#include "UIForwards.h"
 
 namespace Maragi
 {
 	namespace UI
 	{
-		class Control;
-		class Shell;
-
 		template<typename = Control>
 		class ControlPtr;
 
@@ -151,6 +149,42 @@ namespace Maragi
 
 			friend class Shell;
 			friend class Singleton<ShellManager>;
+		};
+
+		template<typename T>
+		class ResourcePtr : public std::shared_ptr<T>
+		{
+		private:
+			struct Deleter
+			{
+				void operator ()(T *ptr) const
+				{
+					ptr->release();
+				}
+			};
+
+		public:
+			ResourcePtr()
+				: std::shared_ptr<T>()
+			{}
+
+			explicit ResourcePtr(T *ptr)
+				: std::shared_ptr<T>(ptr)
+			{}
+
+			ResourcePtr(nullptr_t)
+				: std::shared_ptr<T>(nullptr)
+			{}
+
+			template<typename Other>
+			ResourcePtr(const ResourcePtr<Other> &that)
+				: std::shared_ptr<T>(that)
+			{}
+
+			template<typename Other>
+			ResourcePtr(ResourcePtr<Other> &&that)
+				: std::shared_ptr<T>(that)
+			{}
 		};
 	}
 }

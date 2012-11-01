@@ -16,5 +16,9 @@ namespace Maragi
 			: Shell(parent)
 		{
 		}
+
+		FrameWindow::~FrameWindow()
+		{
+		}
 	}
 }

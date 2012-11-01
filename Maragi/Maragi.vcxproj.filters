@@ -90,7 +90,10 @@
     <ClCompile Include="UIUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Initializer.cpp">
+    <ClCompile Include="Global.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Primitives.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -422,7 +425,13 @@
     <ClInclude Include="UIUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Initializer.h">
+    <ClInclude Include="Global.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Primitives.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIForwards.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

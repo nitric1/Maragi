@@ -6,6 +6,23 @@
 
 namespace Maragi
 {
+	class Environment : public Singleton<Environment>
+	{
+	private:
+		HINSTANCE hinst;
+
+	private:
+		Environment();
+
+	public:
+		HINSTANCE getInstance() const
+		{
+			return hinst;
+		}
+
+		friend class Singleton<Environment>;
+	};
+
 	class Initializer
 	{
 	public:
@@ -48,7 +65,8 @@ namespace Maragi
 		boost::mutex lock;
 
 	private:
-		GlobalInitializerManager();
+		GlobalInitializerManager()
+		{}
 
 	private:
 		GlobalInitializerManager(const GlobalInitializerManager &); // = delete;

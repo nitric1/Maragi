@@ -2,10 +2,15 @@
 
 #include "Common.h"
 
-#include "Initializer.h"
+#include "Global.h"
 
 namespace Maragi
 {
+	Environment::Environment()
+	{
+		hinst = GetModuleHandle(nullptr);
+	}
+
 	void GlobalInitializerManager::add(const std::shared_ptr<Initializer> &init)
 	{
 		boost::mutex::scoped_lock sl(lock);

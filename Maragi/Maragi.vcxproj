@@ -161,11 +161,12 @@
     <ClCompile Include="Controls.cpp" />
     <ClCompile Include="Dialog.cpp" />
     <ClCompile Include="FrameWindow.cpp" />
-    <ClCompile Include="Initializer.cpp" />
+    <ClCompile Include="Global.cpp" />
     <ClCompile Include="Layouts.cpp" />
     <ClCompile Include="MainController.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Objects.cpp" />
+    <ClCompile Include="Primitives.cpp" />
     <ClCompile Include="ShortcutKey.cpp" />
     <ClCompile Include="Tokens.cpp" />
     <ClCompile Include="TwitterClient.cpp" />
@@ -269,11 +270,12 @@
     <ClInclude Include="Delegate.h" />
     <ClInclude Include="Dialog.h" />
     <ClInclude Include="FrameWindow.h" />
-    <ClInclude Include="Initializer.h" />
+    <ClInclude Include="Global.h" />
     <ClInclude Include="Layouts.h" />
     <ClInclude Include="MainController.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Objects.h" />
+    <ClInclude Include="Primitives.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ShortcutKey.h" />
     <ClInclude Include="Singleton.h" />
@@ -281,6 +283,7 @@
     <ClInclude Include="TwitterClient.h" />
     <ClInclude Include="TwitterClientError.h" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="UIForwards.h" />
     <ClInclude Include="URI.h" />
     <ClInclude Include="UIUtility.h" />
     <ClInclude Include="Utility.h" />

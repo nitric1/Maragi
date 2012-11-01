@@ -76,13 +76,33 @@ namespace Maragi
 	boost::mutex SingletonMT<T>::lock;
 	template<typename T>
 	const std::string SingletonMT<T>::uninitializerName = std::string("Singleton Deleter ") + typeid(T).name();*/
+	template<typename T>
+	std::unique_ptr<T, typename Singleton<T>::Deleter> Singleton<T>::ptr;
+	template<typename T>
+	boost::once_flag Singleton<T>::onceFlag;
 
-	;
-
-	/*template<typename T>
+	template<typename T>
 	class SingletonLocal // thread-local (using TLS)
 	{
-	};*/
+	protected:
+		~SingletonLocal() {}
+
+	private:
+		static void deleter(T *ptr)
+		{
+			delete ptr;
+		}
+
+	public:
+		static T &instance()
+		{
+			static boost::thread_specific_ptr<T> ptr(deleter);
+			if(ptr.get() == nullptr)
+				ptr.reset(new T);
+			return *ptr;
+		}
+		static T &inst() { return instance(); }
+	};
 }
 
 // #include "Initializer.h"

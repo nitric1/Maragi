@@ -2,6 +2,7 @@
 
 #include "Common.h"
 
+#include "Global.h"
 #include "Window.h"
 
 namespace Maragi
@@ -83,24 +84,9 @@ namespace Maragi
 			return true;
 		}
 
-		/*
-		class Control::Impl
+		void Control::draw(Context &context)
 		{
-		private:
-			Control *self;
-
-		public:
-			explicit Impl(Control *iself)
-				: self(iself)
-			{
-			}
-		};
-
-		Control::Control()
-			: Control(nullptr, ControlID::undefined)
-		{
-			impl = std::shared_ptr<Impl>(new Impl(this));
-		}*/
+		}
 
 		class Shell::Impl
 		{

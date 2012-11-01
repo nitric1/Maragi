@@ -3,6 +3,7 @@
 #include "Common.h"
 
 #include "UIUtility.h"
+#include "Window.h"
 
 namespace Maragi
 {
