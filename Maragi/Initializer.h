@@ -41,7 +41,7 @@ namespace Maragi
 		}
 	};
 
-	class GlobalInitializerManager : public SingletonMT<GlobalInitializerManager>
+	class GlobalInitializerManager : public Singleton<GlobalInitializerManager>
 	{
 	private:
 		std::map<std::string, std::shared_ptr<Initializer>> inits;
@@ -61,19 +61,9 @@ namespace Maragi
 		}
 
 	private:
-		void uninit()
-		{
-			for(auto it = std::begin(inits); it != std::end(inits); ++ it)
-			{
-				if(it->first == uninitializerName)
-					continue;
-				it->second->uninit();
-			}
-			std::shared_ptr<Initializer> myinit = inits[uninitializerName];
-			myinit->uninit();
-		}
+		void uninit();
 
-		friend class SingletonMT<GlobalInitializerManager>;
+		friend class Singleton<GlobalInitializerManager>;
 		friend class GlobalUninitializer;
 	};
 

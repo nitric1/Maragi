@@ -6,8 +6,8 @@ namespace Maragi
 {
 	class GlobalInitializerManager;
 
-	template<typename T>
-	class Singleton
+	/*template<typename T>
+	class Singleton // thread-unsafe
 	{
 	protected:
 		~Singleton() {}
@@ -19,26 +19,38 @@ namespace Maragi
 			return theInstance;
 		}
 		static T &inst() { return instance(); }
-	};
+	};*/
 
 	template<typename T>
-	class SingletonMT // thread-safe
+	class Singleton // thread-safe
 	{
+	private:
+		class Deleter
+		{
+		public:
+			void operator ()(T *ptr) const
+			{
+				if(sizeof(T) > 0)
+					delete ptr;
+			}
+		};
+
 	protected:
-		~SingletonMT() {}
+		~Singleton() {}
 
 	private:
-		static T *ptr;
-		static boost::mutex lock;
+		static std::unique_ptr<T, Deleter> ptr;
+		static boost::once_flag onceFlag;
+		// static T *ptr;
+		// static boost::mutex lock;
 
 	protected:
-		const static std::string uninitializerName;
+		// const static std::string uninitializerName;
 
 	public:
 		static T &instance()
 		{
-			// TODO: replace by std::atomic w/ VS 2012.
-			T *tmp = ptr;
+			/*T *tmp = ptr;
 			_ReadWriteBarrier();
 			if(tmp == nullptr)
 			{
@@ -51,18 +63,21 @@ namespace Maragi
 					ptr = tmp;
 					GlobalInitializerManager::instance().add(uninitializerName, nullptr, []() { delete ptr; });
 				}
-			}
-			return *tmp;
+			}*/
+			boost::call_once(onceFlag, [] { ptr.reset(new T); });
+			return *ptr.get();
 		}
 		static T &inst() { return instance(); }
 	};
 
-	template<typename T>
+	/*template<typename T>
 	T *SingletonMT<T>::ptr = nullptr;
 	template<typename T>
 	boost::mutex SingletonMT<T>::lock;
 	template<typename T>
-	const std::string SingletonMT<T>::uninitializerName = std::string("Singleton Deleter ") + typeid(T).name();
+	const std::string SingletonMT<T>::uninitializerName = std::string("Singleton Deleter ") + typeid(T).name();*/
+
+	;
 
 	/*template<typename T>
 	class SingletonLocal // thread-local (using TLS)
