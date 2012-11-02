@@ -12,8 +12,20 @@ namespace Maragi
 		{
 		};
 
+		class FullLayout : public Layout
+		{
+		};
+
 		class GridLayout : public Layout
 		{
+		public:
+			class RowProxy
+			{
+			};
+
+			class CellProxy : public Control
+			{
+			};
 		};
 	}
 }

@@ -21,6 +21,7 @@
 #include <vector>
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/format.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/once.hpp>
 #include <boost/thread/tss.hpp>

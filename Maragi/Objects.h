@@ -2,9 +2,6 @@
 
 #pragma once
 
-#include "Primitives.h"
-#include "UIUtility.h"
-
 namespace Maragi
 {
 	namespace UI
@@ -123,47 +120,6 @@ namespace Maragi
 
 			typedef Rectangle<int32_t> RectangleI;
 			typedef Rectangle<float> RectangleF;
-
-			class Asset
-			{
-			private:
-				virtual void release()
-				{
-					delete this;
-				}
-
-				friend class ResourcePtr<Asset>;
-			};
-
-			class Icon : public Asset
-			{
-			private:
-				HICON icon;
-				bool shared;
-
-			private:
-				Icon();
-				Icon(HICON, bool);
-
-			public:
-				virtual ~Icon();
-
-			public:
-				static ResourcePtr<Icon> fromResource(const ResourceID &);
-				static ResourcePtr<Icon> fromSharedResource(const ResourceID &);
-				static ResourcePtr<Icon> fromFile(const std::wstring &);
-
-			public:
-				HICON getIcon() const
-				{
-					return icon;
-				}
-
-				operator HICON() const
-				{
-					return icon;
-				}
-			};
 		}
 	}
 }

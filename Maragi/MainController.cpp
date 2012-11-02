@@ -41,22 +41,6 @@ namespace Maragi
 		}
 	}
 
-	class TestSingleton : public SingletonLocal<TestSingleton>
-	{
-	private:
-		TestSingleton()
-		{
-			MessageBoxW(nullptr, L"Constructor Called", L"TestSingleton", MB_OK);
-		}
-
-		~TestSingleton()
-		{
-			MessageBoxW(nullptr, L"Destructor Called", L"TestSingleton", MB_OK);
-		}
-
-		friend class SingletonLocal<TestSingleton>;
-	};
-
 	bool MainController::runImpl(HINSTANCE instance, const std::wstring &commandLine, int showCommand)
 	{
 		try
@@ -73,6 +57,8 @@ namespace Maragi
 
 			// mainWin->setShowStatus(showCommand);
 			// return mainWin->show();
+
+			MessageBoxW(nullptr, (boost::wformat(L"%1%") % GetSystemMetrics(SM_CXICON)).str().c_str(), L"Info", MB_OK);
 
 			return true;
 		}

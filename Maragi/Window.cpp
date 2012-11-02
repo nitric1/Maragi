@@ -22,40 +22,34 @@ namespace Maragi
 			{
 			}
 
-			Control *getParent()
+			ControlPtr<Control> getParent()
 			{
-				return self->_parent;
+				return self->parent_;
 			}
 
 			ControlID getId()
 			{
-				return self->_id;
-			}
-
-			void setId(const ControlID &id)
-			{
-				::D2D1_SIZE_F;
-				self->_id = id;
+				return self->id_;
 			}
 
 			Objects::RectangleF getRect()
 			{
-				return self->_rect;
+				return self->rect_;
 			}
 
 			void setRect(const Objects::RectangleF &rect)
 			{
-				self->_rect = rect;
+				self->rect_ = rect;
 			}
 		};
 
-		Control::Control(Control *iparent, ControlID iid)
-			: _parent(iparent)
-			, _id(iid)
+		Control::Control(const ControlPtr<Control> &iparent, const ControlID &iid)
+			: parent_(iparent)
+			, id_(iid)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			parent.init(impl.get(), &Impl::getParent);
-			id.init(impl.get(), &Impl::getId, &Impl::setId);
+			id.init(impl.get(), &Impl::getId);
 			rect.init(impl.get(), &Impl::getRect, &Impl::setRect);
 		}
 
@@ -99,19 +93,19 @@ namespace Maragi
 			{
 			}
 
-			Shell *getParent()
+			ShellPtr<Shell> getParent()
 			{
-				return self->_parent;
+				return self->parent_;
 			}
 
 			HWND getHwnd()
 			{
-				return self->_hwnd;
+				return self->hwnd_;
 			}
 
 			void setHwnd(HWND hwnd)
 			{
-				self->_hwnd = hwnd;
+				self->hwnd_ = hwnd;
 			}
 		};
 

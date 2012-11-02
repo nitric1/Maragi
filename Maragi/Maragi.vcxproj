@@ -167,6 +167,7 @@
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Objects.cpp" />
     <ClCompile Include="Primitives.cpp" />
+    <ClCompile Include="Resources.cpp" />
     <ClCompile Include="ShortcutKey.cpp" />
     <ClCompile Include="Tokens.cpp" />
     <ClCompile Include="TwitterClient.cpp" />
@@ -277,6 +278,7 @@
     <ClInclude Include="Objects.h" />
     <ClInclude Include="Primitives.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Resources.h" />
     <ClInclude Include="ShortcutKey.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Tokens.h" />

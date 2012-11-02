@@ -6,15 +6,16 @@
 #include "Objects.h"
 #include "Primitives.h"
 #include "Singleton.h"
+#include "UIUtility.h"
 
 namespace Maragi
 {
 	namespace UI
 	{
 		/*
-		UI::ShellPtr<UI::FrameWindow> frm = UI::FrameWindow::create("Hello World", UI::Icon::fromResource(...), ...);
-		UI::ControlPtr<UI::GridLayout> layout = UI::GridLayout::create(frm, 1, 2);
-		UI::ControlPtr<UI::Button> button = UI::Button::create("Button Text");
+		UI::ShellPtr<UI::FrameWindow> frm = UI::FrameWindow::create("Hello World", UI::Icon::fromSharedResource(IDI_APPLICATION), Objects::SizeI(640, 480));
+		UI::ControlPtr<UI::GridLayout> layout = UI::GridLayout::create(frm.client, 1, 2);
+		UI::ControlPtr<UI::Button> button = UI::Button::create(layout[0][1], "Button Text");
 		button.onClick = delegate(this, &onButtonClick);
 		frm->show();
 		*/
@@ -275,12 +276,12 @@ namespace Maragi
 			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (ControlEventArg)>>> eventMap;
 
 		private:
-			Control *_parent;
-			ControlID _id;
-			Objects::RectangleF _rect;
+			ControlPtr<Control> parent_;
+			ControlID id_;
+			Objects::RectangleF rect_;
 
 		protected:
-			Control(Control *, ControlID);
+			Control(const ControlPtr<Control> &, const ControlID &);
 			// explicit Control(const ControlCreateParams &);
 			virtual ~Control() = 0;
 
@@ -301,8 +302,8 @@ namespace Maragi
 			virtual void draw(Context &);
 
 		public:
-			Property::R<Control, Control *> parent;
-			Property::RWProt<Control, ControlID> id;
+			Property::R<Control, ControlPtr<Control>> parent;
+			Property::R<Control, ControlID> id;
 			Property::RW<Control, Objects::RectangleF> rect;
 
 		private:
@@ -340,11 +341,8 @@ namespace Maragi
 			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (WindowEventArg)>>> eventMap;
 
 		private:
-			Control *child; // Shell handles only one child.
-
-		private:
-			Shell *_parent;
-			HWND _hwnd;
+			ShellPtr<Shell> parent_;
+			HWND hwnd_;
 
 		protected:
 			Shell();
@@ -354,7 +352,7 @@ namespace Maragi
 			Shell(const Shell &); // = delete;
 
 		public:
-			Property::R<Shell, Shell *> parent;
+			Property::R<Shell, ShellPtr<Shell>> parent;
 			Property::RWProt<Shell, HWND> hwnd;
 
 		private:

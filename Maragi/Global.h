@@ -20,6 +20,8 @@ namespace Maragi
 			return hinst;
 		}
 
+		// TODO: DLL instances
+
 		friend class Singleton<Environment>;
 	};
 

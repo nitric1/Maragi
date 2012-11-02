@@ -108,6 +108,105 @@ namespace Maragi
 		template<typename T>
 		class ShellPtr
 		{
+		private:
+			std::shared_ptr<Shell> ptr;
+			T *castPtr;
+
+		private:
+			static void deleter(T *ptr)
+			{
+				delete ptr;
+			}
+
+		public:
+			ShellPtr()
+				: ptr(nullptr, deleter)
+				, castPtr(nullptr)
+			{
+			}
+
+			ShellPtr(Shell *iptr)
+			{
+				if(iptr == nullptr)
+					castPtr = nullptr;
+				else
+				{
+					castPtr = dynamic_cast<T *>(iptr);
+					ptr = std::shared_ptr<Shell>(iptr, deleter);
+				}
+			}
+
+			ShellPtr(std::shared_ptr<Shell> iptr)
+				: ptr(iptr)
+			{
+				castPtr = dynamic_cast<T *>(ptr.get());
+			}
+
+			template<typename Other>
+			ShellPtr(const ShellPtr<Other> &that)
+				: ptr(that.ptr)
+			{
+				castPtr = dynamic_cast<T *>(ptr.get());
+			}
+
+		public:
+			template<typename Other>
+			ShellPtr &operator =(const ShellPtr<Other> &rhs)
+			{
+				ptr = rhs.ptr;
+				castPtr = dynamic_cast<T *>(ptr.get());
+				return *this;
+			}
+
+			bool operator ==(const ShellPtr &rhs)
+			{
+				return castPtr == rhs.castPtr;
+			}
+
+			bool operator !=(const ShellPtr &rhs)
+			{
+				return castPtr != rhs.castPtr;
+			}
+
+			bool operator <(const ShellPtr &rhs)
+			{
+				return castPtr < rhs.castPtr;
+			}
+
+			bool operator >(const ShellPtr &rhs)
+			{
+				return castPtr > rhs.castPtr;
+			}
+
+			bool operator <=(const ShellPtr &rhs)
+			{
+				return castPtr <= rhs.castPtr;
+			}
+
+			bool operator >=(const ShellPtr &rhs)
+			{
+				return castPtr >= rhs.castPtr;
+			}
+
+			T *operator ->()
+			{
+				return castPtr;
+			}
+
+			const T *operator ->() const
+			{
+				return castPtr;
+			}
+
+			operator bool() const
+			{
+				return castPtr != nullptr;
+			}
+
+			bool operator !() const
+			{
+				return castPtr == nullptr;
+			}
 		};
 
 		class ControlManager : public Singleton<ControlManager>
@@ -149,42 +248,6 @@ namespace Maragi
 
 			friend class Shell;
 			friend class Singleton<ShellManager>;
-		};
-
-		template<typename T>
-		class ResourcePtr : public std::shared_ptr<T>
-		{
-		private:
-			struct Deleter
-			{
-				void operator ()(T *ptr) const
-				{
-					ptr->release();
-				}
-			};
-
-		public:
-			ResourcePtr()
-				: std::shared_ptr<T>()
-			{}
-
-			explicit ResourcePtr(T *ptr)
-				: std::shared_ptr<T>(ptr)
-			{}
-
-			ResourcePtr(nullptr_t)
-				: std::shared_ptr<T>(nullptr)
-			{}
-
-			template<typename Other>
-			ResourcePtr(const ResourcePtr<Other> &that)
-				: std::shared_ptr<T>(that)
-			{}
-
-			template<typename Other>
-			ResourcePtr(ResourcePtr<Other> &&that)
-				: std::shared_ptr<T>(that)
-			{}
 		};
 	}
 }
