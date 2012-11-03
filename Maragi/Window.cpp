@@ -103,9 +103,11 @@ namespace Maragi
 				return self->hwnd_;
 			}
 
-			void setHwnd(HWND hwnd)
+			Objects::SizeI getClientSize()
 			{
-				self->hwnd_ = hwnd;
+				RECT rc;
+				GetClientRect(self->hwnd_, &rc);
+				return Objects::SizeI(rc.right - rc.left, rc.bottom - rc.top);
 			}
 		};
 
@@ -113,14 +115,20 @@ namespace Maragi
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			parent.init(impl.get(), &Impl::getParent);
-			hwnd.init(impl.get(), &Impl::getHwnd, &Impl::setHwnd);
+			hwnd.init(impl.get(), &Impl::getHwnd);
+			clientSize.init(impl.get(), &Impl::getClientSize);
 		}
 
-		Shell::Shell(Shell *iparent) // with parent
+		Shell::Shell(const ShellPtr<Shell> &iparent) // with parent
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			parent.init(impl.get(), &Impl::getParent);
-			hwnd.init(impl.get(), &Impl::getHwnd, &Impl::setHwnd);
+			hwnd.init(impl.get(), &Impl::getHwnd);
+			clientSize.init(impl.get(), &Impl::getClientSize);
+		}
+
+		Shell::~Shell()
+		{
 		}
 	}
 }

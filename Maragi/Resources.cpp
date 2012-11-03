@@ -36,6 +36,15 @@ namespace Maragi
 				}
 			}
 
+			ResourceID::ResourceID(ResourceID &&that)
+			{
+				name = that.name;
+				allocated = that.allocated;
+
+				that.name = nullptr;
+				that.allocated = false;
+			}
+
 			ResourceID &ResourceID::operator =(const ResourceID &rhs)
 			{
 				if(&rhs != this)
@@ -109,6 +118,11 @@ namespace Maragi
 				return nullptr;
 			}
 
+			void ResourcePtrDeleter::operator ()(Resource *ptr) const
+			{
+				delete ptr;
+			}
+
 			Icon::Icon()
 				: icon(nullptr), shared(false)
 			{
@@ -159,6 +173,32 @@ namespace Maragi
 			{
 				HICON icon = static_cast<HICON>(LoadImageW(nullptr, file.c_str(), IMAGE_ICON, desiredSize.width, desiredSize.height, LR_DEFAULTCOLOR | LR_LOADFROMFILE));
 				return ResourcePtr<Icon>(new Icon(icon, false));
+			}
+
+			Cursor::Cursor()
+				: cursor(nullptr)
+			{
+			}
+
+			Cursor::Cursor(HCURSOR icursor)
+				: cursor(icursor)
+			{
+			}
+			
+			Cursor::~Cursor()
+			{
+			}
+
+			ResourcePtr<Cursor> Cursor::fromResource(const ResourceID &id)
+			{
+				HCURSOR cursor = static_cast<HCURSOR>(LoadCursorW(ResourceHelper::findInstanceByResourceID(id, RT_CURSOR), id));
+				return ResourcePtr<Cursor>(new Cursor(cursor));
+			}
+
+			ResourcePtr<Cursor> Cursor::fromFile(const std::wstring &file)
+			{
+				HCURSOR cursor = static_cast<HCURSOR>(LoadCursorFromFileW(file.c_str()));
+				return ResourcePtr<Cursor>(new Cursor(cursor));
 			}
 		}
 	}

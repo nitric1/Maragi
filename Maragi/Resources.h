@@ -12,6 +12,7 @@ namespace Maragi
 		{
 			class ResourceID
 			{
+			private:
 				union
 				{
 					uint16_t id;
@@ -30,6 +31,7 @@ namespace Maragi
 
 				ResourceID(const std::wstring &);
 				ResourceID(const ResourceID &);
+				ResourceID(ResourceID &&);
 
 				~ResourceID()
 				{
@@ -66,32 +68,28 @@ namespace Maragi
 
 			class Resource;
 
+			struct ResourcePtrDeleter
+			{
+				void operator ()(Resource *) const;
+			};
+
 			template<typename = Resource>
 			class ResourcePtr;
 
 			template<typename T>
 			class ResourcePtr : public std::shared_ptr<T>
 			{
-			private:
-				struct Deleter
-				{
-					void operator ()(T *ptr) const
-					{
-						ptr->release();
-					}
-				};
-
 			public:
 				ResourcePtr()
-					: std::shared_ptr<T>()
+					: std::shared_ptr<T>(nullptr, ResourcePtrDeleter())
 				{}
 
 				explicit ResourcePtr(T *ptr)
-					: std::shared_ptr<T>(ptr)
+					: std::shared_ptr<T>(ptr, ResourcePtrDeleter())
 				{}
 
 				ResourcePtr(nullptr_t)
-					: std::shared_ptr<T>(nullptr)
+					: std::shared_ptr<T>(nullptr, ResourcePtrDeleter())
 				{}
 
 				template<typename Other>
@@ -101,19 +99,20 @@ namespace Maragi
 
 				template<typename Other>
 				ResourcePtr(ResourcePtr<Other> &&that)
-					: std::shared_ptr<T>(that)
+					: std::shared_ptr<T>(std::forward<ResourcePtr<Other>>(that))
 				{}
 			};
 
 			class Resource
 			{
-			private:
-				virtual void release()
-				{
-					delete this;
-				}
+			protected:
+				virtual ~Resource() = 0
+				{}
 
-				friend class ResourcePtr<Resource>;
+			protected:
+				Resource &operator =(const Resource &); // = delete;
+
+				friend struct ResourcePtrDeleter;
 			};
 
 			class Icon : public Resource
@@ -122,11 +121,9 @@ namespace Maragi
 				HICON icon;
 				bool shared;
 
-			private:
+			protected:
 				Icon();
 				Icon(HICON, bool);
-
-			public:
 				virtual ~Icon();
 
 			public:
@@ -146,6 +143,32 @@ namespace Maragi
 				operator HICON() const
 				{
 					return icon;
+				}
+			};
+
+			class Cursor : public Resource
+			{
+			private:
+				HCURSOR cursor;
+
+			protected:
+				Cursor();
+				Cursor(HCURSOR);
+				virtual ~Cursor();
+
+			public:
+				static ResourcePtr<Cursor> fromResource(const ResourceID &);
+				static ResourcePtr<Cursor> fromFile(const std::wstring &);
+
+			public:
+				HCURSOR getCursor() const
+				{
+					return cursor;
+				}
+
+				operator HCURSOR() const
+				{
+					return cursor;
 				}
 			};
 		}

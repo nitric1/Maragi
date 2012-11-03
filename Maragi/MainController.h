@@ -13,7 +13,6 @@ namespace Maragi
 	private:
 		unsigned exceptionCode;
 		EXCEPTION_POINTERS exceptionPointers;
-		HINSTANCE appInst;
 		MainWindow *mainWin;
 		CommandLineParser cmdLine;
 
@@ -22,11 +21,8 @@ namespace Maragi
 		~MainController();
 
 	public:
-		HINSTANCE getInstance() const;
-
-	public:
-		bool run(HINSTANCE, const std::wstring &, int);
-		bool runImpl(HINSTANCE, const std::wstring &, int);
+		bool run(const std::wstring &, int);
+		bool runImpl(const std::wstring &, int);
 
 	private:
 		void registerEvents();

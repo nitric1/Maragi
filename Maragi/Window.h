@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Delegate.h"
+#include "Global.h"
 #include "Objects.h"
 #include "Primitives.h"
 #include "Singleton.h"
@@ -46,6 +47,11 @@ namespace Maragi
 				}
 
 			public:
+				T get() const
+				{
+					return getter();
+				}
+
 				template<typename Other>
 				bool operator ==(const Other &rhs) const
 				{
@@ -105,37 +111,37 @@ namespace Maragi
 				template<typename Other>
 				bool operator ==(const Other &rhs) const
 				{
-					return getter() == rhs;
+					return val == rhs;
 				}
 
 				template<typename Other>
 				bool operator !=(const Other &rhs) const
 				{
-					return getter() != rhs;
+					return val != rhs;
 				}
 
 				T operator ->() const
 				{
-					return getter();
+					return val;
 				}
 
 				template<typename Other>
 				operator Other()
 				{
-					return getter();
+					return val;
 				}
 
 				template<typename Other>
 				operator Other() const
 				{
-					return getter();
+					return val;
 				}
 
 				friend Host;
 			};
 
 			template<typename Host, typename T>
-			class RWProt : public R<Host, T>
+			class RW/*Prot*/ : public R<Host, T>
 			{
 			private:
 				std::function<void (const T &)> setter;
@@ -161,8 +167,9 @@ namespace Maragi
 					setter = std::bind(std::mem_fun(isetter), inst, std::placeholders::_1);
 				}
 
+			public:
 				template<typename Other>
-				RWProt &operator =(const Other &val)
+				RW &operator =(const Other &val)
 				{
 					setter(val);
 					return *this;
@@ -171,7 +178,7 @@ namespace Maragi
 				friend Host;
 			};
 
-			template<typename Host, typename T>
+			/*template<typename Host, typename T>
 			class RW : public RWProt<Host, T>
 			{
 			public:
@@ -182,7 +189,7 @@ namespace Maragi
 				}
 
 				friend Host;
-			};
+			};*/
 		}
 
 		class Control;
@@ -282,7 +289,6 @@ namespace Maragi
 
 		protected:
 			Control(const ControlPtr<Control> &, const ControlID &);
-			// explicit Control(const ControlCreateParams &);
 			virtual ~Control() = 0;
 
 		private: // no implementation
@@ -313,6 +319,7 @@ namespace Maragi
 			std::shared_ptr<Impl> impl;
 
 			friend class Shell;
+			friend struct ControlPtrDeleter;
 		};
 
 		struct WindowEventArg
@@ -342,24 +349,37 @@ namespace Maragi
 
 		private:
 			ShellPtr<Shell> parent_;
+
+		protected:
 			HWND hwnd_;
 
 		protected:
 			Shell();
-			explicit Shell(Shell *);
+			explicit Shell(const ShellPtr<Shell> &);
+			virtual ~Shell() = 0;
 
 		private: // no implementation
 			Shell(const Shell &); // = delete;
 
 		public:
 			Property::R<Shell, ShellPtr<Shell>> parent;
-			Property::RWProt<Shell, HWND> hwnd;
+			Property::R<Shell, HWND> hwnd;
+			Property::R<Shell, Objects::SizeI> clientSize;
+
+		private:
+			virtual longptr_t procMessage(HWND, uint32_t, uintptr_t, longptr_t)
+			{
+				return 0;
+			}
 
 		private:
 			class Impl;
 			friend class Impl;
 
 			std::shared_ptr<Impl> impl;
+
+			friend struct ShellPtrDeleter;
+			friend class ShellManager;
 		};
 	}
 }

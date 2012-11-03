@@ -9,18 +9,32 @@ namespace Maragi
 	class Environment : public Singleton<Environment>
 	{
 	private:
-		HINSTANCE hinst;
+		HINSTANCE inst_; // Main instance
+		std::set<HINSTANCE> dllInstances; // DLLs' instance
 
 	private:
 		Environment();
 
 	public:
-		HINSTANCE getInstance() const
+		void addDllInstance(HINSTANCE dllInst)
 		{
-			return hinst;
+			dllInstances.insert(dllInst);
 		}
 
-		// TODO: DLL instances
+		void removeDllInstance(HINSTANCE dllInst)
+		{
+			dllInstances.erase(dllInst);
+		}
+
+		HINSTANCE getInstance() const
+		{
+			return inst_;
+		}
+
+		const std::set<HINSTANCE> &getDllInstances() const
+		{
+			return dllInstances;
+		}
 
 		friend class Singleton<Environment>;
 	};
@@ -29,8 +43,8 @@ namespace Maragi
 	{
 	public:
 		virtual std::string getName() const = 0;
-		virtual void init() const = 0;
-		virtual void uninit() const = 0;
+		virtual void init() = 0;
+		virtual void uninit() = 0;
 	};
 
 	class InstantInitializer : public Initializer
@@ -49,12 +63,12 @@ namespace Maragi
 			return name;
 		}
 
-		virtual void init() const
+		virtual void init()
 		{
 			initFn();
 		}
 
-		virtual void uninit() const
+		virtual void uninit()
 		{
 			uninitFn();
 		}

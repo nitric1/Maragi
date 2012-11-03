@@ -10,6 +10,11 @@ namespace Maragi
 {
 	namespace UI
 	{
+		struct ControlPtrDeleter
+		{
+			void operator ()(Control *) const;
+		};
+
 		template<typename = Control>
 		class ControlPtr;
 
@@ -22,18 +27,18 @@ namespace Maragi
 
 		public:
 			ControlPtr()
-				: castPtr(nullptr)
+				: ptr(nullptr, ControlPtrDeleter())
+				, castPtr(nullptr)
 			{
 			}
 
 			ControlPtr(Control *iptr)
+				: castPtr(nullptr)
 			{
-				if(iptr == nullptr)
-					castPtr = nullptr;
-				else
+				if(iptr != nullptr)
 				{
 					castPtr = dynamic_cast<T *>(iptr);
-					ptr = std::shared_ptr<Control>(iptr);
+					ptr = std::shared_ptr<Control>(iptr, ControlPtrDeleter());
 				}
 			}
 
@@ -51,42 +56,51 @@ namespace Maragi
 			}
 
 		public:
-			bool operator ==(const ControlPtr &rhs)
-			{
-				return castPtr == rhs.castPtr;
-			}
-
-			bool operator !=(const ControlPtr &rhs)
-			{
-				return castPtr != rhs.castPtr;
-			}
-
-			bool operator <(const ControlPtr &rhs)
-			{
-				return castPtr < rhs.castPtr;
-			}
-
-			bool operator >(const ControlPtr &rhs)
-			{
-				return castPtr > rhs.castPtr;
-			}
-
-			bool operator <=(const ControlPtr &rhs)
-			{
-				return castPtr <= rhs.castPtr;
-			}
-
-			bool operator >=(const ControlPtr &rhs)
-			{
-				return castPtr >= rhs.castPtr;
-			}
-
-			T *operator ->()
+			T *get() const
 			{
 				return castPtr;
 			}
 
-			const T *operator ->() const
+		public:
+			template<typename Other>
+			ControlPtr &operator =(const ControlPtr<Other> &rhs)
+			{
+				ptr = rhs.ptr;
+				castPtr = dynamic_cast<T *>(ptr.get());
+				return *this;
+			}
+
+			bool operator ==(const ControlPtr &rhs) const
+			{
+				return castPtr == rhs.castPtr;
+			}
+
+			bool operator !=(const ControlPtr &rhs) const
+			{
+				return castPtr != rhs.castPtr;
+			}
+
+			bool operator <(const ControlPtr &rhs) const
+			{
+				return castPtr < rhs.castPtr;
+			}
+
+			bool operator >(const ControlPtr &rhs) const
+			{
+				return castPtr > rhs.castPtr;
+			}
+
+			bool operator <=(const ControlPtr &rhs) const
+			{
+				return castPtr <= rhs.castPtr;
+			}
+
+			bool operator >=(const ControlPtr &rhs) const
+			{
+				return castPtr >= rhs.castPtr;
+			}
+
+			T *operator ->() const
 			{
 				return castPtr;
 			}
@@ -100,6 +114,14 @@ namespace Maragi
 			{
 				return castPtr == nullptr;
 			}
+
+			template<typename Other>
+			friend class ControlPtr;
+		};
+
+		struct ShellPtrDeleter
+		{
+			void operator ()(Shell *) const;
 		};
 
 		template<typename = Shell>
@@ -112,15 +134,9 @@ namespace Maragi
 			std::shared_ptr<Shell> ptr;
 			T *castPtr;
 
-		private:
-			static void deleter(T *ptr)
-			{
-				delete ptr;
-			}
-
 		public:
 			ShellPtr()
-				: ptr(nullptr, deleter)
+				: ptr(nullptr, ShellPtrDeleter())
 				, castPtr(nullptr)
 			{
 			}
@@ -132,7 +148,7 @@ namespace Maragi
 				else
 				{
 					castPtr = dynamic_cast<T *>(iptr);
-					ptr = std::shared_ptr<Shell>(iptr, deleter);
+					ptr = std::shared_ptr<Shell>(iptr, ShellPtrDeleter());
 				}
 			}
 
@@ -150,6 +166,12 @@ namespace Maragi
 			}
 
 		public:
+			T *get() const
+			{
+				return castPtr;
+			}
+
+		public:
 			template<typename Other>
 			ShellPtr &operator =(const ShellPtr<Other> &rhs)
 			{
@@ -158,42 +180,37 @@ namespace Maragi
 				return *this;
 			}
 
-			bool operator ==(const ShellPtr &rhs)
+			bool operator ==(const ShellPtr &rhs) const
 			{
 				return castPtr == rhs.castPtr;
 			}
 
-			bool operator !=(const ShellPtr &rhs)
+			bool operator !=(const ShellPtr &rhs) const
 			{
 				return castPtr != rhs.castPtr;
 			}
 
-			bool operator <(const ShellPtr &rhs)
+			bool operator <(const ShellPtr &rhs) const
 			{
 				return castPtr < rhs.castPtr;
 			}
 
-			bool operator >(const ShellPtr &rhs)
+			bool operator >(const ShellPtr &rhs) const
 			{
 				return castPtr > rhs.castPtr;
 			}
 
-			bool operator <=(const ShellPtr &rhs)
+			bool operator <=(const ShellPtr &rhs) const
 			{
 				return castPtr <= rhs.castPtr;
 			}
 
-			bool operator >=(const ShellPtr &rhs)
+			bool operator >=(const ShellPtr &rhs) const
 			{
 				return castPtr >= rhs.castPtr;
 			}
 
-			T *operator ->()
-			{
-				return castPtr;
-			}
-
-			const T *operator ->() const
+			T *operator ->() const
 			{
 				return castPtr;
 			}
@@ -207,12 +224,15 @@ namespace Maragi
 			{
 				return castPtr == nullptr;
 			}
+
+			template<typename Other>
+			friend class ShellPtr;
 		};
 
 		class ControlManager : public Singleton<ControlManager>
 		{
 		private:
-			std::map<ControlID, Control *> controls;
+			std::map<ControlID, ControlPtr<>> controls;
 
 		private:
 			ControlID nextID;
@@ -223,20 +243,22 @@ namespace Maragi
 		private:
 			~ControlManager();
 
-		private:
+		public:
 			ControlID getNextID();
-			void add(Control *);
-			Control *find(ControlID);
+			void add(const ControlID &, const ControlPtr<> &);
+			ControlPtr<> find(ControlID);
 			void remove(ControlID);
 
-			friend class Control;
 			friend class Singleton<ControlManager>;
 		};
 
 		class ShellManager : public Singleton<ShellManager>
 		{
 		private:
-			std::map<HWND, Shell *> shells;
+			std::map<HWND, ShellPtr<>> shells;
+
+		private:
+			uint32_t nextID;
 
 		public:
 			ShellManager();
@@ -244,9 +266,16 @@ namespace Maragi
 		private:
 			~ShellManager();
 
-		private:
+		public:
+			static longptr_t __stdcall windowProc(HWND, unsigned, uintptr_t, longptr_t);
+			static intptr_t __stdcall dialogProc(HWND, unsigned, uintptr_t, longptr_t);
 
-			friend class Shell;
+		public:
+			std::wstring getNextClassName();
+			void add(HWND, const ShellPtr<> &);
+			ShellPtr<> find(HWND);
+			void remove(HWND);
+
 			friend class Singleton<ShellManager>;
 		};
 	}

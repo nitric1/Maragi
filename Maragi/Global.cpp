@@ -8,7 +8,7 @@ namespace Maragi
 {
 	Environment::Environment()
 	{
-		hinst = GetModuleHandle(nullptr);
+		inst_ = GetModuleHandle(nullptr);
 	}
 
 	void GlobalInitializerManager::add(const std::shared_ptr<Initializer> &init)

@@ -2,8 +2,8 @@
 
 #include "Common.h"
 
-#include "MainController.h"
 #include "Dialog.h"
+#include "Global.h"
 #include "ShortcutKey.h"
 
 using namespace std;
@@ -34,7 +34,7 @@ namespace Maragi
 			ncm.cbSize = CCSIZEOF_STRUCT(NONCLIENTMETRICSW, lfMessageFont); // For Windows under Vista.
 			SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, 0, &ncm, 0);
 
-			HINSTANCE inst = GetModuleHandleW(nullptr);
+			HINSTANCE inst = Environment::instance().getInstance();
 			HRSRC rsrc = FindResourceW(inst, getDialogName(), RT_DIALOG);
 			size_t size = SizeofResource(inst, rsrc);
 			HGLOBAL mem = LoadResource(inst, rsrc);
@@ -153,10 +153,10 @@ namespace Maragi
 			intptr_t res = -1;
 			isDialogEnd = false;
 			endDialogResult = -1;
-			HWND window = CreateDialogIndirectParamW(MainController::instance().getInstance(), tpl, parentWin, procMessage, 0);
+			HWND window = CreateDialogIndirectParamW(Environment::instance().getInstance(), tpl, parentWin, procMessage, 0);
 			if(window != nullptr)
 			{
-				hwnd = window;
+				hwnd_ = window;
 
 				MSG msg;
 				while(GetMessageW(&msg, nullptr, 0, 0))
@@ -205,7 +205,7 @@ namespace Maragi
 
 			DestroyWindow(window);
 
-			hwnd = nullptr;
+			hwnd_ = nullptr;
 
 			return res;
 

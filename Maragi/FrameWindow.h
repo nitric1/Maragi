@@ -14,22 +14,36 @@ namespace Maragi
 		{
 		private:
 			ControlPtr<FullLayout> client_; // FrameWindow handles only one child.
-
-		public:
-			FrameWindow();
-			explicit FrameWindow(Shell *);
+			Resources::ResourcePtr<Resources::Icon> iconLarge_, iconSmall_;
 
 		protected:
+			FrameWindow();
+			explicit FrameWindow(const ShellPtr<Shell> &);
 			virtual ~FrameWindow();
 
 		public:
-			static ShellPtr<FrameWindow> create(const std::wstring &, const Resources::Icon &, const Objects::SizeI &); // TODO: menu
+			static ShellPtr<FrameWindow> create(
+				const ShellPtr<Shell> &,
+				const std::wstring &,
+				const Resources::ResourcePtr<Resources::Icon> &,
+				const Resources::ResourcePtr<Resources::Icon> &,
+				const Objects::PointI &,
+				const Objects::SizeI &
+				); // TODO: menu
 
 		public:
 			Property::R<FrameWindow, ControlPtr<FullLayout>> client;
+			Property::RW<FrameWindow, Resources::ResourcePtr<Resources::Icon>> iconLarge, iconSmall;
+			Property::RW<FrameWindow, Objects::SizeI> clientSize;
 
 		private:
-			longptr_t procMessage(HWND, uint32_t, uintptr_t, longptr_t);
+			virtual longptr_t procMessage(HWND, unsigned, uintptr_t, longptr_t);
+
+		private:
+			class Impl;
+			friend class Impl;
+
+			std::shared_ptr<Impl> impl;
 		};
 	}
 }

@@ -24,16 +24,11 @@ namespace Maragi
 	{
 	}
 
-	HINSTANCE MainController::getInstance() const
-	{
-		return appInst;
-	}
-
-	bool MainController::run(HINSTANCE instance, const std::wstring &commandLine, int showCommand)
+	bool MainController::run(const std::wstring &commandLine, int showCommand)
 	{
 		__try
 		{
-			return runImpl(instance, commandLine, showCommand);
+			return runImpl(commandLine, showCommand);
 		}
 		__except(filterOSException(GetExceptionCode(), GetExceptionInformation()))
 		{
@@ -41,12 +36,10 @@ namespace Maragi
 		}
 	}
 
-	bool MainController::runImpl(HINSTANCE instance, const std::wstring &commandLine, int showCommand)
+	bool MainController::runImpl(const std::wstring &commandLine, int showCommand)
 	{
 		try
 		{
-			appInst = instance;
-
 			if(!checkPrerequisites())
 				return false;
 
@@ -118,7 +111,7 @@ namespace Maragi
 
 int __stdcall wWinMain(HINSTANCE instance, HINSTANCE, wchar_t *commandLine, int showCommand)
 {
-	return Maragi::MainController::instance().run(instance, commandLine, showCommand) ? 0 : 1;
+	return Maragi::MainController::instance().run(commandLine, showCommand) ? 0 : 1;
 }
 
 #pragma warning(pop)

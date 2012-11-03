@@ -354,6 +354,8 @@ namespace Maragi
 				return showModal(procMessage) == IDOK;
 			}
 
+#pragma warning(push)
+#pragma warning(disable:4526)
 			static intptr_t __stdcall procMessage(HWND window, unsigned message, WPARAM wParam, LPARAM lParam)
 			{
 				ConfirmDialog &self = instance();
@@ -406,6 +408,7 @@ namespace Maragi
 
 				return 0;
 			}
+#pragma warning(pop)
 
 			friend class Singleton<ConfirmDialog>;
 		};
