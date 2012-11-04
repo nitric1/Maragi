@@ -27,8 +27,8 @@ namespace Maragi
 				const std::wstring &,
 				const Resources::ResourcePtr<Resources::Icon> &,
 				const Resources::ResourcePtr<Resources::Icon> &,
-				const Objects::PointI &,
-				const Objects::SizeI &
+				const Objects::PointI & = Objects::PointI::invalid,
+				const Objects::SizeI & = Objects::SizeI::invalid
 				); // TODO: menu
 
 		public:

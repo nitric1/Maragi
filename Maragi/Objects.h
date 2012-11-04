@@ -13,13 +13,15 @@ namespace Maragi
 			{
 				typedef typename D2D1::TypeTraits<T>::Point D2DPoint;
 
+				static Point invalid;
+
 				T x, y;
 
 				Point()
 					: x(), y()
 				{}
 
-				Point(const Point<T> &that)
+				Point(const Point &that)
 					: x(that.x), y(that.y)
 				{}
 
@@ -33,6 +35,12 @@ namespace Maragi
 				}
 			};
 
+			template<typename T>
+			Point<T> Point<T>::invalid(
+				std::numeric_limits<T>::min() == T(0) /* if T is unsigned */ ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
+				std::numeric_limits<T>::min() == T(0) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
+				);
+
 			typedef Point<int32_t> PointI;
 			typedef Point<float> PointF;
 
@@ -41,13 +49,15 @@ namespace Maragi
 			{
 				typedef typename D2D1::TypeTraits<T>::Size D2DSize;
 
+				static Size invalid;
+
 				T width, height;
 
 				Size()
 					: width(), height()
 				{}
 
-				Size(const Size<T> &that)
+				Size(const Size &that)
 					: width(that.width), height(that.height)
 				{}
 
@@ -61,6 +71,12 @@ namespace Maragi
 				}
 			};
 
+			template<typename T>
+			Size<T> Size<T>::invalid(
+				std::numeric_limits<T>::min() == T(0) /* if T is unsigned */ ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
+				std::numeric_limits<T>::min() == T(0) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
+				);
+
 			typedef Size<int32_t> SizeI;
 			typedef Size<float> SizeF;
 
@@ -69,13 +85,15 @@ namespace Maragi
 			{
 				typedef typename D2D1::TypeTraits<T>::Rect D2DRect;
 
+				static Rectangle invalid;
+
 				T left, top, right, bottom;
 
 				Rectangle()
 					: left(), top(), right(), bottom()
 				{}
 
-				Rectangle(const Rectangle<T> &that)
+				Rectangle(const Rectangle &that)
 					: left(that.left), top(that.top), right(that.right), bottom(that.bottom)
 				{}
 
@@ -85,6 +103,10 @@ namespace Maragi
 
 				Rectangle(const Point<T> &lt, const Point<T> &rb)
 					: left(lt.x), top(lt.y), right(rb.x), bottom(rb.y)
+				{}
+
+				Rectangle(const Point<T> &lt, const Size<T> &size)
+					: left(lt.x), top(lt.y), right(lt.x + size.width), bottom(lt.y + size.height)
 				{}
 
 				Rectangle(const Point<T> &center, float width, float height) // like ellipse
@@ -117,6 +139,14 @@ namespace Maragi
 					return D2D1::Rect(x, y);
 				}
 			};
+
+			template<typename T>
+			Rectangle<T> Rectangle<T>::invalid(
+				std::numeric_limits<T>::min() == T(0) /* if T is unsigned */ ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
+				std::numeric_limits<T>::min() == T(0) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
+				std::numeric_limits<T>::min() == T(0) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
+				std::numeric_limits<T>::min() == T(0) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
+				);
 
 			typedef Rectangle<int32_t> RectangleI;
 			typedef Rectangle<float> RectangleF;

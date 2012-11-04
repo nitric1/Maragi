@@ -84,64 +84,8 @@ namespace Maragi
 				friend Host;
 			};
 
-			// TODO: wrapper
 			template<typename Host, typename T>
-			class RV /* readonly having value */ : public Base<Host, T>
-			{
-			private:
-				T val;
-
-			private:
-				RV()
-					: val()
-				{}
-
-			protected:
-				void init(const T &ival)
-				{
-					val = ival;
-				}
-
-				void init(T &&ival)
-				{
-					val = std::forward<T>(ival);
-				}
-
-			public:
-				template<typename Other>
-				bool operator ==(const Other &rhs) const
-				{
-					return val == rhs;
-				}
-
-				template<typename Other>
-				bool operator !=(const Other &rhs) const
-				{
-					return val != rhs;
-				}
-
-				T operator ->() const
-				{
-					return val;
-				}
-
-				template<typename Other>
-				operator Other()
-				{
-					return val;
-				}
-
-				template<typename Other>
-				operator Other() const
-				{
-					return val;
-				}
-
-				friend Host;
-			};
-
-			template<typename Host, typename T>
-			class RW/*Prot*/ : public R<Host, T>
+			class RW : public R<Host, T>
 			{
 			private:
 				std::function<void (const T &)> setter;
@@ -177,19 +121,73 @@ namespace Maragi
 
 				friend Host;
 			};
+		}
 
-			/*template<typename Host, typename T>
-			class RW : public RWProt<Host, T>
+		namespace PropertyValue
+		{
+			template<typename Host, typename T>
+			class Base
 			{
-			public:
-				template<typename Other>
-				RW &operator =(const Other &val)
+			protected:
+				T val;
+
+			protected:
+				Base()
+					: val()
+				{}
+			};
+
+			// TODO: wrapper
+			template<typename Host, typename T>
+			class R : public Base<Host, T>
+			{
+			private:
+				RV()
+					: Base()
+				{}
+
+			protected:
+				void init(const T &ival)
 				{
-					return RWProt<Host, T>::operator =(val);
+					val = ival;
+				}
+
+				void init(T &&ival)
+				{
+					val = std::forward<T>(ival);
+				}
+
+			public:
+				const T &get() const
+				{
+					return val;
+				}
+
+				template<typename Other>
+				bool operator ==(const Other &rhs) const
+				{
+					return val == rhs;
+				}
+
+				template<typename Other>
+				bool operator !=(const Other &rhs) const
+				{
+					return val != rhs;
+				}
+
+				operator const T &() const
+				{
+					return val;
+				}
+
+				template<typename Other>
+				operator const Other &() const
+				{
+					return val;
 				}
 
 				friend Host;
-			};*/
+			};
 		}
 
 		class Control;
@@ -296,16 +294,13 @@ namespace Maragi
 			Control(const Control &); // = delete;
 
 		public:
-			// virtual void release();
-			virtual bool show() = 0;
-
 			virtual bool addEventListener(const std::wstring &, std::shared_ptr<ERDelegate<bool (ControlEventArg)>>);
 
 		protected:
 			bool fireEvent(const std::wstring &, ControlEventArg);
 
 		public:
-			virtual void draw(Context &);
+			virtual void draw(Context &) = 0;
 
 		public:
 			Property::R<Control, ControlPtr<Control>> parent;
@@ -360,6 +355,9 @@ namespace Maragi
 
 		private: // no implementation
 			Shell(const Shell &); // = delete;
+
+		public:
+			virtual bool show() = 0;
 
 		public:
 			Property::R<Shell, ShellPtr<Shell>> parent;
