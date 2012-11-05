@@ -64,6 +64,8 @@ namespace Maragi
 			iconLarge.init(impl.get(), &Impl::getIconLarge, &Impl::setIconLarge);
 			iconSmall.init(impl.get(), &Impl::getIconSmall, &Impl::setIconSmall);
 			clientSize.init(impl.get(), &Impl::getClientSize, &Impl::setClientSize);
+
+			init();
 		}
 
 		FrameWindow::FrameWindow(const ShellPtr<Shell> &parent)
@@ -74,6 +76,8 @@ namespace Maragi
 			iconLarge.init(impl.get(), &Impl::getIconLarge, &Impl::setIconLarge);
 			iconSmall.init(impl.get(), &Impl::getIconSmall, &Impl::setIconSmall);
 			clientSize.init(impl.get(), &Impl::getClientSize, &Impl::setClientSize);
+
+			init();
 		}
 
 		FrameWindow::~FrameWindow()
@@ -91,29 +95,21 @@ namespace Maragi
 			const Objects::SizeI &clientSize
 			)
 		{
-			std::wstring nextID = ShellManager::instance().getNextClassName();
-
-			WNDCLASSEXW wcex = {0, };
-			wcex.cbSize = sizeof(wcex);
-			wcex.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
-			wcex.cbClsExtra = 0;
-			wcex.cbWndExtra	= sizeof(void *);
-			wcex.hInstance = Environment::instance().getInstance();
-			wcex.hIcon = *iconLarge;
-			wcex.hIconSm = *iconSmall;
-			wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
-			wcex.hbrBackground = nullptr;
-			wcex.lpszMenuName = nullptr;
-			wcex.lpszClassName = nextID.c_str();
-			wcex.lpfnWndProc = &ShellManager::windowProc;
-
-			RegisterClassExW(&wcex);
-
 			ShellPtr<FrameWindow> frm = new FrameWindow(parent);
 
 			frm->iconLarge_ = iconLarge;
 			frm->iconSmall_ = iconSmall;
 
+			return frm;
+		}
+
+		void FrameWindow::show()
+		{
+			show(SW_SHOW);
+		}
+
+		void FrameWindow::show(int32_t showCommand)
+		{
 			HWND hwnd = CreateWindowExW(
 				0,
 				nextID.c_str(),
@@ -127,9 +123,28 @@ namespace Maragi
 				&static_cast<ShellPtr<>>(frm)
 				);
 
-			frm->hwnd_ = hwnd;
+			hwnd_ = hwnd;
+		}
 
-			return frm;
+		void FrameWindow::init()
+		{
+			className = ShellManager::instance().getNextClassName();
+
+			WNDCLASSEXW wcex = {0, };
+			wcex.cbSize = sizeof(wcex);
+			wcex.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+			wcex.cbClsExtra = 0;
+			wcex.cbWndExtra	= sizeof(void *);
+			wcex.hInstance = Environment::instance().getInstance();
+			wcex.hIcon = *iconLarge;
+			wcex.hIconSm = *iconSmall;
+			wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
+			wcex.hbrBackground = nullptr;
+			wcex.lpszMenuName = nullptr;
+			wcex.lpszClassName = className.c_str();
+			wcex.lpfnWndProc = &ShellManager::windowProc;
+
+			RegisterClassExW(&wcex);
 		}
 
 		longptr_t FrameWindow::procMessage(HWND hwnd, unsigned message, uintptr_t wParam, longptr_t lParam)

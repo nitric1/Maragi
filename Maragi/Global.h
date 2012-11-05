@@ -83,6 +83,7 @@ namespace Maragi
 	private:
 		GlobalInitializerManager()
 		{}
+		~GlobalInitializerManager();
 
 	private:
 		GlobalInitializerManager(const GlobalInitializerManager &); // = delete;
@@ -95,12 +96,13 @@ namespace Maragi
 		}
 
 	private:
-		void uninit();
+		// void uninit();
 
 		friend class Singleton<GlobalInitializerManager>;
-		friend class GlobalUninitializer;
+		// friend class GlobalUninitializer;
 	};
 
+	/*
 	class GlobalUninitializer
 	{
 	public:
@@ -110,7 +112,7 @@ namespace Maragi
 		}
 	};
 
-	extern GlobalUninitializer globalUninitializer;
+	extern GlobalUninitializer globalUninitializer; */
 
 	/* class ThreadInitializer
 	{

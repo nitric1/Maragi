@@ -15,6 +15,7 @@ namespace Maragi
 		private:
 			ControlPtr<FullLayout> client_; // FrameWindow handles only one child.
 			Resources::ResourcePtr<Resources::Icon> iconLarge_, iconSmall_;
+			std::wstring className;
 
 		protected:
 			FrameWindow();
@@ -32,9 +33,16 @@ namespace Maragi
 				); // TODO: menu
 
 		public:
+			virtual void show();
+			virtual void show(int32_t);
+
+		public:
 			Property::R<FrameWindow, ControlPtr<FullLayout>> client;
 			Property::RW<FrameWindow, Resources::ResourcePtr<Resources::Icon>> iconLarge, iconSmall;
 			Property::RW<FrameWindow, Objects::SizeI> clientSize;
+
+		private:
+			void init();
 
 		private:
 			virtual longptr_t procMessage(HWND, unsigned, uintptr_t, longptr_t);

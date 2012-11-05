@@ -11,6 +11,12 @@ namespace Maragi
 		inst_ = GetModuleHandle(nullptr);
 	}
 
+	GlobalInitializerManager::~GlobalInitializerManager()
+	{
+		for(auto it = std::begin(inits); it != std::end(inits); ++ it)
+			it->second->uninit();
+	}
+
 	void GlobalInitializerManager::add(const std::shared_ptr<Initializer> &init)
 	{
 		boost::mutex::scoped_lock sl(lock);
@@ -20,7 +26,7 @@ namespace Maragi
 		init->init();
 	}
 
-	void GlobalInitializerManager::uninit()
+	/*void GlobalInitializerManager::uninit()
 	{
 		for(auto it = std::begin(inits); it != std::end(inits); ++ it)
 		{
@@ -32,5 +38,5 @@ namespace Maragi
 		//myinit->uninit();
 	}
 
-	GlobalUninitializer globalUninitializer;
+	GlobalUninitializer globalUninitializer;*/
 }
