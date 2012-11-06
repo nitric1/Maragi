@@ -83,6 +83,20 @@ namespace Maragi
 				return ptr;
 			}
 
+			void release()
+			{
+				if(ptr != nullptr)
+				{
+					ptr->Release();
+					ptr = nullptr;
+				}
+			}
+
+			ComPtr &operator =(nullptr_t)
+			{
+				release();
+			}
+
 			ComPtr &operator =(const ComPtr &rhs)
 			{
 				if(ptr != rhs.ptr)
@@ -92,15 +106,6 @@ namespace Maragi
 					ptr->AddRef();
 				}
 				return *this;
-			}
-
-			void release()
-			{
-				if(ptr != nullptr)
-				{
-					ptr->Release();
-					ptr = nullptr;
-				}
 			}
 		};
 
