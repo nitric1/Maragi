@@ -78,7 +78,15 @@ namespace Maragi
 			return true;
 		}
 
-		void Control::draw(Context &context)
+		void Control::createDrawingResources(Drawing::Context &)
+		{
+		}
+
+		void Control::discardDrawingResources(Drawing::Context &)
+		{
+		}
+
+		void Control::draw(Drawing::Context &context)
 		{
 		}
 

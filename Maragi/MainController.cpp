@@ -54,8 +54,8 @@ namespace Maragi
 			UI::ShellPtr<UI::FrameWindow> frm = UI::FrameWindow::create(
 				nullptr,
 				L"Hello World",
-				UI::Resources::Icon::fromSharedResource(IDI_APPLICATION),
-				UI::Resources::Icon::fromSharedResource(IDI_APPLICATION),
+				UI::Resources::Icon::fromSharedResource(IDI_APPLICATION, UI::Objects::SizeI(32, 32)),
+				UI::Resources::Icon::fromSharedResource(IDI_APPLICATION, UI::Objects::SizeI(16, 16)),
 				UI::Objects::SizeI(640, 480),
 				UI::Objects::PointI::invalid
 				);

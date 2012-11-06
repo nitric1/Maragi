@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "ComUtility.h"
+#include "Drawing.h"
 #include "Window.h"
 
 namespace Maragi
@@ -11,13 +13,27 @@ namespace Maragi
 		class Layout : public Control
 		{
 		protected:
+			ControlWeakPtr<> child_;
+
+		protected:
 			Layout(const ControlWeakPtr<> &, const ControlID &);
+
+		public:
+			Property::R<Layout, ControlWeakPtr<>> child;
+
+		private:
+			class Impl;
+			friend class Impl;
+
+			std::shared_ptr<Impl> impl;
 		};
 
 		class ShellLayout : public Layout
 		{
 		private:
 			ShellWeakPtr<> shell_;
+
+			ComPtr<ID2D1SolidColorBrush> brush;
 
 		protected:
 			ShellLayout(const ShellWeakPtr<> &, const ControlID &);
@@ -29,7 +45,9 @@ namespace Maragi
 				);
 
 		public:
-			virtual void draw(Context &);
+			virtual void createDrawingResources(Drawing::Context &);
+			virtual void discardDrawingResources(Drawing::Context &);
+			virtual void draw(Drawing::Context &);
 
 		public:
 			Property::R<ShellLayout, ShellWeakPtr<>> shell;

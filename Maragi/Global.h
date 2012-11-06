@@ -42,7 +42,11 @@ namespace Maragi
 	class Initializer
 	{
 	public:
-		virtual std::string getName() const = 0;
+		virtual std::string getName() const
+		{
+			return typeid(*this).name();
+		}
+
 		virtual void init() = 0;
 		virtual void uninit() = 0;
 	};

@@ -150,6 +150,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CommandLineParser.cpp" />
+    <ClCompile Include="ComUtility.cpp" />
     <ClCompile Include="Configure.cpp" />
     <ClCompile Include="Constants.cpp" />
     <ClCompile Include="Common.cpp">
@@ -160,6 +161,7 @@
     </ClCompile>
     <ClCompile Include="Controls.cpp" />
     <ClCompile Include="Dialog.cpp" />
+    <ClCompile Include="Drawing.cpp" />
     <ClCompile Include="FrameWindow.cpp" />
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="Layouts.cpp" />
@@ -264,12 +266,14 @@
     <ClInclude Include="..\External\include\zconf.h" />
     <ClInclude Include="..\External\include\zlib.h" />
     <ClInclude Include="CommandLineParser.h" />
+    <ClInclude Include="ComUtility.h" />
     <ClInclude Include="Configure.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Controls.h" />
     <ClInclude Include="Delegate.h" />
     <ClInclude Include="Dialog.h" />
+    <ClInclude Include="Drawing.h" />
     <ClInclude Include="FrameWindow.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="Layouts.h" />

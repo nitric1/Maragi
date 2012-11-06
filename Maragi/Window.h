@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Delegate.h"
+#include "Drawing.h"
 #include "Global.h"
 #include "Objects.h"
 #include "Primitives.h"
@@ -182,12 +183,6 @@ namespace Maragi
 			};
 		}
 
-		class Control;
-
-		class Context
-		{
-		};
-
 		namespace Message
 		{
 			enum
@@ -292,7 +287,9 @@ namespace Maragi
 			bool fireEvent(const std::wstring &, ControlEventArg);
 
 		public:
-			virtual void draw(Context &) = 0;
+			virtual void createDrawingResources(Drawing::Context &);
+			virtual void discardDrawingResources(Drawing::Context &);
+			virtual void draw(Drawing::Context &) = 0;
 
 		public:
 			Property::R<Control, ControlWeakPtr<>> parent;

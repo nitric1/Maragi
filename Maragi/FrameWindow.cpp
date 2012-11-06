@@ -122,6 +122,8 @@ namespace Maragi
 			frm->initPosition = position;
 			frm->initClientSize = clientSize;
 
+			frm->client_ = ShellLayout::create(frm);
+
 			return frm;
 		}
 
@@ -132,13 +134,26 @@ namespace Maragi
 
 		bool FrameWindow::show(int32_t showCommand)
 		{
+			// TODO: menu
+
 			if(initPosition == initPosition.invalid)
 				initPosition = Objects::PointI(CW_USEDEFAULT, CW_USEDEFAULT);
 			if(initClientSize == initClientSize.invalid)
 				initClientSize = Objects::SizeI(CW_USEDEFAULT, CW_USEDEFAULT);
 			else
 			{
-				// TODO: calculate window size by client size
+				float dpiX, dpiY;
+				Drawing::D2DFactory::instance().getD2DFactory()->GetDesktopDpi(&dpiX, &dpiY);
+				initClientSize.width = static_cast<int>(ceil(initClientSize.width * dpiX / 96.0f));
+				initClientSize.height = static_cast<int>(ceil(initClientSize.height * dpiX / 96.0f));
+
+				RECT rc = { 0, 0, initClientSize.width, initClientSize.height };
+				AdjustWindowRectEx(&rc, WS_OVERLAPPEDWINDOW, FALSE, 0);
+
+				initClientSize.width = rc.right - rc.left;
+				initClientSize.height = rc.bottom - rc.top;
+
+				// XXX: scrollbars?
 			}
 
 			ShellPtr<> lparent = parent.get().lock();
@@ -159,9 +174,6 @@ namespace Maragi
 				return false;
 
 			hwnd_ = hwnd;
-
-			// TODO: D2D
-
 			ShowWindow(hwnd, showCommand);
 			UpdateWindow(hwnd);
 
@@ -180,10 +192,34 @@ namespace Maragi
 			switch(message)
 			{
 			case WM_SIZE:
-				// client->resize(Objects::SizeI(LOWORD(lParam), HIWORD(lParam)));
+				{
+					Objects::SizeI size(LOWORD(lParam), HIWORD(lParam));
+					context_.resize(size);
+					client->rect = Objects::RectangleF(Objects::PointF(), size);
+				}
+				return 0;
+
+			case WM_DISPLAYCHANGE:
+				InvalidateRect(hwnd, nullptr, FALSE);
 				return 0;
 
 			case WM_PAINT:
+				if(!context_)
+				{
+					context_.create(hwnd, clientSize);
+					client->createDrawingResources(context_);
+				}
+
+				context_.beginDraw();
+				context_->SetTransform(D2D1::Matrix3x2F::Identity());
+				context_->Clear(D2D1::ColorF(1.0f, 1.0f, 1.0f));
+				client->draw(context_);
+				if(!context_.endDraw())
+				{
+					client->discardDrawingResources(context_);
+				}
+
+				ValidateRect(hwnd, nullptr);
 				return 0;
 
 			case WM_DESTROY:

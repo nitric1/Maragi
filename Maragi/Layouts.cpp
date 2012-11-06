@@ -8,6 +8,17 @@ namespace Maragi
 {
 	namespace UI
 	{
+		class Layout::Impl
+		{
+		private:
+			Layout *self;
+
+		public:
+			explicit Impl(Layout *);
+
+			;
+		};
+
 		Layout::Layout(const ControlWeakPtr<> &parent, const ControlID &id)
 			: Control(parent, id)
 		{
@@ -48,8 +59,19 @@ namespace Maragi
 		{
 		}
 
-		void ShellLayout::draw(Context &ctx)
+		void ShellLayout::createDrawingResources(Drawing::Context &ctx)
 		{
+			// TODO: propagate
+		}
+
+		void ShellLayout::discardDrawingResources(Drawing::Context &ctx)
+		{
+			// TODO: propagate
+		}
+
+		void ShellLayout::draw(Drawing::Context &ctx)
+		{
+			// TODO: propagate
 		}
 	}
 }

@@ -11,8 +11,6 @@ namespace Maragi
 			template<typename T>
 			struct Point
 			{
-				typedef typename D2D1::TypeTraits<T>::Point D2DPoint;
-
 				static Point invalid;
 
 				T x, y;
@@ -21,13 +19,21 @@ namespace Maragi
 					: x(), y()
 				{}
 
-				Point(const Point &that)
-					: x(that.x), y(that.y)
+				template<typename Other>
+				Point(const Point<Other> &that)
+					: x(static_cast<T>(that.x)), y(static_cast<T>(that.y))
 				{}
 
 				Point(T ix, T iy)
 					: x(ix), y(iy)
 				{}
+
+				template<typename Other>
+				Point &operator =(const Point<Other> &rhs)
+				{
+					x = static_cast<T>(that.x);
+					y = static_cast<T>(that.y);
+				}
 
 				bool operator ==(const Point &rhs) const
 				{
@@ -39,9 +45,14 @@ namespace Maragi
 					return !(*this == rhs);
 				}
 
-				operator D2DPoint() const
+				operator D2D1_POINT_2U() const
 				{
-					return D2D1::Point2(x, y);
+					return D2D1::Point2U(static_cast<uint32_t>(x), static_cast<uint32_t>(y));
+				}
+
+				operator D2D1_POINT_2F() const
+				{
+					return D2D1::Point2F(static_cast<float>(x), static_cast<float>(y));
 				}
 			};
 
@@ -57,8 +68,6 @@ namespace Maragi
 			template<typename T>
 			struct Size
 			{
-				typedef typename D2D1::TypeTraits<T>::Size D2DSize;
-
 				static Size invalid;
 
 				T width, height;
@@ -67,13 +76,21 @@ namespace Maragi
 					: width(), height()
 				{}
 
-				Size(const Size &that)
-					: width(that.width), height(that.height)
+				template<typename Other>
+				Size(const Size<Other> &that)
+					: width(static_cast<T>(that.width)), height(static_cast<T>(that.height))
 				{}
 
 				Size(T iwidth, T iheight)
 					: width(iwidth), height(iheight)
 				{}
+
+				template<typename Other>
+				Size &operator =(const Size<Other> &rhs)
+				{
+					width = static_cast<T>(rhs.width);
+					height = static_cast<T>(rhs.height);
+				}
 
 				bool operator ==(const Size &rhs) const
 				{
@@ -85,9 +102,14 @@ namespace Maragi
 					return !(*this == rhs);
 				}
 
-				operator D2DSize() const
+				operator D2D1_SIZE_U() const
 				{
-					return D2D1::Size(x, y);
+					return D2D1::SizeU(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+				}
+
+				operator D2D1_SIZE_F() const
+				{
+					return D2D1::SizeF(static_cast<float>(width), static_cast<float>(height));
 				}
 			};
 
@@ -103,8 +125,6 @@ namespace Maragi
 			template<typename T>
 			struct Rectangle
 			{
-				typedef typename D2D1::TypeTraits<T>::Rect D2DRect;
-
 				static Rectangle invalid;
 
 				T left, top, right, bottom;
@@ -113,8 +133,9 @@ namespace Maragi
 					: left(), top(), right(), bottom()
 				{}
 
-				Rectangle(const Rectangle &that)
-					: left(that.left), top(that.top), right(that.right), bottom(that.bottom)
+				template<typename Other>
+				Rectangle(const Rectangle<Other> &that)
+					: left(static_cast<T>(that.left)), top(static_cast<T>(that.top)), right(static_cast<T>(that.right)), bottom(static_cast<T>(that.bottom))
 				{}
 
 				Rectangle(T ileft, T itop, T iright, T ibottom)
@@ -154,6 +175,15 @@ namespace Maragi
 					return (pt.x >= left && pt.x < right && pt.y >= top && pt.y < bottom);
 				}
 
+				template<typename Other>
+				Rectangle &operator =(const Rectangle<Other> &rhs)
+				{
+					left = static_cast<T>(rhs.left);
+					top = static_cast<T>(rhs.top);
+					right = static_cast<T>(rhs.right);
+					bottom = static_cast<T>(rhs.bottom);
+				}
+
 				bool operator ==(const Rectangle &rhs) const
 				{
 					return left == rhs.left && top == rhs.top && right == rhs.right && bottom == rhs.bottom;
@@ -164,9 +194,14 @@ namespace Maragi
 					return !(*this == rhs);
 				}
 
-				operator D2DRect() const
+				operator D2D1_RECT_U() const
 				{
-					return D2D1::Rect(x, y);
+					return D2D1::RectU(static_cast<uint32_t>(left), static_cast<uint32_t>(top), static_cast<uint32_t>(right), static_cast<uint32_t>(bottom));
+				}
+
+				operator D2D1_RECT_F() const
+				{
+					return D2D1::RectF(static_cast<float>(left), static_cast<float>(top), static_cast<float>(right), static_cast<float>(bottom));
 				}
 			};
 

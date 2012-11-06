@@ -7,6 +7,7 @@
 // All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ library & boost library inclusion
 
+#include <cassert>
 #include <cstring>
 
 #include <algorithm>
@@ -27,7 +28,6 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/once.hpp>
 #include <boost/thread/tss.hpp>
-#include <boost/variant.hpp>
 
 using std::max; using std::min;
 
@@ -47,10 +47,12 @@ using std::max; using std::min;
 #include <commctrl.h>
 #include <commdlg.h>
 #include <d2d1.h>
+#include <d2d1helper.h>
 #include <dlgs.h>
 #include <dwrite.h>
 #include <intrin.h>
 #include <shlwapi.h>
+#include <wincodec.h>
 #include <wincrypt.h>
 #include <windowsx.h>
 

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Drawing.h"
 #include "Layouts.h"
 #include "Resources.h"
 #include "Window.h"
@@ -15,6 +16,7 @@ namespace Maragi
 		private:
 			ControlPtr<ShellLayout> client_; // FrameWindow handles only one child.
 			Resources::ResourcePtr<Resources::Icon> iconLarge_, iconSmall_;
+			Drawing::Context context_;
 
 			ShellWeakPtr<FrameWindow> selfPtr;
 			std::wstring className;
