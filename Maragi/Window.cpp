@@ -22,7 +22,7 @@ namespace Maragi
 			{
 			}
 
-			ControlPtr<Control> getParent()
+			ControlWeakPtr<> getParent()
 			{
 				return self->parent_;
 			}
@@ -43,7 +43,7 @@ namespace Maragi
 			}
 		};
 
-		Control::Control(const ControlPtr<Control> &iparent, const ControlID &iid)
+		Control::Control(const ControlWeakPtr<> &iparent, const ControlID &iid)
 			: parent_(iparent)
 			, id_(iid)
 		{
@@ -90,10 +90,9 @@ namespace Maragi
 		public:
 			explicit Impl(Shell *iself)
 				: self(iself)
-			{
-			}
+			{}
 
-			ShellPtr<Shell> getParent()
+			ShellWeakPtr<> getParent()
 			{
 				return self->parent_;
 			}
@@ -119,7 +118,7 @@ namespace Maragi
 			clientSize.init(impl.get(), &Impl::getClientSize);
 		}
 
-		Shell::Shell(const ShellPtr<Shell> &iparent) // with parent
+		Shell::Shell(const ShellWeakPtr<> &iparent) // with parent
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			parent.init(impl.get(), &Impl::getParent);

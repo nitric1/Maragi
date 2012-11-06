@@ -13,14 +13,6 @@ namespace Maragi
 {
 	namespace UI
 	{
-		/*
-		UI::ShellPtr<UI::FrameWindow> frm = UI::FrameWindow::create("Hello World", UI::Icon::fromSharedResource(IDI_APPLICATION), Objects::SizeI(640, 480));
-		UI::ControlPtr<UI::GridLayout> layout = UI::GridLayout::create(frm.client, 1, 2);
-		UI::ControlPtr<UI::Button> button = UI::Button::create(layout[0][1], "Button Text");
-		button.onClick = delegate(this, &onButtonClick);
-		frm->show();
-		*/
-
 		namespace Property
 		{
 			template<typename Host, typename T>
@@ -141,8 +133,8 @@ namespace Maragi
 			template<typename Host, typename T>
 			class R : public Base<Host, T>
 			{
-			private:
-				RV()
+			protected:
+				R()
 					: Base()
 				{}
 
@@ -228,7 +220,7 @@ namespace Maragi
 
 		struct ControlEventArg
 		{
-			Control *control;
+			ControlWeakPtr<> control;
 			uint32_t message;
 			boost::posix_time::ptime time;
 
@@ -281,12 +273,12 @@ namespace Maragi
 			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (ControlEventArg)>>> eventMap;
 
 		private:
-			ControlPtr<Control> parent_;
+			ControlWeakPtr<> parent_;
 			ControlID id_;
 			Objects::RectangleF rect_;
 
 		protected:
-			Control(const ControlPtr<Control> &, const ControlID &);
+			Control(const ControlWeakPtr<> &, const ControlID &);
 			virtual ~Control() = 0;
 
 		private: // no implementation
@@ -303,7 +295,7 @@ namespace Maragi
 			virtual void draw(Context &) = 0;
 
 		public:
-			Property::R<Control, ControlPtr<Control>> parent;
+			Property::R<Control, ControlWeakPtr<>> parent;
 			Property::R<Control, ControlID> id;
 			Property::RW<Control, Objects::RectangleF> rect;
 
@@ -319,7 +311,7 @@ namespace Maragi
 
 		struct WindowEventArg
 		{
-			Shell *shell;
+			ShellWeakPtr<> shell;
 			uint32_t message;
 			uintptr_t wParam;
 			longptr_t lParam;
@@ -343,14 +335,14 @@ namespace Maragi
 			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (WindowEventArg)>>> eventMap;
 
 		private:
-			ShellPtr<Shell> parent_;
+			ShellWeakPtr<> parent_;
 
 		protected:
 			HWND hwnd_;
 
 		protected:
 			Shell();
-			explicit Shell(const ShellPtr<Shell> &);
+			explicit Shell(const ShellWeakPtr<> &);
 			virtual ~Shell() = 0;
 
 		private: // no implementation
@@ -360,7 +352,7 @@ namespace Maragi
 			virtual bool show() = 0;
 
 		public:
-			Property::R<Shell, ShellPtr<Shell>> parent;
+			Property::R<Shell, ShellWeakPtr<>> parent;
 			Property::R<Shell, HWND> hwnd;
 			Property::R<Shell, Objects::SizeI> clientSize;
 

@@ -17,7 +17,7 @@ namespace Maragi
 		{
 		}
 
-		Dialog::Dialog(Shell *parent)
+		Dialog::Dialog(const ShellWeakPtr<> &parent)
 			: Shell(parent), isDialogEnd(false), endDialogResult(0)
 		{
 		}
@@ -137,10 +137,11 @@ namespace Maragi
 		intptr_t Dialog::showModal(DLGPROC procMessage, int showCommand)
 		{
 			// From CDialog::DoModal in MFC.
+			ShellPtr<> lparent = parent.get().lock();
 
 			HWND parentWin = nullptr;
-			if(parent != nullptr)
-				parentWin = parent->hwnd;
+			if(lparent)
+				parentWin = lparent->hwnd;
 
 			const DLGTEMPLATE *tpl = static_cast<const DLGTEMPLATE *>(getDialogTemplateWithSystemFont());
 			bool parentEnabled = false;

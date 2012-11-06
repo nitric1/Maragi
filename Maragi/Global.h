@@ -95,26 +95,6 @@ namespace Maragi
 			add(std::shared_ptr<Initializer>(new InstantInitializer(name, initFn, uninitFn)));
 		}
 
-	private:
-		// void uninit();
-
 		friend class Singleton<GlobalInitializerManager>;
-		// friend class GlobalUninitializer;
 	};
-
-	/*
-	class GlobalUninitializer
-	{
-	public:
-		~GlobalUninitializer()
-		{
-			GlobalInitializerManager::instance().uninit();
-		}
-	};
-
-	extern GlobalUninitializer globalUninitializer; */
-
-	/* class ThreadInitializer
-	{
-	}; */
 }

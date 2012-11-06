@@ -79,6 +79,8 @@ namespace Maragi
 			template<typename T>
 			class ResourcePtr : public std::shared_ptr<T>
 			{
+				static_assert(std::is_base_of<Resource, T>::value, "T must be a derived class from Maragi::UI::Resources::Resource.");
+
 			public:
 				ResourcePtr()
 					: std::shared_ptr<T>(nullptr, ResourcePtrDeleter())

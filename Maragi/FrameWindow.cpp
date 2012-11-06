@@ -21,7 +21,7 @@ namespace Maragi
 			{
 			}
 
-			ControlPtr<FullLayout> getClient()
+			ControlPtr<ShellLayout> getClient()
 			{
 				return self->client_;
 			}
@@ -64,11 +64,9 @@ namespace Maragi
 			iconLarge.init(impl.get(), &Impl::getIconLarge, &Impl::setIconLarge);
 			iconSmall.init(impl.get(), &Impl::getIconSmall, &Impl::setIconSmall);
 			clientSize.init(impl.get(), &Impl::getClientSize, &Impl::setClientSize);
-
-			init();
 		}
 
-		FrameWindow::FrameWindow(const ShellPtr<Shell> &parent)
+		FrameWindow::FrameWindow(const ShellWeakPtr<> &parent)
 			: Shell(parent)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
@@ -76,59 +74,27 @@ namespace Maragi
 			iconLarge.init(impl.get(), &Impl::getIconLarge, &Impl::setIconLarge);
 			iconSmall.init(impl.get(), &Impl::getIconSmall, &Impl::setIconSmall);
 			clientSize.init(impl.get(), &Impl::getClientSize, &Impl::setClientSize);
-
-			init();
 		}
 
 		FrameWindow::~FrameWindow()
 		{
 			if(hwnd != nullptr)
 				DestroyWindow(hwnd);
+
+			if(!className.empty())
+				UnregisterClassW(className.c_str(), Environment::instance().getInstance());
 		}
 
 		ShellPtr<FrameWindow> FrameWindow::create(
-			const ShellPtr<Shell> &parent,
+			const ShellWeakPtr<> &parent,
 			const std::wstring &title,
 			const Resources::ResourcePtr<Resources::Icon> &iconLarge,
 			const Resources::ResourcePtr<Resources::Icon> &iconSmall,
-			const Objects::PointI &position,
-			const Objects::SizeI &clientSize
+			const Objects::SizeI &clientSize,
+			const Objects::PointI &position
 			)
 		{
-			ShellPtr<FrameWindow> frm = new FrameWindow(parent);
-
-			frm->iconLarge_ = iconLarge;
-			frm->iconSmall_ = iconSmall;
-
-			return frm;
-		}
-
-		void FrameWindow::show()
-		{
-			show(SW_SHOW);
-		}
-
-		void FrameWindow::show(int32_t showCommand)
-		{
-			HWND hwnd = CreateWindowExW(
-				0,
-				nextID.c_str(),
-				title.c_str(),
-				WS_OVERLAPPEDWINDOW,
-				position.x, position.y,
-				clientSize.width, clientSize.height,
-				parent ? parent->hwnd.get() : nullptr,
-				nullptr,
-				Environment::instance().getInstance(),
-				&static_cast<ShellPtr<>>(frm)
-				);
-
-			hwnd_ = hwnd;
-		}
-
-		void FrameWindow::init()
-		{
-			className = ShellManager::instance().getNextClassName();
+			std::wstring className = ShellManager::instance().getNextClassName();
 
 			WNDCLASSEXW wcex = {0, };
 			wcex.cbSize = sizeof(wcex);
@@ -145,10 +111,88 @@ namespace Maragi
 			wcex.lpfnWndProc = &ShellManager::windowProc;
 
 			RegisterClassExW(&wcex);
+
+			ShellPtr<FrameWindow> frm = new FrameWindow(parent);
+
+			frm->selfPtr = frm;
+			frm->className = className;
+			frm->initTitle = title;
+			frm->iconLarge_ = iconLarge;
+			frm->iconSmall_ = iconSmall;
+			frm->initPosition = position;
+			frm->initClientSize = clientSize;
+
+			return frm;
+		}
+
+		bool FrameWindow::show()
+		{
+			return show(SW_SHOW);
+		}
+
+		bool FrameWindow::show(int32_t showCommand)
+		{
+			if(initPosition == initPosition.invalid)
+				initPosition = Objects::PointI(CW_USEDEFAULT, CW_USEDEFAULT);
+			if(initClientSize == initClientSize.invalid)
+				initClientSize = Objects::SizeI(CW_USEDEFAULT, CW_USEDEFAULT);
+			else
+			{
+				// TODO: calculate window size by client size
+			}
+
+			ShellPtr<> lparent = parent.get().lock();
+
+			HWND hwnd = CreateWindowExW(
+				0,
+				className.c_str(),
+				initTitle.c_str(),
+				WS_OVERLAPPEDWINDOW,
+				initPosition.x, initPosition.y,
+				initClientSize.width, initClientSize.height,
+				lparent ? lparent->hwnd.get() : nullptr,
+				nullptr,
+				Environment::instance().getInstance(),
+				&static_cast<ShellWeakPtr<>>(selfPtr)
+				);
+			if(hwnd == nullptr)
+				return false;
+
+			hwnd_ = hwnd;
+
+			// TODO: D2D
+
+			ShowWindow(hwnd, showCommand);
+			UpdateWindow(hwnd);
+
+			MSG msg;
+			while(GetMessageW(&msg, nullptr, 0, 0))
+			{
+				TranslateMessage(&msg);
+				DispatchMessageW(&msg);
+			}
+
+			return true;
 		}
 
 		longptr_t FrameWindow::procMessage(HWND hwnd, unsigned message, uintptr_t wParam, longptr_t lParam)
 		{
+			switch(message)
+			{
+			case WM_SIZE:
+				// client->resize(Objects::SizeI(LOWORD(lParam), HIWORD(lParam)));
+				return 0;
+
+			case WM_PAINT:
+				return 0;
+
+			case WM_DESTROY:
+				// TODO: modeless window
+				ShellManager::instance().remove(hwnd);
+				PostQuitMessage(0);
+				return 0;
+			}
+
 			return DefWindowProcW(hwnd, message, wParam, lParam);
 		}
 	}

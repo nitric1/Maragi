@@ -20,7 +20,7 @@ namespace Maragi
 
 		public:
 			Dialog();
-			explicit Dialog(Shell *);
+			explicit Dialog(const ShellWeakPtr<> &);
 
 		protected:
 			virtual ~Dialog() = 0;

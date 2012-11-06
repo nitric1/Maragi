@@ -8,7 +8,7 @@ namespace Maragi
 {
 	namespace UI
 	{
-		class Button : public ActualControl
+		class Button : public Control
 		{
 		};
 	}

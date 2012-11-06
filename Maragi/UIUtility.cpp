@@ -34,12 +34,12 @@ namespace Maragi
 			return nextID;
 		}
 
-		void ControlManager::add(const ControlID &id, const ControlPtr<> &control)
+		void ControlManager::add(const ControlID &id, const ControlWeakPtr<> &control)
 		{
 			controls.insert(std::make_pair(id, control));
 		}
 
-		ControlPtr<> ControlManager::find(ControlID id)
+		ControlWeakPtr<> ControlManager::find(ControlID id)
 		{
 			auto it = controls.find(id);
 			if(it == std::end(controls))
@@ -63,28 +63,35 @@ namespace Maragi
 
 		longptr_t __stdcall ShellManager::windowProc(HWND hwnd, unsigned message, uintptr_t wParam, longptr_t lParam)
 		{
-			if(message == WM_CREATE)
-			{
-				ShellPtr<> &shell = *reinterpret_cast<ShellPtr<> *>(lParam);
-				ShellManager::instance().add(hwnd, shell);
-				return shell->procMessage(hwnd, message, wParam, lParam);
-			}
-
 			auto &shells = ShellManager::instance().shells;
 			auto it = shells.find(hwnd);
 			if(it == std::end(shells))
-				return 0;
+			{
+				if(message == WM_NCCREATE)
+				{
+					ShellWeakPtr<> &shell = *reinterpret_cast<ShellWeakPtr<> *>(reinterpret_cast<CREATESTRUCT *>(lParam)->lpCreateParams);
+					ShellManager::instance().add(hwnd, shell);
+					ShellPtr<> lshell = shell.lock();
+					return lshell->procMessage(hwnd, message, wParam, lParam);
+				}
 
-			return it->second->procMessage(hwnd, message, wParam, lParam);
+				return DefWindowProcW(hwnd, message, wParam, lParam);
+			}
+
+			ShellPtr<> lshell = it->second.lock();
+			return lshell->procMessage(hwnd, message, wParam, lParam);
 		}
 
 		intptr_t __stdcall ShellManager::dialogProc(HWND hwnd, unsigned message, uintptr_t wParam, longptr_t lParam)
 		{
 			if(message == WM_INITDIALOG)
 			{
-				ShellPtr<> &shell = *reinterpret_cast<ShellPtr<> *>(lParam);
+				ShellWeakPtr<> &shell = *reinterpret_cast<ShellWeakPtr<> *>(lParam);
 				ShellManager::instance().add(hwnd, shell);
-				return shell->procMessage(hwnd, message, wParam, lParam);
+				ShellPtr<> lshell = shell.lock();
+				if(!lshell)
+					return 0;
+				return lshell->procMessage(hwnd, message, wParam, lParam);
 			}
 
 			auto &shells = ShellManager::instance().shells;
@@ -92,7 +99,11 @@ namespace Maragi
 			if(it == std::end(shells))
 				return 0;
 
-			return it->second->procMessage(hwnd, message, wParam, lParam);
+			ShellPtr<> lshell = it->second.lock();
+			if(!lshell)
+				return 0;
+
+			return lshell->procMessage(hwnd, message, wParam, lParam);
 		}
 
 		std::wstring ShellManager::getNextClassName()
@@ -101,12 +112,12 @@ namespace Maragi
 			return (boost::wformat(L"Maragi::UIClass%1%") % nextID).str();
 		}
 
-		void ShellManager::add(HWND hwnd, const ShellPtr<> &shell)
+		void ShellManager::add(HWND hwnd, const ShellWeakPtr<> &shell)
 		{
 			shells.insert(std::make_pair(hwnd, shell));
 		}
 
-		ShellPtr<> ShellManager::find(HWND hwnd)
+		ShellWeakPtr<> ShellManager::find(HWND hwnd)
 		{
 			auto it = shells.find(hwnd);
 			if(it == std::end(shells))

@@ -8,6 +8,7 @@ namespace Maragi
 	{
 		class Control;
 		class Layout;
+		class ShellLayout;
 		class GridLayout;
 
 		class Shell;

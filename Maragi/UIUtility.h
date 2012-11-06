@@ -17,10 +17,14 @@ namespace Maragi
 
 		template<typename = Control>
 		class ControlPtr;
+		template<typename = Control>
+		class ControlWeakPtr;
 
 		template<typename T>
 		class ControlPtr
 		{
+			static_assert(std::is_convertible<T *, Control *>::value, "T must be a derived class from Maragi::UI::Control.");
+
 		private:
 			std::shared_ptr<Control> ptr;
 			T *castPtr;
@@ -29,31 +33,24 @@ namespace Maragi
 			ControlPtr()
 				: ptr(nullptr, ControlPtrDeleter())
 				, castPtr(nullptr)
-			{
-			}
+			{}
 
 			ControlPtr(Control *iptr)
-				: castPtr(nullptr)
-			{
-				if(iptr != nullptr)
-				{
-					castPtr = dynamic_cast<T *>(iptr);
-					ptr = std::shared_ptr<Control>(iptr, ControlPtrDeleter());
-				}
-			}
-
-			ControlPtr(std::shared_ptr<Control> iptr)
-				: ptr(iptr)
-			{
-				castPtr = dynamic_cast<T *>(ptr.get());
-			}
+				: ptr(iptr, ControlPtrDeleter())
+				, castPtr(dynamic_cast<T *>(iptr))
+			{}
 
 			template<typename Other>
 			ControlPtr(const ControlPtr<Other> &that)
 				: ptr(that.ptr)
-			{
-				castPtr = dynamic_cast<T *>(ptr.get());
-			}
+				, castPtr(dynamic_cast<T *>(that.ptr.get()))
+			{}
+
+		private:
+			ControlPtr(const std::shared_ptr<Control> &iptr)
+				: ptr(iptr)
+				, castPtr(dynamic_cast<T *>(iptr.get()))
+			{}
 
 		public:
 			T *get() const
@@ -117,6 +114,64 @@ namespace Maragi
 
 			template<typename Other>
 			friend class ControlPtr;
+			template<typename Other>
+			friend class ControlWeakPtr;
+		};
+
+		template<typename T>
+		class ControlWeakPtr
+		{
+			static_assert(std::is_convertible<T *, Control *>::value, "T must be a derived class from Maragi::UI::Control.");
+
+		private:
+			std::weak_ptr<Control> ptr;
+
+		public:
+			ControlWeakPtr()
+				: ptr()
+			{}
+
+			ControlWeakPtr(nullptr_t)
+				: ptr()
+			{}
+
+			ControlWeakPtr(const std::weak_ptr<Control> &iptr)
+				: ptr(iptr)
+			{}
+
+			template<typename Other>
+			ControlWeakPtr(const ControlPtr<Other> &that)
+				: ptr(that.ptr)
+			{}
+
+			template<typename Other>
+			ControlWeakPtr(const ControlWeakPtr<Other> &that)
+				: ptr(that.ptr)
+			{}
+
+		public:
+			ControlPtr<T> lock() const
+			{
+				return ptr.lock();
+			}
+
+		public:
+			template<typename Other>
+			ControlWeakPtr &operator =(const ControlPtr<Other> &rhs)
+			{
+				ptr = rhs.ptr;
+				return *this;
+			}
+
+			template<typename Other>
+			ControlWeakPtr &operator =(const ControlWeakPtr<Other> &rhs)
+			{
+				ptr = rhs.ptr;
+				return *this;
+			}
+
+			template<typename Other>
+			friend class ControlWeakPtr;
 		};
 
 		struct ShellPtrDeleter
@@ -126,10 +181,14 @@ namespace Maragi
 
 		template<typename = Shell>
 		class ShellPtr;
+		template<typename = Shell>
+		class ShellWeakPtr;
 
 		template<typename T>
 		class ShellPtr
 		{
+			static_assert(std::is_convertible<T *, Shell *>::value, "T must be a derived class from Maragi::UI::Shell.");
+
 		private:
 			std::shared_ptr<Shell> ptr;
 			T *castPtr;
@@ -138,32 +197,24 @@ namespace Maragi
 			ShellPtr()
 				: ptr(nullptr, ShellPtrDeleter())
 				, castPtr(nullptr)
-			{
-			}
+			{}
 
 			ShellPtr(Shell *iptr)
-			{
-				if(iptr == nullptr)
-					castPtr = nullptr;
-				else
-				{
-					castPtr = dynamic_cast<T *>(iptr);
-					ptr = std::shared_ptr<Shell>(iptr, ShellPtrDeleter());
-				}
-			}
-
-			ShellPtr(std::shared_ptr<Shell> iptr)
-				: ptr(iptr)
-			{
-				castPtr = dynamic_cast<T *>(ptr.get());
-			}
+				: ptr(iptr, ShellPtrDeleter())
+				, castPtr(dynamic_cast<T *>(iptr))
+			{}
 
 			template<typename Other>
 			ShellPtr(const ShellPtr<Other> &that)
 				: ptr(that.ptr)
-			{
-				castPtr = dynamic_cast<T *>(ptr.get());
-			}
+				, castPtr(dynamic_cast<T *>(that.ptr.get()))
+			{}
+
+		private:
+			ShellPtr(const std::shared_ptr<Shell> &iptr)
+				: ptr(iptr)
+				, castPtr(dynamic_cast<T *>(iptr.get()))
+			{}
 
 		public:
 			T *get() const
@@ -227,12 +278,70 @@ namespace Maragi
 
 			template<typename Other>
 			friend class ShellPtr;
+			template<typename Other>
+			friend class ShellWeakPtr;
+		};
+
+		template<typename T>
+		class ShellWeakPtr
+		{
+			static_assert(std::is_convertible<T *, Shell *>::value, "T must be a derived class from Maragi::UI::Shell.");
+
+		private:
+			std::weak_ptr<Shell> ptr;
+
+		public:
+			ShellWeakPtr()
+				: ptr()
+			{}
+
+			ShellWeakPtr(nullptr_t)
+				: ptr()
+			{}
+
+			ShellWeakPtr(const std::weak_ptr<Shell> &iptr)
+				: ptr(iptr)
+			{}
+
+			template<typename Other>
+			ShellWeakPtr(const ShellPtr<Other> &that)
+				: ptr(that.ptr)
+			{}
+
+			template<typename Other>
+			ShellWeakPtr(const ShellWeakPtr<Other> &that)
+				: ptr(that.ptr)
+			{}
+
+		public:
+			ShellPtr<T> lock() const
+			{
+				return ptr.lock();
+			}
+
+		public:
+			template<typename Other>
+			ShellWeakPtr &operator =(const ShellPtr<Other> &rhs)
+			{
+				ptr = rhs.ptr;
+				return *this;
+			}
+
+			template<typename Other>
+			ShellWeakPtr &operator =(const ShellWeakPtr<Other> &rhs)
+			{
+				ptr = rhs.ptr;
+				return *this;
+			}
+
+			template<typename Other>
+			friend class ShellWeakPtr;
 		};
 
 		class ControlManager : public Singleton<ControlManager>
 		{
 		private:
-			std::map<ControlID, ControlPtr<>> controls;
+			std::map<ControlID, ControlWeakPtr<>> controls;
 
 		private:
 			ControlID nextID;
@@ -245,8 +354,8 @@ namespace Maragi
 
 		public:
 			ControlID getNextID();
-			void add(const ControlID &, const ControlPtr<> &);
-			ControlPtr<> find(ControlID);
+			void add(const ControlID &, const ControlWeakPtr<> &);
+			ControlWeakPtr<> find(ControlID);
 			void remove(ControlID);
 
 			friend class Singleton<ControlManager>;
@@ -255,7 +364,7 @@ namespace Maragi
 		class ShellManager : public Singleton<ShellManager>
 		{
 		private:
-			std::map<HWND, ShellPtr<>> shells;
+			std::map<HWND, ShellWeakPtr<>> shells;
 
 		private:
 			uint32_t nextID;
@@ -272,8 +381,8 @@ namespace Maragi
 
 		public:
 			std::wstring getNextClassName();
-			void add(HWND, const ShellPtr<> &);
-			ShellPtr<> find(HWND);
+			void add(HWND, const ShellWeakPtr<> &);
+			ShellWeakPtr<> find(HWND);
 			void remove(HWND);
 
 			friend class Singleton<ShellManager>;

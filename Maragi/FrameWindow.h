@@ -13,36 +13,38 @@ namespace Maragi
 		class FrameWindow : public Shell
 		{
 		private:
-			ControlPtr<FullLayout> client_; // FrameWindow handles only one child.
+			ControlPtr<ShellLayout> client_; // FrameWindow handles only one child.
 			Resources::ResourcePtr<Resources::Icon> iconLarge_, iconSmall_;
+
+			ShellWeakPtr<FrameWindow> selfPtr;
 			std::wstring className;
+			std::wstring initTitle;
+			Objects::PointI initPosition;
+			Objects::SizeI initClientSize;
 
 		protected:
 			FrameWindow();
-			explicit FrameWindow(const ShellPtr<Shell> &);
+			explicit FrameWindow(const ShellWeakPtr<> &);
 			virtual ~FrameWindow();
 
 		public:
 			static ShellPtr<FrameWindow> create(
-				const ShellPtr<Shell> &,
+				const ShellWeakPtr<> &,
 				const std::wstring &,
 				const Resources::ResourcePtr<Resources::Icon> &,
 				const Resources::ResourcePtr<Resources::Icon> &,
-				const Objects::PointI & = Objects::PointI::invalid,
-				const Objects::SizeI & = Objects::SizeI::invalid
+				const Objects::SizeI & = Objects::SizeI::invalid,
+				const Objects::PointI & = Objects::PointI::invalid
 				); // TODO: menu
 
 		public:
-			virtual void show();
-			virtual void show(int32_t);
+			virtual bool show();
+			virtual bool show(int32_t);
 
 		public:
-			Property::R<FrameWindow, ControlPtr<FullLayout>> client;
+			Property::R<FrameWindow, ControlPtr<ShellLayout>> client;
 			Property::RW<FrameWindow, Resources::ResourcePtr<Resources::Icon>> iconLarge, iconSmall;
 			Property::RW<FrameWindow, Objects::SizeI> clientSize;
-
-		private:
-			void init();
 
 		private:
 			virtual longptr_t procMessage(HWND, unsigned, uintptr_t, longptr_t);

@@ -25,18 +25,4 @@ namespace Maragi
 		inits.insert(std::make_pair(init->getName(), init));
 		init->init();
 	}
-
-	/*void GlobalInitializerManager::uninit()
-	{
-		for(auto it = std::begin(inits); it != std::end(inits); ++ it)
-		{
-			//if(it->first == uninitializerName)
-			//	continue;
-			it->second->uninit();
-		}
-		//std::shared_ptr<Initializer> myinit = inits[uninitializerName];
-		//myinit->uninit();
-	}
-
-	GlobalUninitializer globalUninitializer;*/
 }

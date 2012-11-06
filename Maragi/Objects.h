@@ -29,6 +29,16 @@ namespace Maragi
 					: x(ix), y(iy)
 				{}
 
+				bool operator ==(const Point &rhs) const
+				{
+					return x == rhs.x && y == rhs.y;
+				}
+
+				bool operator !=(const Point &rhs) const
+				{
+					return !(*this == rhs);
+				}
+
 				operator D2DPoint() const
 				{
 					return D2D1::Point2(x, y);
@@ -64,6 +74,16 @@ namespace Maragi
 				Size(T iwidth, T iheight)
 					: width(iwidth), height(iheight)
 				{}
+
+				bool operator ==(const Size &rhs) const
+				{
+					return width == rhs.width && height == rhs.height;
+				}
+
+				bool operator !=(const Size &rhs) const
+				{
+					return !(*this == rhs);
+				}
 
 				operator D2DSize() const
 				{
@@ -132,6 +152,16 @@ namespace Maragi
 				bool isIn(const Point<T> &pt) const
 				{
 					return (pt.x >= left && pt.x < right && pt.y >= top && pt.y < bottom);
+				}
+
+				bool operator ==(const Rectangle &rhs) const
+				{
+					return left == rhs.left && top == rhs.top && right == rhs.right && bottom == rhs.bottom;
+				}
+
+				bool operator !=(const Rectangle &rhs) const
+				{
+					return !(*this == rhs);
 				}
 
 				operator D2DRect() const

@@ -51,9 +51,18 @@ namespace Maragi
 			// mainWin->setShowStatus(showCommand);
 			// return mainWin->show();
 
-			MessageBoxW(nullptr, (boost::wformat(L"%1%") % GetSystemMetrics(SM_CXICON)).str().c_str(), L"Info", MB_OK);
-
-			return true;
+			UI::ShellPtr<UI::FrameWindow> frm = UI::FrameWindow::create(
+				nullptr,
+				L"Hello World",
+				UI::Resources::Icon::fromSharedResource(IDI_APPLICATION),
+				UI::Resources::Icon::fromSharedResource(IDI_APPLICATION),
+				UI::Objects::SizeI(640, 480),
+				UI::Objects::PointI::invalid
+				);
+			//UI::ControlPtr<UI::GridLayout> layout = UI::GridLayout::create(frm.client, 1, 2);
+			//UI::ControlPtr<UI::Button> button = UI::Button::create(layout[0][1], "Button Text");
+			//button.onClick = delegate(this, &onButtonClick);
+			return frm->show(showCommand);
 		}
 		catch(std::exception &e)
 		{
