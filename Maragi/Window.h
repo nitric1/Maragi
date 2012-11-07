@@ -262,6 +262,37 @@ namespace Maragi
 			return delegate<bool (const ControlEventArg &)>(p, fn);
 		}
 
+		class Slot
+		{
+		private:
+			ControlWeakPtr<> parent_;
+			ControlWeakPtr<> child_;
+
+		public:
+			explicit Slot(const ControlWeakPtr<> &);
+			virtual ~Slot();
+
+		private:
+			Slot(); // = delete;
+			Slot(const Slot &); // = delete;
+
+		protected:
+			virtual bool attach(const ControlWeakPtr<> &);
+			virtual bool detach();
+
+		public:
+			Property::R<Slot, ControlWeakPtr<>> parent;
+			Property::R<Slot, ControlWeakPtr<>> child;
+
+		private:
+			class Impl;
+			friend class Impl;
+
+			std::shared_ptr<Impl> impl;
+
+			friend class Control;
+		};
+
 		class Control
 		{
 		private:
@@ -273,7 +304,7 @@ namespace Maragi
 			Objects::RectangleF rect_;
 
 		protected:
-			Control(const ControlWeakPtr<> &, const ControlID &);
+			Control(Slot *, const ControlID &);
 			virtual ~Control() = 0;
 
 		private: // no implementation

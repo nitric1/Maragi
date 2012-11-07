@@ -8,19 +8,8 @@ namespace Maragi
 {
 	namespace UI
 	{
-		class Layout::Impl
-		{
-		private:
-			Layout *self;
-
-		public:
-			explicit Impl(Layout *);
-
-			;
-		};
-
-		Layout::Layout(const ControlWeakPtr<> &parent, const ControlID &id)
-			: Control(parent, id)
+		Layout::Layout(Slot *slot, const ControlID &id)
+			: Control(slot, id)
 		{
 		}
 
@@ -38,6 +27,11 @@ namespace Maragi
 			{
 				return self->shell_;
 			}
+
+			ControlWeakPtr<> getChild()
+			{
+				return self->child_;
+			}
 		};
 
 		ShellLayout::ShellLayout(const ShellWeakPtr<> &ishell, const ControlID &id)
@@ -46,6 +40,7 @@ namespace Maragi
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			shell.init(impl.get(), &Impl::getShell);
+			child.init(impl.get(), &Impl::getChild);
 		}
 
 		ControlPtr<ShellLayout> ShellLayout::create(

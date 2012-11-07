@@ -11,6 +11,59 @@ namespace Maragi
 	{
 		const ControlID ControlID::undefined(0);
 
+		class Slot::Impl
+		{
+		private:
+			Slot *self;
+
+		public:
+			explicit Impl(Slot *iself)
+				: self(iself)
+			{}
+
+			ControlWeakPtr<> getParent()
+			{
+				return self->parent_;
+			}
+
+			ControlWeakPtr<> getChild()
+			{
+				return self->child_;
+			}
+		};
+
+		Slot::Slot(const ControlWeakPtr<> &iparent)
+			: parent_(iparent)
+		{
+			impl = std::shared_ptr<Impl>(new Impl(this));
+			parent.init(impl.get(), &Impl::getParent);
+			child.init(impl.get(), &Impl::getChild);
+		}
+
+		Slot::~Slot()
+		{
+		}
+
+		bool Slot::attach(const ControlWeakPtr<> &child)
+		{
+			if(!child_.lock())
+			{
+				child_ = child;
+				return true;
+			}
+			return false;
+		}
+
+		bool Slot::detach()
+		{
+			if(child_.lock())
+			{
+				child_ = nullptr;
+				return true;
+			}
+			return false;
+		}
+
 		class Control::Impl
 		{
 		private:
@@ -43,10 +96,15 @@ namespace Maragi
 			}
 		};
 
-		Control::Control(const ControlWeakPtr<> &iparent, const ControlID &iid)
-			: parent_(iparent)
+		Control::Control(Slot *slot, const ControlID &iid)
+			: parent_(slot ? slot->parent : nullptr)
 			, id_(iid)
 		{
+			if(slot)
+			{
+				// TODO: slot attach
+			}
+
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			parent.init(impl.get(), &Impl::getParent);
 			id.init(impl.get(), &Impl::getId);

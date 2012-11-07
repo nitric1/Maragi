@@ -13,25 +13,14 @@ namespace Maragi
 		class Layout : public Control
 		{
 		protected:
-			ControlWeakPtr<> child_;
-
-		protected:
-			Layout(const ControlWeakPtr<> &, const ControlID &);
-
-		public:
-			Property::R<Layout, ControlWeakPtr<>> child;
-
-		private:
-			class Impl;
-			friend class Impl;
-
-			std::shared_ptr<Impl> impl;
+			Layout(Slot *, const ControlID &);
 		};
 
 		class ShellLayout : public Layout
 		{
 		private:
 			ShellWeakPtr<> shell_;
+			ControlWeakPtr<> child_;
 
 			ComPtr<ID2D1SolidColorBrush> brush;
 
@@ -51,6 +40,7 @@ namespace Maragi
 
 		public:
 			Property::R<ShellLayout, ShellWeakPtr<>> shell;
+			Property::R<ShellLayout, ControlWeakPtr<>> child;
 
 		private:
 			class Impl;

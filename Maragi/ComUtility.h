@@ -112,6 +112,10 @@ namespace Maragi
 		class ComException : public std::runtime_error
 		{
 		public:
+			ComException()
+				: std::runtime_error()
+			{}
+
 			explicit ComException(const std::string &message)
 				: std::runtime_error(message)
 			{}
