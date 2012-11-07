@@ -69,41 +69,48 @@ namespace Maragi
 			{
 				if(message == WM_NCCREATE)
 				{
-					ShellWeakPtr<> &shell = *reinterpret_cast<ShellWeakPtr<> *>(reinterpret_cast<CREATESTRUCT *>(lParam)->lpCreateParams);
-					ShellManager::instance().add(hwnd, shell);
-					ShellPtr<> lshell = shell.lock();
-					return lshell->procMessage(hwnd, message, wParam, lParam);
+					ShellWeakPtr<> *shell = reinterpret_cast<ShellWeakPtr<> *>(reinterpret_cast<CREATESTRUCT *>(lParam)->lpCreateParams);
+					if(shell != nullptr)
+					{
+						ShellManager::instance().add(hwnd, *shell);
+						ShellPtr<> lshell = shell->lock();
+						if(lshell)
+							return lshell->procMessage(hwnd, message, wParam, lParam);
+					}
 				}
-
 				return DefWindowProcW(hwnd, message, wParam, lParam);
 			}
 
 			ShellPtr<> lshell = it->second.lock();
-			return lshell->procMessage(hwnd, message, wParam, lParam);
+			if(lshell)
+				return lshell->procMessage(hwnd, message, wParam, lParam);
+			return DefWindowProcW(hwnd, message, wParam, lParam);
 		}
 
 		intptr_t __stdcall ShellManager::dialogProc(HWND hwnd, unsigned message, uintptr_t wParam, longptr_t lParam)
 		{
-			if(message == WM_INITDIALOG)
-			{
-				ShellWeakPtr<> &shell = *reinterpret_cast<ShellWeakPtr<> *>(lParam);
-				ShellManager::instance().add(hwnd, shell);
-				ShellPtr<> lshell = shell.lock();
-				if(!lshell)
-					return 0;
-				return lshell->procMessage(hwnd, message, wParam, lParam);
-			}
-
 			auto &shells = ShellManager::instance().shells;
 			auto it = shells.find(hwnd);
 			if(it == std::end(shells))
+			{
+				if(message == WM_INITDIALOG)
+				{
+					ShellWeakPtr<> *shell = reinterpret_cast<ShellWeakPtr<> *>(lParam);
+					if(shell != nullptr)
+					{
+						ShellManager::instance().add(hwnd, *shell);
+						ShellPtr<> lshell = shell->lock();
+						if(lshell)
+							return lshell->procMessage(hwnd, message, wParam, lParam);
+					}
+				}
 				return 0;
+			}
 
 			ShellPtr<> lshell = it->second.lock();
-			if(!lshell)
-				return 0;
-
-			return lshell->procMessage(hwnd, message, wParam, lParam);
+			if(lshell)
+				return lshell->procMessage(hwnd, message, wParam, lParam);
+			return 0;
 		}
 
 		std::wstring ShellManager::getNextClassName()
