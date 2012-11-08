@@ -213,6 +213,51 @@ namespace Maragi
 			};
 		}
 
+		class Slot
+		{
+		private:
+			ControlWeakPtr<> parent_;
+			ControlWeakPtr<> child_;
+
+		public:
+			Slot();
+			explicit Slot(const ControlWeakPtr<> &);
+			virtual ~Slot();
+
+		private:
+			Slot(const Slot &); // = delete;
+
+		public:
+			virtual bool attach(const ControlWeakPtr<> &);
+			virtual ControlWeakPtr<> detach();
+
+		public:
+			Property::RW<Slot, ControlWeakPtr<>> parent; // TODO: should be fixed
+			Property::R<Slot, ControlWeakPtr<>> child;
+
+		private:
+			class Impl;
+			friend class Impl;
+
+			std::shared_ptr<Impl> impl;
+
+			friend class Control;
+		};
+
+		template<typename FuncT>
+		class Event // TODO: how to encapsulation
+		{
+		private:
+			std::vector<std::shared_ptr<ERDelegate<FuncT>>> fns;
+
+		public:
+			Event();
+			~Event();
+
+		public:
+			;
+		};
+
 		struct ControlEventArg
 		{
 			ControlWeakPtr<> control;
@@ -251,47 +296,18 @@ namespace Maragi
 		};
 
 		template<typename Func>
-		std::shared_ptr<ERDelegate<bool (const ControlEventArg &)>> delegateControlEvent(Func fn)
+		std::shared_ptr<ERDelegate<void (const ControlEventArg &)>> delegateControlEvent(Func fn)
 		{
-			return delegate<bool (const ControlEventArg &)>(fn);
+			return delegate<void (const ControlEventArg &)>(fn);
 		}
 
 		template<typename Class, typename Func>
-		std::shared_ptr<ERDelegate<bool (const ControlEventArg &)>> delegateControlEvent(Class *p, Func fn)
+		std::shared_ptr<ERDelegate<void (const ControlEventArg &)>> delegateControlEvent(Class *p, Func fn)
 		{
-			return delegate<bool (const ControlEventArg &)>(p, fn);
+			return delegate<void (const ControlEventArg &)>(p, fn);
 		}
 
-		class Slot
-		{
-		private:
-			ControlWeakPtr<> parent_;
-			ControlWeakPtr<> child_;
-
-		public:
-			Slot();
-			explicit Slot(const ControlWeakPtr<> &);
-			virtual ~Slot();
-
-		private:
-			Slot(const Slot &); // = delete;
-
-		public:
-			virtual bool attach(const ControlWeakPtr<> &);
-			virtual ControlWeakPtr<> detach();
-
-		public:
-			Property::RW<Slot, ControlWeakPtr<>> parent; // TODO: should be fixed
-			Property::R<Slot, ControlWeakPtr<>> child;
-
-		private:
-			class Impl;
-			friend class Impl;
-
-			std::shared_ptr<Impl> impl;
-
-			friend class Control;
-		};
+		typedef Event<void (const ControlEventArg &)> ControlEvent;
 
 		class Control : public std::enable_shared_from_this<Control>
 		{
@@ -309,7 +325,6 @@ namespace Maragi
 			Control(const Control &); // = delete;
 
 		protected:
-			bool fireEvent(const std::shared_ptr<ERDelegate<void (const ControlEventArg &)>> &, const ControlEventArg &);
 			ControlPtr<> sharedFromThis();
 
 		public:
@@ -323,10 +338,10 @@ namespace Maragi
 
 		public: // external event handlers
 			/*
-			Event onMouseMove;
-			Event onMouseButtonDown;
-			Event onMouseButtonDoubleClick;
-			Event onMouseButtonUp;
+			ControlEvent onMouseMove;
+			ControlEvent onMouseButtonDown;
+			ControlEvent onMouseButtonDoubleClick;
+			ControlEvent onMouseButtonUp;
 			*/
 
 		public:

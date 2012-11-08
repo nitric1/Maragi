@@ -108,7 +108,7 @@ namespace Maragi
 			void setRect(const Objects::RectangleF &rect)
 			{
 				self->rect_ = rect;
-				self->resize(rect);
+				self->onResizeInternal(rect);
 			}
 		};
 
@@ -126,13 +126,6 @@ namespace Maragi
 		{
 		}
 
-		bool Control::fireEvent(const std::shared_ptr<ERDelegate<void (ControlEventArg &)>> &handlers, ControlEventArg &e)
-		{
-			;
-
-			return true;
-		}
-
 		ControlPtr<> Control::sharedFromThis()
 		{
 			return ControlPtr<>(shared_from_this());
@@ -146,11 +139,7 @@ namespace Maragi
 		{
 		}
 
-		void Control::resize(const Objects::RectangleF &)
-		{
-		}
-
-		void Control::click(const Objects::PointF &)
+		void Control::onResizeInternal(const Objects::RectangleF &)
 		{
 		}
 
