@@ -20,7 +20,7 @@ namespace Maragi
 		{
 		private:
 			ShellWeakPtr<> shell_;
-			ControlWeakPtr<> child_;
+			Slot slot_;
 
 			ComPtr<ID2D1SolidColorBrush> brush;
 
@@ -37,10 +37,14 @@ namespace Maragi
 			virtual void createDrawingResources(Drawing::Context &);
 			virtual void discardDrawingResources(Drawing::Context &);
 			virtual void draw(Drawing::Context &);
+			virtual Objects::SizeF computeSize();
+
+		protected:
+			virtual void onResizeInternal(const Objects::RectangleF &);
 
 		public:
 			Property::R<ShellLayout, ShellWeakPtr<>> shell;
-			Property::R<ShellLayout, ControlWeakPtr<>> child;
+			Property::R<ShellLayout, Slot *> slot;
 
 		private:
 			class Impl;

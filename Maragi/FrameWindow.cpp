@@ -58,6 +58,7 @@ namespace Maragi
 
 		FrameWindow::FrameWindow()
 			: Shell()
+			, inDestroy(false)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			client.init(impl.get(), &Impl::getClient);
@@ -68,6 +69,7 @@ namespace Maragi
 
 		FrameWindow::FrameWindow(const ShellWeakPtr<> &parent)
 			: Shell(parent)
+			, inDestroy(false)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			client.init(impl.get(), &Impl::getClient);
@@ -78,7 +80,7 @@ namespace Maragi
 
 		FrameWindow::~FrameWindow()
 		{
-			if(hwnd != nullptr)
+			if(hwnd != nullptr && !inDestroy)
 				DestroyWindow(hwnd);
 
 			if(!className.empty())
@@ -223,6 +225,7 @@ namespace Maragi
 
 			case WM_DESTROY:
 				// TODO: modeless window
+				inDestroy = true;
 				ShellManager::instance().remove(hwnd);
 				PostQuitMessage(0);
 				return 0;

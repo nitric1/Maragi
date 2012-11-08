@@ -6,6 +6,7 @@ class ERDelegate;
 template<typename FunctionType>
 class ERDelegateImpl;
 
+/*
 #if !defined(_MSC_VER)
 #include <boost/bind.hpp>
 
@@ -252,7 +253,7 @@ public:
 	}
 };
 
-#else
+#else*/
 
 #define _DELEGATE_COMMA ,
 
@@ -325,4 +326,4 @@ public:
 #include "ERDelegateStub.h"
 #undef DELEGATE_NUM_ARG
 
-#endif
+// #endif

@@ -28,9 +28,9 @@ namespace Maragi
 				return self->shell_;
 			}
 
-			ControlWeakPtr<> getChild()
+			Slot *getSlot()
 			{
-				return self->child_;
+				return &self->slot_;
 			}
 		};
 
@@ -40,14 +40,16 @@ namespace Maragi
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			shell.init(impl.get(), &Impl::getShell);
-			child.init(impl.get(), &Impl::getChild);
+			slot.init(impl.get(), &Impl::getSlot);
 		}
 
 		ControlPtr<ShellLayout> ShellLayout::create(
 			const ShellWeakPtr<> &shell
 			)
 		{
-			return new ShellLayout(shell, ControlManager::instance().getNextID());
+			ControlPtr<ShellLayout> layout(new ShellLayout(shell, ControlManager::instance().getNextID()));
+			layout->slot_.parent = layout;
+			return layout;
 		}
 
 		ShellLayout::~ShellLayout()
@@ -56,17 +58,37 @@ namespace Maragi
 
 		void ShellLayout::createDrawingResources(Drawing::Context &ctx)
 		{
-			// TODO: propagate
+			ControlPtr<> lchild = slot_.child.get().lock();
+			if(lchild)
+				lchild->createDrawingResources(ctx);
 		}
 
 		void ShellLayout::discardDrawingResources(Drawing::Context &ctx)
 		{
-			// TODO: propagate
+			ControlPtr<> lchild = slot_.child.get().lock();
+			if(lchild)
+				lchild->discardDrawingResources(ctx);
 		}
 
 		void ShellLayout::draw(Drawing::Context &ctx)
 		{
-			// TODO: propagate
+			ControlPtr<> lchild = slot_.child.get().lock();
+			if(lchild)
+				lchild->draw(ctx);
+		}
+
+		Objects::SizeF ShellLayout::computeSize()
+		{
+			ControlPtr<> lchild = slot_.child.get().lock();
+			if(lchild)
+				return lchild->computeSize();
+			return Objects::SizeF();
+		}
+
+		void ShellLayout::onResizeInternal(const Objects::RectangleF &rect)
+		{
+			ControlPtr<> lchild = slot_.child.get().lock();
+			lchild->rect = rect;
 		}
 	}
 }

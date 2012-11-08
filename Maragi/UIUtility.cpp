@@ -63,25 +63,28 @@ namespace Maragi
 
 		longptr_t __stdcall ShellManager::windowProc(HWND hwnd, unsigned message, uintptr_t wParam, longptr_t lParam)
 		{
-			auto &shells = ShellManager::instance().shells;
-			auto it = shells.find(hwnd);
-			if(it == std::end(shells))
+			ShellPtr<> lshell;
 			{
-				if(message == WM_NCCREATE)
+				auto &shells = ShellManager::instance().shells;
+				auto it = shells.find(hwnd);
+				if(it == std::end(shells))
 				{
-					ShellWeakPtr<> *shell = reinterpret_cast<ShellWeakPtr<> *>(reinterpret_cast<CREATESTRUCT *>(lParam)->lpCreateParams);
-					if(shell != nullptr)
+					if(message == WM_NCCREATE)
 					{
-						ShellManager::instance().add(hwnd, *shell);
-						ShellPtr<> lshell = shell->lock();
-						if(lshell)
-							return lshell->procMessage(hwnd, message, wParam, lParam);
+						ShellWeakPtr<> *shell = reinterpret_cast<ShellWeakPtr<> *>(reinterpret_cast<CREATESTRUCT *>(lParam)->lpCreateParams);
+						if(shell != nullptr)
+						{
+							ShellManager::instance().add(hwnd, *shell);
+							ShellPtr<> lshell = shell->lock();
+							if(lshell)
+								return lshell->procMessage(hwnd, message, wParam, lParam);
+						}
 					}
+					return DefWindowProcW(hwnd, message, wParam, lParam);
 				}
-				return DefWindowProcW(hwnd, message, wParam, lParam);
-			}
 
-			ShellPtr<> lshell = it->second.lock();
+				lshell = it->second.lock();
+			}
 			if(lshell)
 				return lshell->procMessage(hwnd, message, wParam, lParam);
 			return DefWindowProcW(hwnd, message, wParam, lParam);
@@ -89,25 +92,28 @@ namespace Maragi
 
 		intptr_t __stdcall ShellManager::dialogProc(HWND hwnd, unsigned message, uintptr_t wParam, longptr_t lParam)
 		{
-			auto &shells = ShellManager::instance().shells;
-			auto it = shells.find(hwnd);
-			if(it == std::end(shells))
+			ShellPtr<> lshell;
 			{
-				if(message == WM_INITDIALOG)
+				auto &shells = ShellManager::instance().shells;
+				auto it = shells.find(hwnd);
+				if(it == std::end(shells))
 				{
-					ShellWeakPtr<> *shell = reinterpret_cast<ShellWeakPtr<> *>(lParam);
-					if(shell != nullptr)
+					if(message == WM_INITDIALOG)
 					{
-						ShellManager::instance().add(hwnd, *shell);
-						ShellPtr<> lshell = shell->lock();
-						if(lshell)
-							return lshell->procMessage(hwnd, message, wParam, lParam);
+						ShellWeakPtr<> *shell = reinterpret_cast<ShellWeakPtr<> *>(lParam);
+						if(shell != nullptr)
+						{
+							ShellManager::instance().add(hwnd, *shell);
+							ShellPtr<> lshell = shell->lock();
+							if(lshell)
+								return lshell->procMessage(hwnd, message, wParam, lParam);
+						}
 					}
+					return 0;
 				}
-				return 0;
-			}
 
-			ShellPtr<> lshell = it->second.lock();
+				lshell = it->second.lock();
+			}
 			if(lshell)
 				return lshell->procMessage(hwnd, message, wParam, lParam);
 			return 0;

@@ -2,12 +2,12 @@
 
 #include "Common.h"
 
+#include "Controls.h"
 #include "MainController.h"
-
 #include "Tokens.h"
 #include "TwitterClient.h"
-
 #include "Singleton.h"
+#include "Window.h"
 
 #pragma warning(push)
 #pragma warning(disable:4702)
@@ -59,9 +59,12 @@ namespace Maragi
 				UI::Objects::SizeI(640, 480),
 				UI::Objects::PointI::invalid
 				);
-			//UI::ControlPtr<UI::GridLayout> layout = UI::GridLayout::create(frm.client, 1, 2);
-			//UI::ControlPtr<UI::Button> button = UI::Button::create(layout[0][1], "Button Text");
-			//button.onClick = delegate(this, &onButtonClick);
+			//UI::ControlPtr<UI::GridLayout> layout = UI::GridLayout::create(1, 2);
+			//frm->client->slot.get().attach(layout);
+			UI::ControlPtr<UI::Button> button = UI::Button::create(L"Button Text");
+			frm->client->slot->attach(button);
+			//layout->slot[0][1].attach(button);
+			//button.onClick += delegate(this, &onButtonClick);
 			return frm->show(showCommand);
 		}
 		catch(std::exception &e)

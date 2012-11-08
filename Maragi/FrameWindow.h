@@ -22,6 +22,7 @@ namespace Maragi
 			std::wstring initTitle;
 			Objects::PointI initPosition;
 			Objects::SizeI initClientSize;
+			bool inDestroy;
 
 		protected:
 			FrameWindow();

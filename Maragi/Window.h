@@ -269,11 +269,11 @@ namespace Maragi
 			ControlWeakPtr<> child_;
 
 		public:
+			Slot();
 			explicit Slot(const ControlWeakPtr<> &);
 			virtual ~Slot();
 
 		private:
-			Slot(); // = delete;
 			Slot(const Slot &); // = delete;
 
 		public:
@@ -281,7 +281,7 @@ namespace Maragi
 			virtual ControlWeakPtr<> detach();
 
 		public:
-			Property::R<Slot, ControlWeakPtr<>> parent;
+			Property::RW<Slot, ControlWeakPtr<>> parent; // TODO: should be fixed
 			Property::R<Slot, ControlWeakPtr<>> child;
 
 		private:
@@ -296,9 +296,6 @@ namespace Maragi
 		class Control : public std::enable_shared_from_this<Control>
 		{
 		private:
-			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (ControlEventArg)>>> eventMap;
-
-		private:
 			Slot *parent_;
 			ControlID id_;
 			Objects::RectangleF rect_;
@@ -311,17 +308,26 @@ namespace Maragi
 			Control(); // = delete;
 			Control(const Control &); // = delete;
 
-		public:
-			virtual bool addEventListener(const std::wstring &, std::shared_ptr<ERDelegate<bool (ControlEventArg)>>);
-
 		protected:
-			bool fireEvent(const std::wstring &, ControlEventArg);
+			bool fireEvent(const std::shared_ptr<ERDelegate<void (const ControlEventArg &)>> &, const ControlEventArg &);
 			ControlPtr<> sharedFromThis();
 
 		public:
 			virtual void createDrawingResources(Drawing::Context &);
 			virtual void discardDrawingResources(Drawing::Context &);
 			virtual void draw(Drawing::Context &) = 0;
+			virtual Objects::SizeF computeSize() = 0;
+
+		protected: // internal event handlers
+			virtual void onResizeInternal(const Objects::RectangleF &);
+
+		public: // external event handlers
+			/*
+			Event onMouseMove;
+			Event onMouseButtonDown;
+			Event onMouseButtonDoubleClick;
+			Event onMouseButtonUp;
+			*/
 
 		public:
 			Property::R<Control, Slot *> parent;
@@ -362,7 +368,7 @@ namespace Maragi
 		class Shell : public std::enable_shared_from_this<Shell>
 		{
 		private:
-			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (WindowEventArg)>>> eventMap;
+			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (WindowEventArg &)>>> eventMap;
 
 		private:
 			ShellWeakPtr<> parent_;

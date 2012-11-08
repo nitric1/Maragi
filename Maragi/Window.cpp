@@ -26,17 +26,29 @@ namespace Maragi
 				return self->parent_;
 			}
 
+			void setParent(const ControlWeakPtr<> &parent)
+			{
+				self->parent_ = parent;
+			}
+
 			ControlWeakPtr<> getChild()
 			{
 				return self->child_;
 			}
 		};
 
+		Slot::Slot()
+		{
+			impl = std::shared_ptr<Impl>(new Impl(this));
+			parent.init(impl.get(), &Impl::getParent, &Impl::setParent);
+			child.init(impl.get(), &Impl::getChild);
+		}
+
 		Slot::Slot(const ControlWeakPtr<> &iparent)
 			: parent_(iparent)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
-			parent.init(impl.get(), &Impl::getParent);
+			parent.init(impl.get(), &Impl::getParent, &Impl::setParent);
 			child.init(impl.get(), &Impl::getChild);
 		}
 
@@ -96,11 +108,13 @@ namespace Maragi
 			void setRect(const Objects::RectangleF &rect)
 			{
 				self->rect_ = rect;
+				self->resize(rect);
 			}
 		};
 
 		Control::Control(const ControlID &iid)
-			: id_(iid)
+			: parent_(nullptr)
+			, id_(iid)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			parent.init(impl.get(), &Impl::getParent);
@@ -112,23 +126,9 @@ namespace Maragi
 		{
 		}
 
-		bool Control::addEventListener(const std::wstring &name, std::shared_ptr<ERDelegate<bool (ControlEventArg)>> listener)
+		bool Control::fireEvent(const std::shared_ptr<ERDelegate<void (ControlEventArg &)>> &handlers, ControlEventArg &e)
 		{
-			eventMap.insert(make_pair(name, listener));
-			return true;
-		}
-
-		bool Control::fireEvent(const std::wstring &name, ControlEventArg e)
-		{
-			if(eventMap.find(name) == eventMap.end())
-				return true;
-
-			auto r = eventMap.equal_range(name);
-			for(auto it = r.first; it != r.second; ++ it)
-			{
-				if(!(*it->second)(e))
-					return false;
-			}
+			;
 
 			return true;
 		}
@@ -146,7 +146,11 @@ namespace Maragi
 		{
 		}
 
-		void Control::draw(Drawing::Context &context)
+		void Control::resize(const Objects::RectangleF &)
+		{
+		}
+
+		void Control::click(const Objects::PointF &)
 		{
 		}
 
