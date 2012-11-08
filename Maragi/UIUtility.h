@@ -10,11 +10,6 @@ namespace Maragi
 {
 	namespace UI
 	{
-		struct ControlPtrDeleter
-		{
-			void operator ()(Control *) const;
-		};
-
 		template<typename = Control>
 		class ControlPtr;
 		template<typename = Control>
@@ -26,31 +21,46 @@ namespace Maragi
 			static_assert(std::is_convertible<T *, Control *>::value, "T must be a derived class from Maragi::UI::Control.");
 
 		private:
-			std::shared_ptr<Control> ptr;
+			Control *ptr;
 			T *castPtr;
 
 		public:
 			ControlPtr()
-				: ptr(nullptr, ControlPtrDeleter())
+				: ptr(nullptr)
 				, castPtr(nullptr)
 			{}
 
 			ControlPtr(Control *iptr)
-				: ptr(iptr, ControlPtrDeleter())
+				: ptr(iptr)
 				, castPtr(dynamic_cast<T *>(iptr))
-			{}
+			{
+				if(ptr != nullptr)
+					ptr->addRef();
+			}
 
 			template<typename Other>
 			ControlPtr(const ControlPtr<Other> &that)
 				: ptr(that.ptr)
-				, castPtr(dynamic_cast<T *>(that.ptr.get()))
-			{}
+				, castPtr(dynamic_cast<T *>(that.ptr))
+			{
+				if(ptr != nullptr)
+					ptr->addRef();
+			}
 
-		private:
-			ControlPtr(const std::shared_ptr<Control> &iptr)
-				: ptr(iptr)
-				, castPtr(dynamic_cast<T *>(iptr.get()))
-			{}
+			template<typename Other>
+			ControlPtr(ControlPtr<Other> &&that)
+				: ptr(that.ptr)
+				, castPtr(dynamic_cast<T *>(that.ptr.get()))
+			{
+				that.ptr = nullptr;
+				that.castPtr = nullptr;
+			}
+
+			~ControlPtr()
+			{
+				if(ptr != nullptr)
+					ptr->release();
+			}
 
 		public:
 			T *get() const
@@ -62,8 +72,27 @@ namespace Maragi
 			template<typename Other>
 			ControlPtr &operator =(const ControlPtr<Other> &rhs)
 			{
-				ptr = rhs.ptr;
-				castPtr = dynamic_cast<T *>(ptr.get());
+				if(ptr != rhs.ptr)
+				{
+					ptr->release();
+					ptr = rhs.ptr;
+					castPtr = dynamic_cast<T *>(ptr);
+					if(ptr != nullptr)
+						ptr->addRef();
+				}
+				return *this;
+			}
+
+			template<typename Other>
+			ControlPtr &operator =(ControlPtr<Other> &&rhs)
+			{
+				if(ptr != rhs.ptr)
+				{
+					ptr = rhs.ptr;
+					castPtr = dynamic_cast<T *>(ptr);
+					rhs.ptr = nullptr;
+					rhs.castPtr = nullptr;
+				}
 				return *this;
 			}
 
@@ -124,7 +153,8 @@ namespace Maragi
 			static_assert(std::is_convertible<T *, Control *>::value, "T must be a derived class from Maragi::UI::Control.");
 
 		private:
-			std::weak_ptr<Control> ptr;
+			// std::weak_ptr<Control> ptr;
+			Control *ptr;
 
 		public:
 			ControlWeakPtr()
@@ -174,11 +204,6 @@ namespace Maragi
 			friend class ControlWeakPtr;
 		};
 
-		struct ShellPtrDeleter
-		{
-			void operator ()(Shell *) const;
-		};
-
 		template<typename = Shell>
 		class ShellPtr;
 		template<typename = Shell>
@@ -190,31 +215,31 @@ namespace Maragi
 			static_assert(std::is_convertible<T *, Shell *>::value, "T must be a derived class from Maragi::UI::Shell.");
 
 		private:
-			std::shared_ptr<Shell> ptr;
+			Shell *ptr;
 			T *castPtr;
 
 		public:
 			ShellPtr()
-				: ptr(nullptr, ShellPtrDeleter())
+				: ptr(nullptr)
 				, castPtr(nullptr)
 			{}
 
 			ShellPtr(Shell *iptr)
-				: ptr(iptr, ShellPtrDeleter())
+				: ptr(iptr)
 				, castPtr(dynamic_cast<T *>(iptr))
-			{}
+			{
+				if(ptr != nullptr)
+					ptr->addRef();
+			}
 
 			template<typename Other>
 			ShellPtr(const ShellPtr<Other> &that)
 				: ptr(that.ptr)
-				, castPtr(dynamic_cast<T *>(that.ptr.get()))
-			{}
-
-		private:
-			ShellPtr(const std::shared_ptr<Shell> &iptr)
-				: ptr(iptr)
-				, castPtr(dynamic_cast<T *>(iptr.get()))
-			{}
+				, castPtr(dynamic_cast<T *>(that.ptr))
+			{
+				if(ptr != nullptr)
+					ptr->addRef();
+			}
 
 		public:
 			T *get() const

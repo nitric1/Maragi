@@ -293,7 +293,7 @@ namespace Maragi
 			friend class Control;
 		};
 
-		class Control
+		class Control : public Object
 		{
 		private:
 			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (ControlEventArg)>>> eventMap;
@@ -357,7 +357,7 @@ namespace Maragi
 			return delegate<bool (WindowEventArg)>(p, fn);
 		}
 
-		class Shell
+		class Shell : public Object
 		{
 		private:
 			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (WindowEventArg)>>> eventMap;

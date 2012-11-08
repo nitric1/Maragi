@@ -85,5 +85,29 @@ namespace Maragi
 				: std::runtime_error(str)
 			{}
 		};
+
+		class Object
+		{
+		private:
+			size_t refCount;
+			static std::map<void *, size_t> objects;
+
+		protected:
+			Object();
+			virtual ~Object() = 0;
+
+		protected:
+			void *operator new(size_t);
+			void operator delete(void *);
+
+		protected:
+			virtual void addRef();
+			virtual void release();
+
+			template<typename>
+			friend class ControlPtr;
+			template<typename>
+			friend class ShellPtr;
+		};
 	}
 }
