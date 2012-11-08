@@ -18,7 +18,6 @@ namespace Maragi
 			Resources::ResourcePtr<Resources::Icon> iconLarge_, iconSmall_;
 			Drawing::Context context_;
 
-			ShellWeakPtr<FrameWindow> selfPtr;
 			std::wstring className;
 			std::wstring initTitle;
 			Objects::PointI initPosition;

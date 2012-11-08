@@ -114,7 +114,6 @@ namespace Maragi
 
 			ShellPtr<FrameWindow> frm = new FrameWindow(parent);
 
-			frm->selfPtr = frm;
 			frm->className = className;
 			frm->initTitle = title;
 			frm->iconLarge_ = iconLarge;
@@ -168,7 +167,7 @@ namespace Maragi
 				lparent ? lparent->hwnd.get() : nullptr,
 				nullptr,
 				Environment::instance().getInstance(),
-				&static_cast<ShellWeakPtr<>>(selfPtr)
+				&static_cast<ShellWeakPtr<>>(sharedFromThis())
 				);
 			if(hwnd == nullptr)
 				return false;

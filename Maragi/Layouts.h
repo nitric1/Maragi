@@ -13,7 +13,7 @@ namespace Maragi
 		class Layout : public Control
 		{
 		protected:
-			Layout(Slot *, const ControlID &);
+			Layout(const ControlID &);
 		};
 
 		class ShellLayout : public Layout

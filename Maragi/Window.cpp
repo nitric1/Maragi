@@ -46,22 +46,25 @@ namespace Maragi
 
 		bool Slot::attach(const ControlWeakPtr<> &child)
 		{
-			if(!child_.lock())
+			ControlPtr<> lchild = child.lock();
+			if(!child_.lock() && lchild && !lchild->parent_)
 			{
 				child_ = child;
+				lchild->parent_ = this;
 				return true;
 			}
 			return false;
 		}
 
-		bool Slot::detach()
+		ControlWeakPtr<> Slot::detach()
 		{
 			if(child_.lock())
 			{
+				ControlWeakPtr<> child = child_;
 				child_ = nullptr;
-				return true;
+				return child;
 			}
-			return false;
+			return nullptr;
 		}
 
 		class Control::Impl
@@ -75,7 +78,7 @@ namespace Maragi
 			{
 			}
 
-			ControlWeakPtr<> getParent()
+			Slot *getParent()
 			{
 				return self->parent_;
 			}
@@ -96,15 +99,9 @@ namespace Maragi
 			}
 		};
 
-		Control::Control(Slot *slot, const ControlID &iid)
-			: parent_(slot ? slot->parent : nullptr)
-			, id_(iid)
+		Control::Control(const ControlID &iid)
+			: id_(iid)
 		{
-			if(slot)
-			{
-				// TODO: slot attach
-			}
-
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			parent.init(impl.get(), &Impl::getParent);
 			id.init(impl.get(), &Impl::getId);
@@ -134,6 +131,11 @@ namespace Maragi
 			}
 
 			return true;
+		}
+
+		ControlPtr<> Control::sharedFromThis()
+		{
+			return ControlPtr<>(shared_from_this());
 		}
 
 		void Control::createDrawingResources(Drawing::Context &)
@@ -194,6 +196,11 @@ namespace Maragi
 
 		Shell::~Shell()
 		{
+		}
+
+		ShellPtr<> Shell::sharedFromThis()
+		{
+			return ShellPtr<>(shared_from_this());
 		}
 	}
 }

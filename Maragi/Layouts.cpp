@@ -8,8 +8,8 @@ namespace Maragi
 {
 	namespace UI
 	{
-		Layout::Layout(Slot *slot, const ControlID &id)
-			: Control(slot, id)
+		Layout::Layout(const ControlID &id)
+			: Control(id)
 		{
 		}
 
@@ -35,7 +35,7 @@ namespace Maragi
 		};
 
 		ShellLayout::ShellLayout(const ShellWeakPtr<> &ishell, const ControlID &id)
-			: Layout(nullptr, id)
+			: Layout(id)
 			, shell_(ishell)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));

@@ -10,56 +10,49 @@ namespace Maragi
 {
 	namespace UI
 	{
-		template<typename = Control>
-		class ControlPtr;
-		template<typename = Control>
-		class ControlWeakPtr;
-
-		template<typename T>
-		class ControlPtr
+		template<typename Base, typename Deleter, typename T>
+		class SharedPtr
 		{
-			static_assert(std::is_convertible<T *, Control *>::value, "T must be a derived class from Maragi::UI::Control.");
+			static_assert(std::is_convertible<T *, Base *>::value, "T must be a derived class of Base.");
 
 		private:
-			Control *ptr;
+			std::shared_ptr<Base> ptr;
 			T *castPtr;
 
 		public:
-			ControlPtr()
-				: ptr(nullptr)
+			SharedPtr()
+				: ptr(nullptr, Deleter())
 				, castPtr(nullptr)
 			{}
 
-			ControlPtr(Control *iptr)
-				: ptr(iptr)
+			SharedPtr(Base *iptr)
+				: ptr(iptr, Deleter())
 				, castPtr(dynamic_cast<T *>(iptr))
-			{
-				if(ptr != nullptr)
-					ptr->addRef();
-			}
+			{}
 
 			template<typename Other>
-			ControlPtr(const ControlPtr<Other> &that)
-				: ptr(that.ptr)
-				, castPtr(dynamic_cast<T *>(that.ptr))
-			{
-				if(ptr != nullptr)
-					ptr->addRef();
-			}
-
-			template<typename Other>
-			ControlPtr(ControlPtr<Other> &&that)
+			SharedPtr(const SharedPtr<Base, Deleter, Other> &that)
 				: ptr(that.ptr)
 				, castPtr(dynamic_cast<T *>(that.ptr.get()))
+			{}
+
+			template<typename Other>
+			SharedPtr(SharedPtr<Base, Deleter, Other> &&that)
+				: ptr(std::move(that.ptr))
 			{
-				that.ptr = nullptr;
-				that.castPtr = nullptr;
+				castPtr = dynamic_cast<T *>(ptr.get());
 			}
 
-			~ControlPtr()
+		protected:
+			SharedPtr(const std::shared_ptr<Base> &iptr)
+				: ptr(iptr)
+				, castPtr(dynamic_cast<T *>(iptr.get()))
+			{}
+
+			SharedPtr(std::shared_ptr<Base> &&iptr)
+				: ptr(std::move(iptr))
 			{
-				if(ptr != nullptr)
-					ptr->release();
+				castPtr = dynamic_cast<T *>(ptr.get());
 			}
 
 		public:
@@ -70,58 +63,47 @@ namespace Maragi
 
 		public:
 			template<typename Other>
-			ControlPtr &operator =(const ControlPtr<Other> &rhs)
+			SharedPtr &operator =(const SharedPtr<Base, Deleter, Other> &rhs)
 			{
-				if(ptr != rhs.ptr)
-				{
-					ptr->release();
-					ptr = rhs.ptr;
-					castPtr = dynamic_cast<T *>(ptr);
-					if(ptr != nullptr)
-						ptr->addRef();
-				}
+				ptr = rhs.ptr;
+				castPtr = dynamic_cast<T *>(ptr.get());
 				return *this;
 			}
 
 			template<typename Other>
-			ControlPtr &operator =(ControlPtr<Other> &&rhs)
+			SharedPtr &operator =(SharedPtr<Base, Deleter, Other> &&rhs)
 			{
-				if(ptr != rhs.ptr)
-				{
-					ptr = rhs.ptr;
-					castPtr = dynamic_cast<T *>(ptr);
-					rhs.ptr = nullptr;
-					rhs.castPtr = nullptr;
-				}
+				ptr = std::move(rhs.ptr);
+				castPtr = dynamic_cast<T *>(ptr.get());
 				return *this;
 			}
 
-			bool operator ==(const ControlPtr &rhs) const
+			bool operator ==(const SharedPtr &rhs) const
 			{
 				return castPtr == rhs.castPtr;
 			}
 
-			bool operator !=(const ControlPtr &rhs) const
+			bool operator !=(const SharedPtr &rhs) const
 			{
 				return castPtr != rhs.castPtr;
 			}
 
-			bool operator <(const ControlPtr &rhs) const
+			bool operator <(const SharedPtr &rhs) const
 			{
 				return castPtr < rhs.castPtr;
 			}
 
-			bool operator >(const ControlPtr &rhs) const
+			bool operator >(const SharedPtr &rhs) const
 			{
 				return castPtr > rhs.castPtr;
 			}
 
-			bool operator <=(const ControlPtr &rhs) const
+			bool operator <=(const SharedPtr &rhs) const
 			{
 				return castPtr <= rhs.castPtr;
 			}
 
-			bool operator >=(const ControlPtr &rhs) const
+			bool operator >=(const SharedPtr &rhs) const
 			{
 				return castPtr >= rhs.castPtr;
 			}
@@ -141,6 +123,110 @@ namespace Maragi
 				return castPtr == nullptr;
 			}
 
+			template<typename Base, typename Deleter, typename Other>
+			friend class SharedPtr;
+			template<typename Base, typename Deleter, typename SharedPtrReturn, typename Other>
+			friend class WeakPtr;
+		};
+
+		template<typename Base, typename Deleter, typename SharedPtrReturn, typename T>
+		class WeakPtr
+		{
+			static_assert(std::is_convertible<T *, Base *>::value, "T must be a derived class of Base.");
+
+		protected:
+			std::weak_ptr<Base> ptr;
+
+		public:
+			WeakPtr()
+				: ptr()
+			{}
+
+			WeakPtr(nullptr_t)
+				: ptr()
+			{}
+
+			WeakPtr(const std::weak_ptr<Base> &iptr)
+				: ptr(iptr)
+			{}
+
+			template<typename Other>
+			WeakPtr(const SharedPtr<Base, Deleter, Other> &that)
+				: ptr(that.ptr)
+			{}
+
+			template<typename Other>
+			WeakPtr(const WeakPtr<Base, Deleter, SharedPtrReturn, Other> &that)
+				: ptr(that.ptr)
+			{}
+
+		public:
+			SharedPtrReturn lock() const
+			{
+				return ptr.lock();
+			}
+
+		public:
+			template<typename Other>
+			WeakPtr &operator =(const SharedPtr<Base, Deleter, Other> &rhs)
+			{
+				ptr = rhs.ptr;
+				return *this;
+			}
+
+			template<typename Other>
+			WeakPtr &operator =(const WeakPtr<Base, Deleter, SharedPtrReturn, Other> &rhs)
+			{
+				ptr = rhs.ptr;
+				return *this;
+			}
+
+			template<typename Base, typename Deleter, typename SharedPtrReturn, typename Other>
+			friend class WeakPtr;
+		};
+
+		struct ControlPtrDeleter
+		{
+			void operator ()(Control *) const;
+		};
+
+		template<typename = Control>
+		class ControlPtr;
+		template<typename = Control>
+		class ControlWeakPtr;
+
+		template<typename T>
+		class ControlPtr : public SharedPtr<Control, ControlPtrDeleter, T>
+		{
+		public:
+			ControlPtr()
+				: SharedPtr<Control, ControlPtrDeleter, T>()
+			{}
+
+			ControlPtr(Control *iptr)
+				: SharedPtr<Control, ControlPtrDeleter, T>(iptr)
+			{}
+
+			template<typename Other>
+			ControlPtr(const ControlPtr<Other> &that)
+				: SharedPtr<Control, ControlPtrDeleter, T>(that)
+			{}
+
+			template<typename Other>
+			ControlPtr(ControlPtr<Other> &&that)
+				: SharedPtr<Control, ControlPtrDeleter, T>(std::move(that))
+			{}
+
+		protected:
+			ControlPtr(const std::shared_ptr<Control> &iptr)
+				: SharedPtr<Control, ControlPtrDeleter, T>(iptr)
+			{}
+
+			ControlPtr(std::shared_ptr<Control> &&iptr)
+				: SharedPtr<Control, ControlPtrDeleter, T>(std::move(iptr))
+			{}
+
+			friend class Control;
 			template<typename Other>
 			friend class ControlPtr;
 			template<typename Other>
@@ -148,35 +234,29 @@ namespace Maragi
 		};
 
 		template<typename T>
-		class ControlWeakPtr
+		class ControlWeakPtr : public WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>
 		{
-			static_assert(std::is_convertible<T *, Control *>::value, "T must be a derived class from Maragi::UI::Control.");
-
-		private:
-			// std::weak_ptr<Control> ptr;
-			Control *ptr;
-
 		public:
 			ControlWeakPtr()
-				: ptr()
+				: WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>()
 			{}
 
 			ControlWeakPtr(nullptr_t)
-				: ptr()
+				: WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>(nullptr)
 			{}
 
 			ControlWeakPtr(const std::weak_ptr<Control> &iptr)
-				: ptr(iptr)
+				: WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>(iptr)
 			{}
 
 			template<typename Other>
 			ControlWeakPtr(const ControlPtr<Other> &that)
-				: ptr(that.ptr)
+				: WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>(that)
 			{}
 
 			template<typename Other>
 			ControlWeakPtr(const ControlWeakPtr<Other> &that)
-				: ptr(that.ptr)
+				: WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>(that)
 			{}
 
 		public:
@@ -185,23 +265,13 @@ namespace Maragi
 				return ptr.lock();
 			}
 
-		public:
-			template<typename Other>
-			ControlWeakPtr &operator =(const ControlPtr<Other> &rhs)
-			{
-				ptr = rhs.ptr;
-				return *this;
-			}
-
-			template<typename Other>
-			ControlWeakPtr &operator =(const ControlWeakPtr<Other> &rhs)
-			{
-				ptr = rhs.ptr;
-				return *this;
-			}
-
 			template<typename Other>
 			friend class ControlWeakPtr;
+		};
+
+		struct ShellPtrDeleter
+		{
+			void operator ()(Shell *) const;
 		};
 
 		template<typename = Shell>
@@ -210,97 +280,37 @@ namespace Maragi
 		class ShellWeakPtr;
 
 		template<typename T>
-		class ShellPtr
+		class ShellPtr : public SharedPtr<Shell, ShellPtrDeleter, T>
 		{
-			static_assert(std::is_convertible<T *, Shell *>::value, "T must be a derived class from Maragi::UI::Shell.");
-
-		private:
-			Shell *ptr;
-			T *castPtr;
-
 		public:
 			ShellPtr()
-				: ptr(nullptr)
-				, castPtr(nullptr)
+				: SharedPtr<Shell, ShellPtrDeleter, T>()
 			{}
 
 			ShellPtr(Shell *iptr)
-				: ptr(iptr)
-				, castPtr(dynamic_cast<T *>(iptr))
-			{
-				if(ptr != nullptr)
-					ptr->addRef();
-			}
+				: SharedPtr<Shell, ShellPtrDeleter, T>(iptr)
+			{}
 
 			template<typename Other>
 			ShellPtr(const ShellPtr<Other> &that)
-				: ptr(that.ptr)
-				, castPtr(dynamic_cast<T *>(that.ptr))
-			{
-				if(ptr != nullptr)
-					ptr->addRef();
-			}
+				: SharedPtr<Shell, ShellPtrDeleter, T>(that)
+			{}
 
-		public:
-			T *get() const
-			{
-				return castPtr;
-			}
-
-		public:
 			template<typename Other>
-			ShellPtr &operator =(const ShellPtr<Other> &rhs)
-			{
-				ptr = rhs.ptr;
-				castPtr = dynamic_cast<T *>(ptr.get());
-				return *this;
-			}
+			ShellPtr(ShellPtr<Other> &&that)
+				: SharedPtr<Shell, ShellPtrDeleter, T>(std::move(that))
+			{}
 
-			bool operator ==(const ShellPtr &rhs) const
-			{
-				return castPtr == rhs.castPtr;
-			}
+		protected:
+			ShellPtr(const std::shared_ptr<Shell> &iptr)
+				: SharedPtr<Shell, ShellPtrDeleter, T>(iptr)
+			{}
 
-			bool operator !=(const ShellPtr &rhs) const
-			{
-				return castPtr != rhs.castPtr;
-			}
+			ShellPtr(std::shared_ptr<Shell> &&iptr)
+				: SharedPtr<Shell, ShellPtrDeleter, T>(std::move(iptr))
+			{}
 
-			bool operator <(const ShellPtr &rhs) const
-			{
-				return castPtr < rhs.castPtr;
-			}
-
-			bool operator >(const ShellPtr &rhs) const
-			{
-				return castPtr > rhs.castPtr;
-			}
-
-			bool operator <=(const ShellPtr &rhs) const
-			{
-				return castPtr <= rhs.castPtr;
-			}
-
-			bool operator >=(const ShellPtr &rhs) const
-			{
-				return castPtr >= rhs.castPtr;
-			}
-
-			T *operator ->() const
-			{
-				return castPtr;
-			}
-
-			operator bool() const
-			{
-				return castPtr != nullptr;
-			}
-
-			bool operator !() const
-			{
-				return castPtr == nullptr;
-			}
-
+			friend class Shell;
 			template<typename Other>
 			friend class ShellPtr;
 			template<typename Other>
@@ -308,55 +318,35 @@ namespace Maragi
 		};
 
 		template<typename T>
-		class ShellWeakPtr
+		class ShellWeakPtr : public WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>
 		{
-			static_assert(std::is_convertible<T *, Shell *>::value, "T must be a derived class from Maragi::UI::Shell.");
-
-		private:
-			std::weak_ptr<Shell> ptr;
-
 		public:
 			ShellWeakPtr()
-				: ptr()
+				: WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>()
 			{}
 
 			ShellWeakPtr(nullptr_t)
-				: ptr()
+				: WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>(nullptr)
 			{}
 
 			ShellWeakPtr(const std::weak_ptr<Shell> &iptr)
-				: ptr(iptr)
+				: WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>(iptr)
 			{}
 
 			template<typename Other>
 			ShellWeakPtr(const ShellPtr<Other> &that)
-				: ptr(that.ptr)
+				: WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>(that)
 			{}
 
 			template<typename Other>
 			ShellWeakPtr(const ShellWeakPtr<Other> &that)
-				: ptr(that.ptr)
+				: WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>(that)
 			{}
 
 		public:
 			ShellPtr<T> lock() const
 			{
 				return ptr.lock();
-			}
-
-		public:
-			template<typename Other>
-			ShellWeakPtr &operator =(const ShellPtr<Other> &rhs)
-			{
-				ptr = rhs.ptr;
-				return *this;
-			}
-
-			template<typename Other>
-			ShellWeakPtr &operator =(const ShellWeakPtr<Other> &rhs)
-			{
-				ptr = rhs.ptr;
-				return *this;
 			}
 
 			template<typename Other>

@@ -276,9 +276,9 @@ namespace Maragi
 			Slot(); // = delete;
 			Slot(const Slot &); // = delete;
 
-		protected:
+		public:
 			virtual bool attach(const ControlWeakPtr<> &);
-			virtual bool detach();
+			virtual ControlWeakPtr<> detach();
 
 		public:
 			Property::R<Slot, ControlWeakPtr<>> parent;
@@ -293,18 +293,18 @@ namespace Maragi
 			friend class Control;
 		};
 
-		class Control : public Object
+		class Control : public std::enable_shared_from_this<Control>
 		{
 		private:
 			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (ControlEventArg)>>> eventMap;
 
 		private:
-			ControlWeakPtr<> parent_;
+			Slot *parent_;
 			ControlID id_;
 			Objects::RectangleF rect_;
 
 		protected:
-			Control(Slot *, const ControlID &);
+			Control(const ControlID &);
 			virtual ~Control() = 0;
 
 		private: // no implementation
@@ -316,6 +316,7 @@ namespace Maragi
 
 		protected:
 			bool fireEvent(const std::wstring &, ControlEventArg);
+			ControlPtr<> sharedFromThis();
 
 		public:
 			virtual void createDrawingResources(Drawing::Context &);
@@ -323,7 +324,7 @@ namespace Maragi
 			virtual void draw(Drawing::Context &) = 0;
 
 		public:
-			Property::R<Control, ControlWeakPtr<>> parent;
+			Property::R<Control, Slot *> parent;
 			Property::R<Control, ControlID> id;
 			Property::RW<Control, Objects::RectangleF> rect;
 
@@ -333,6 +334,7 @@ namespace Maragi
 
 			std::shared_ptr<Impl> impl;
 
+			friend class Slot;
 			friend class Shell;
 			friend struct ControlPtrDeleter;
 		};
@@ -357,7 +359,7 @@ namespace Maragi
 			return delegate<bool (WindowEventArg)>(p, fn);
 		}
 
-		class Shell : public Object
+		class Shell : public std::enable_shared_from_this<Shell>
 		{
 		private:
 			std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (WindowEventArg)>>> eventMap;
@@ -378,6 +380,9 @@ namespace Maragi
 
 		public:
 			virtual bool show() = 0;
+
+		protected:
+			ShellPtr<> sharedFromThis();
 
 		public:
 			Property::R<Shell, ShellWeakPtr<>> parent;
