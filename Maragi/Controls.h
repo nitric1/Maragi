@@ -57,9 +57,9 @@ namespace Maragi
 			virtual void draw(Drawing::Context &);
 			virtual Objects::SizeF computeSize();
 
-		protected:
-			virtual void onMouseButtonDownImpl(const ControlEventArg &);
-			virtual void onMouseButtonUpImpl(const ControlEventArg &);
+		private:
+			void onMouseButtonDownImpl(const ControlEventArg &);
+			void onMouseButtonUpImpl(const ControlEventArg &);
 
 		public:
 			Property::RW<Button, std::wstring> text;

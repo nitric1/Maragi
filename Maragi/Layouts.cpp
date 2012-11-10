@@ -85,6 +85,15 @@ namespace Maragi
 			return Objects::SizeF();
 		}
 
+		ControlWeakPtr<> ShellLayout::findByPoint(const Objects::PointF &pt)
+		{
+			ControlWeakPtr<> child = slot_.child;
+			ControlPtr<> lchild = child.lock();
+			if(lchild && lchild->rect.get().isIn(pt))
+				return child;
+			return nullptr;
+		}
+
 		void ShellLayout::onResizeInternal(const Objects::RectangleF &rect)
 		{
 			ControlPtr<> lchild = slot_.child.get().lock();

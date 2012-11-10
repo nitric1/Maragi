@@ -139,8 +139,20 @@ namespace Maragi
 		{
 		}
 
+		ControlWeakPtr<> Control::findByPoint(const Objects::PointF &pt)
+		{
+			if(rect_.isIn(pt))
+				return sharedFromThis();
+			return nullptr;
+		}
+
 		void Control::onResizeInternal(const Objects::RectangleF &)
 		{
+		}
+
+		bool Control::onSetCursorInternal()
+		{
+			return false;
 		}
 
 		class Shell::Impl

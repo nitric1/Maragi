@@ -53,11 +53,14 @@ namespace Maragi
 
 			UI::ShellPtr<UI::FrameWindow> frm = UI::FrameWindow::create(
 				nullptr,
-				L"Hello World",
+				L"Maragi",
 				UI::Resources::Icon::fromSharedResource(IDI_APPLICATION, UI::Objects::SizeI(32, 32)),
 				UI::Resources::Icon::fromSharedResource(IDI_APPLICATION, UI::Objects::SizeI(16, 16)),
+				UI::Objects::ColorF::Black,
 				UI::Objects::SizeI(640, 480),
-				UI::Objects::PointI::invalid
+				UI::Objects::PointI::invalid,
+				UI::Objects::SizeI(400, 300),
+				UI::Objects::SizeI::invalid
 				);
 			//UI::ControlPtr<UI::GridLayout> layout = UI::GridLayout::create(1, 2);
 			//frm->client->slot.get().attach(layout);

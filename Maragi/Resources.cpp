@@ -175,6 +175,36 @@ namespace Maragi
 				return ResourcePtr<Icon>(new Icon(icon, false));
 			}
 
+			const ResourcePtr<Cursor> &Cursor::Predefined::arrow()
+			{
+				static ResourcePtr<Cursor> cursor = Cursor::fromResource(IDC_ARROW);
+				return cursor;
+			}
+
+			const ResourcePtr<Cursor> &Cursor::Predefined::ibeam()
+			{
+				static ResourcePtr<Cursor> cursor = Cursor::fromResource(IDC_IBEAM);
+				return cursor;
+			}
+
+			const ResourcePtr<Cursor> &Cursor::Predefined::wait()
+			{
+				static ResourcePtr<Cursor> cursor = Cursor::fromResource(IDC_WAIT);
+				return cursor;
+			}
+
+			const ResourcePtr<Cursor> &Cursor::Predefined::hand()
+			{
+				static ResourcePtr<Cursor> cursor = Cursor::fromResource(IDC_HAND);
+				return cursor;
+			}
+
+			const ResourcePtr<Cursor> &Cursor::Predefined::help()
+			{
+				static ResourcePtr<Cursor> cursor = Cursor::fromResource(IDC_HELP);
+				return cursor;
+			}
+
 			Cursor::Cursor()
 				: cursor(nullptr)
 			{

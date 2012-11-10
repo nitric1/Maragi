@@ -79,7 +79,7 @@ namespace Maragi
 			template<typename T>
 			class ResourcePtr : public std::shared_ptr<T>
 			{
-				static_assert(std::is_base_of<Resource, T>::value, "T must be a derived class from Maragi::UI::Resources::Resource.");
+				static_assert(std::is_convertible<T *, Resource *>::value, "T must be a derived class from Maragi::UI::Resources::Resource.");
 
 			public:
 				ResourcePtr()
@@ -152,6 +152,16 @@ namespace Maragi
 			{
 			private:
 				HCURSOR cursor;
+
+			public:
+				struct Predefined
+				{
+					static const ResourcePtr<Cursor> &arrow();
+					static const ResourcePtr<Cursor> &ibeam();
+					static const ResourcePtr<Cursor> &wait();
+					static const ResourcePtr<Cursor> &hand();
+					static const ResourcePtr<Cursor> &help();
+				};
 
 			protected:
 				Cursor();

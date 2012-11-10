@@ -244,24 +244,54 @@ namespace Maragi
 			friend class Control;
 		};
 
-		template<typename FuncT>
-		class Event // TODO: how to encapsulation
+		template<typename Arg>
+		class Event
 		{
 		private:
-			std::vector<std::shared_ptr<ERDelegate<FuncT>>> fns;
+			boost::signals2::signal<void (const Arg &)> sig;
 
 		public:
-			Event();
-			~Event();
+			Event() {}
+			~Event() {}
+
+		private:
+			Event(const Event &); // = delete;
 
 		public:
-			;
+			template<typename Func>
+			boost::signals2::connection connect(Func fn, bool prior = false)
+			{
+				if(prior)
+					return sig.connect(0, fn);
+				return sig.connect(fn);
+			}
+
+			template<typename FunctionType>
+			boost::signals2::connection connect(const ERDelegateWrapper<FunctionType> &dg, bool prior = false)
+			{
+				if(prior)
+					return sig.connect(0, dg);
+				return sig.connect(dg);
+			}
+
+			template<typename FunctionType>
+			boost::signals2::connection connect(const std::shared_ptr<ERDelegate<FunctionType>> &dg, bool prior = false)
+			{
+				if(prior)
+					return sig.connect(0, ERDelegateWrapper<FunctionType>(dg));
+				return sig.connect(ERDelegateWrapper<FunctionType>(dg));
+			}
+
+			void operator ()(const Arg &arg)
+			{
+				sig(arg);
+				// TODO: propagatable
+			}
 		};
 
 		struct ControlEventArg
 		{
 			ControlWeakPtr<> control;
-			uint32_t message;
 			boost::posix_time::ptime time;
 
 			// raw
@@ -270,7 +300,7 @@ namespace Maragi
 			longptr_t lParam;
 
 			// mouse
-			uint32_t buttonNum;
+			uint32_t buttonNum; // 1 (left), 2 (right), 3 (middle), 4, 5, ...
 			Objects::PointF controlPoint;
 			Objects::PointF shellClientPoint;
 			Objects::PointF screenPoint;
@@ -292,22 +322,23 @@ namespace Maragi
 		private:
 			mutable bool propagatable;
 
-			friend class Shell;
+			template<typename>
+			friend class Event;
 		};
 
 		template<typename Func>
-		std::shared_ptr<ERDelegate<void (const ControlEventArg &)>> delegateControlEvent(Func fn)
+		ERDelegateWrapper<void (const ControlEventArg &)> delegateControlEvent(Func fn)
 		{
 			return delegate<void (const ControlEventArg &)>(fn);
 		}
 
 		template<typename Class, typename Func>
-		std::shared_ptr<ERDelegate<void (const ControlEventArg &)>> delegateControlEvent(Class *p, Func fn)
+		ERDelegateWrapper<void (const ControlEventArg &)> delegateControlEvent(Class *p, Func fn)
 		{
 			return delegate<void (const ControlEventArg &)>(p, fn);
 		}
 
-		typedef Event<void (const ControlEventArg &)> ControlEvent;
+		typedef Event<ControlEventArg> ControlEvent;
 
 		class Control : public std::enable_shared_from_this<Control>
 		{
@@ -332,17 +363,17 @@ namespace Maragi
 			virtual void discardDrawingResources(Drawing::Context &);
 			virtual void draw(Drawing::Context &) = 0;
 			virtual Objects::SizeF computeSize() = 0;
+			virtual ControlWeakPtr<> findByPoint(const Objects::PointF &);
 
-		protected: // internal event handlers
+		public: // internal event handlers
 			virtual void onResizeInternal(const Objects::RectangleF &);
+			virtual bool onSetCursorInternal();
 
 		public: // external event handlers
-			/*
 			ControlEvent onMouseMove;
 			ControlEvent onMouseButtonDown;
 			ControlEvent onMouseButtonDoubleClick;
 			ControlEvent onMouseButtonUp;
-			*/
 
 		public:
 			Property::R<Control, Slot *> parent;

@@ -4,6 +4,7 @@
 
 #include "FrameWindow.h"
 #include "Global.h"
+#include "UIGlobal.h"
 #include "UIUtility.h"
 
 namespace Maragi
@@ -33,6 +34,7 @@ namespace Maragi
 
 			void setIconLarge(const Resources::ResourcePtr<Resources::Icon> &icon)
 			{
+				// TODO: set icon message
 			}
 
 			Resources::ResourcePtr<Resources::Icon> getIconSmall()
@@ -42,6 +44,18 @@ namespace Maragi
 
 			void setIconSmall(const Resources::ResourcePtr<Resources::Icon> &icon)
 			{
+				// TODO: set icon message
+			}
+
+			Objects::ColorF getBgColor()
+			{
+				return self->bgColor_;
+			}
+
+			void setBgColor(const Objects::ColorF &bgColor)
+			{
+				self->bgColor_ = bgColor;
+				// TODO: invalidate
 			}
 
 			Objects::SizeI getClientSize()
@@ -53,29 +67,89 @@ namespace Maragi
 
 			void setClientSize(const Objects::SizeI &size)
 			{
+				// TODO: move window
+			}
+
+			Objects::SizeI getWindowSize()
+			{
+				RECT rc;
+				GetClientRect(self->hwnd, &rc);
+				return Objects::SizeI(rc.right - rc.left, rc.bottom - rc.top);
+			}
+
+			void setWindowSize(const Objects::SizeI &size)
+			{
+				// TODO: move window
+			}
+
+			Objects::PointI getPosition()
+			{
+				RECT rc;
+				GetWindowRect(self->hwnd, &rc);
+				return Objects::PointI(rc.left, rc.top);
+			}
+
+			void setPosition(const Objects::PointI &pos)
+			{
+				// TODO: move window
+			}
+
+			Objects::SizeI getMinClientSize()
+			{
+				return self->minClientSize_;
+			}
+
+			void setMinClientSize(const Objects::SizeI &size)
+			{
+				self->minClientSize_ = size;
+			}
+
+			Objects::SizeI getMaxClientSize()
+			{
+				return self->maxClientSize_;
+			}
+
+			void setMaxClientSize(const Objects::SizeI &size)
+			{
+				self->maxClientSize_ = size;
 			}
 		};
 
+		const uint32_t FrameWindow::windowStyle = WS_OVERLAPPEDWINDOW;
+		const uint32_t FrameWindow::windowStyleEx = WS_EX_CLIENTEDGE;
+
 		FrameWindow::FrameWindow()
 			: Shell()
+			, bgColor_(Objects::ColorF::White)
 			, inDestroy(false)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			client.init(impl.get(), &Impl::getClient);
 			iconLarge.init(impl.get(), &Impl::getIconLarge, &Impl::setIconLarge);
 			iconSmall.init(impl.get(), &Impl::getIconSmall, &Impl::setIconSmall);
+			bgColor.init(impl.get(), &Impl::getBgColor, &Impl::setBgColor);
 			clientSize.init(impl.get(), &Impl::getClientSize, &Impl::setClientSize);
+			windowSize.init(impl.get(), &Impl::getWindowSize, &Impl::setWindowSize);
+			position.init(impl.get(), &Impl::getPosition, &Impl::setPosition);
+			minClientSize.init(impl.get(), &Impl::getMinClientSize, &Impl::setMinClientSize);
+			maxClientSize.init(impl.get(), &Impl::getMaxClientSize, &Impl::setMaxClientSize);
 		}
 
 		FrameWindow::FrameWindow(const ShellWeakPtr<> &parent)
 			: Shell(parent)
+			, bgColor_(Objects::ColorF::White)
 			, inDestroy(false)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			client.init(impl.get(), &Impl::getClient);
 			iconLarge.init(impl.get(), &Impl::getIconLarge, &Impl::setIconLarge);
 			iconSmall.init(impl.get(), &Impl::getIconSmall, &Impl::setIconSmall);
+			bgColor.init(impl.get(), &Impl::getBgColor, &Impl::setBgColor);
 			clientSize.init(impl.get(), &Impl::getClientSize, &Impl::setClientSize);
+			windowSize.init(impl.get(), &Impl::getWindowSize, &Impl::setWindowSize);
+			position.init(impl.get(), &Impl::getPosition, &Impl::setPosition);
+			minClientSize.init(impl.get(), &Impl::getMinClientSize, &Impl::setMinClientSize);
+			maxClientSize.init(impl.get(), &Impl::getMaxClientSize, &Impl::setMaxClientSize);
 		}
 
 		FrameWindow::~FrameWindow()
@@ -92,8 +166,11 @@ namespace Maragi
 			const std::wstring &title,
 			const Resources::ResourcePtr<Resources::Icon> &iconLarge,
 			const Resources::ResourcePtr<Resources::Icon> &iconSmall,
+			const Objects::ColorF &bgColor,
 			const Objects::SizeI &clientSize,
-			const Objects::PointI &position
+			const Objects::PointI &position,
+			const Objects::SizeI &minClientSize,
+			const Objects::SizeI &maxClientSize
 			)
 		{
 			std::wstring className = ShellManager::instance().getNextClassName();
@@ -120,8 +197,11 @@ namespace Maragi
 			frm->initTitle = title;
 			frm->iconLarge_ = iconLarge;
 			frm->iconSmall_ = iconSmall;
+			frm->bgColor_ = bgColor;
 			frm->initPosition = position;
 			frm->initClientSize = clientSize;
+			frm->minClientSize_ = minClientSize;
+			frm->maxClientSize_ = maxClientSize;
 
 			frm->client_ = ShellLayout::create(frm);
 
@@ -143,16 +223,14 @@ namespace Maragi
 				initClientSize = Objects::SizeI(CW_USEDEFAULT, CW_USEDEFAULT);
 			else
 			{
+				// TODO: check this code is correct w/ other DPIs.
+
 				float dpiX, dpiY;
 				Drawing::D2DFactory::instance().getD2DFactory()->GetDesktopDpi(&dpiX, &dpiY);
-				initClientSize.width = static_cast<int>(ceil(initClientSize.width * dpiX / 96.0f));
-				initClientSize.height = static_cast<int>(ceil(initClientSize.height * dpiX / 96.0f));
+				initClientSize.width = static_cast<int32_t>(ceil(initClientSize.width * dpiX / 96.0f));
+				initClientSize.height = static_cast<int32_t>(ceil(initClientSize.height * dpiX / 96.0f));
 
-				RECT rc = { 0, 0, initClientSize.width, initClientSize.height };
-				AdjustWindowRectEx(&rc, WS_OVERLAPPEDWINDOW, FALSE, 0);
-
-				initClientSize.width = rc.right - rc.left;
-				initClientSize.height = rc.bottom - rc.top;
+				initClientSize = adjustWindowSize(initClientSize);
 
 				// XXX: scrollbars?
 			}
@@ -160,10 +238,10 @@ namespace Maragi
 			ShellPtr<> lparent = parent.get().lock();
 
 			HWND hwnd = CreateWindowExW(
-				0,
+				windowStyleEx,
 				className.c_str(),
 				initTitle.c_str(),
-				WS_OVERLAPPEDWINDOW,
+				windowStyle,
 				initPosition.x, initPosition.y,
 				initClientSize.width, initClientSize.height,
 				lparent ? lparent->hwnd.get() : nullptr,
@@ -188,15 +266,55 @@ namespace Maragi
 			return true;
 		}
 
+		Objects::SizeI FrameWindow::adjustWindowSize(const Objects::SizeI &size)
+		{
+			RECT rc = { 0, 0, size.width, size.height };
+			// TODO: menu
+			AdjustWindowRectEx(&rc, windowStyle, FALSE, windowStyleEx);
+			return Objects::SizeI(rc.right - rc.left, rc.bottom - rc.top);
+		}
+
+		Objects::PointF FrameWindow::screenToClient(const Objects::PointI &pt) const
+		{
+			// TODO: consider DPI
+			POINT wpt = { pt.x, pt.y };
+			ScreenToClient(hwnd, &wpt);
+			return Objects::PointF(static_cast<float>(wpt.x), static_cast<float>(wpt.y));
+		}
+
+		Objects::PointI FrameWindow::clientToScreen(const Objects::PointF &pt) const
+		{
+			// TODO: consider DPI
+			POINT wpt = { static_cast<long>(pt.x), static_cast<long>(pt.y) };
+			ClientToScreen(hwnd, &wpt);
+			return Objects::PointI(wpt.x, wpt.y);
+		}
+
+		ControlWeakPtr<> FrameWindow::hoveredControl(const Objects::PointF &pt) const
+		{
+			return client_->findByPoint(pt);
+		}
+
+		void FrameWindow::redraw()
+		{
+			InvalidateRect(hwnd, nullptr, FALSE);
+		}
+
 		longptr_t FrameWindow::procMessage(HWND hwnd, unsigned message, uintptr_t wParam, longptr_t lParam)
 		{
+			ControlEventArg ev;
+			ev.time = boost::posix_time::microsec_clock::local_time();
+			ev.rawMessage = message;
+			ev.wParam = wParam;
+			ev.lParam = lParam;
+
 			switch(message)
 			{
 			case WM_SIZE:
 				{
 					Objects::SizeI size(LOWORD(lParam), HIWORD(lParam));
 					context_.resize(size);
-					client->rect = Objects::RectangleF(Objects::PointF(), size);
+					client_->rect = Objects::RectangleF(Objects::PointF(), size);
 				}
 				return 0;
 
@@ -204,23 +322,79 @@ namespace Maragi
 				InvalidateRect(hwnd, nullptr, FALSE);
 				return 0;
 
+			case WM_GETMINMAXINFO:
+				{
+					MINMAXINFO *mmi = reinterpret_cast<MINMAXINFO *>(lParam);
+					if(minClientSize_ != Objects::SizeI::invalid)
+					{
+						Objects::SizeI min = adjustWindowSize(minClientSize_);
+						POINT pt = { min.width, min.height };
+						mmi->ptMinTrackSize = pt;
+					}
+					if(maxClientSize_ != Objects::SizeI::invalid)
+					{
+						Objects::SizeI max = adjustWindowSize(maxClientSize_);
+						POINT pt = { max.width, max.height };
+						mmi->ptMaxTrackSize = pt;
+					}
+				}
+				return 0;
+
 			case WM_PAINT:
 				if(!context_)
 				{
 					context_.create(hwnd, clientSize);
-					client->createDrawingResources(context_);
+					client_->createDrawingResources(context_);
 				}
 
 				context_.beginDraw();
 				context_->SetTransform(D2D1::Matrix3x2F::Identity());
-				context_->Clear(D2D1::ColorF(1.0f, 1.0f, 1.0f));
-				client->draw(context_);
+				context_->Clear(bgColor_);
+				client_->draw(context_);
 				if(!context_.endDraw())
 				{
-					client->discardDrawingResources(context_);
+					client_->discardDrawingResources(context_);
 				}
 
 				ValidateRect(hwnd, nullptr);
+				return 0;
+
+			case WM_SETCURSOR:
+				if(LOWORD(lParam) == HTCLIENT)
+				{
+					Objects::PointF pt = screenToClient(getCursorPos()); // TODO: get mouse point
+					ControlWeakPtr<> hovered = client_->findByPoint(pt);
+					ControlPtr<> lhovered = hovered.lock();
+					if(lhovered && lhovered->onSetCursorInternal())
+						return 1;
+				}
+				break;
+
+			case WM_MOUSEMOVE:
+				return 0;
+
+			case WM_LBUTTONDOWN:
+			case WM_LBUTTONUP:
+			case WM_LBUTTONDBLCLK:
+				ev.buttonNum = 1;
+				return 0;
+
+			case WM_RBUTTONDOWN:
+			case WM_RBUTTONUP:
+			case WM_RBUTTONDBLCLK:
+				ev.buttonNum = 2;
+				return 0;
+
+			case WM_MBUTTONDOWN:
+			case WM_MBUTTONUP:
+			case WM_MBUTTONDBLCLK:
+				ev.buttonNum = 3;
+				return 0;
+
+			case WM_XBUTTONDOWN:
+			case WM_XBUTTONUP:
+			case WM_XBUTTONDBLCLK:
+				ev.buttonNum = 4; // TODO: X button number
 				return 0;
 
 			case WM_DESTROY:

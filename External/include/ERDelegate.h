@@ -6,6 +6,9 @@ class ERDelegate;
 template<typename FunctionType>
 class ERDelegateImpl;
 
+template<typename FunctionType>
+class ERDelegateWrapper;
+
 /*
 #if !defined(_MSC_VER)
 #include <boost/bind.hpp>
@@ -255,18 +258,18 @@ public:
 
 #else*/
 
-#define _DELEGATE_COMMA ,
+#define DELEGATE_COMMA_ ,
 
 #define DELEGATE_REPEAT_0(b, s)
 #define DELEGATE_REPEAT_1(b, s) b(1)
-#define DELEGATE_REPEAT_2(b, s) DELEGATE_REPEAT_1(b, s) _##s b(2)
-#define DELEGATE_REPEAT_3(b, s) DELEGATE_REPEAT_2(b, s) _##s b(3)
-#define DELEGATE_REPEAT_4(b, s) DELEGATE_REPEAT_3(b, s) _##s b(4)
-#define DELEGATE_REPEAT_5(b, s) DELEGATE_REPEAT_4(b, s) _##s b(5)
-#define DELEGATE_REPEAT_6(b, s) DELEGATE_REPEAT_5(b, s) _##s b(6)
-#define DELEGATE_REPEAT_7(b, s) DELEGATE_REPEAT_6(b, s) _##s b(7)
-#define DELEGATE_REPEAT_8(b, s) DELEGATE_REPEAT_7(b, s) _##s b(8)
-#define DELEGATE_REPEAT_9(b, s) DELEGATE_REPEAT_8(b, s) _##s b(9)
+#define DELEGATE_REPEAT_2(b, s) DELEGATE_REPEAT_1(b, s) s##_ b(2)
+#define DELEGATE_REPEAT_3(b, s) DELEGATE_REPEAT_2(b, s) s##_ b(3)
+#define DELEGATE_REPEAT_4(b, s) DELEGATE_REPEAT_3(b, s) s##_ b(4)
+#define DELEGATE_REPEAT_5(b, s) DELEGATE_REPEAT_4(b, s) s##_ b(5)
+#define DELEGATE_REPEAT_6(b, s) DELEGATE_REPEAT_5(b, s) s##_ b(6)
+#define DELEGATE_REPEAT_7(b, s) DELEGATE_REPEAT_6(b, s) s##_ b(7)
+#define DELEGATE_REPEAT_8(b, s) DELEGATE_REPEAT_7(b, s) s##_ b(8)
+#define DELEGATE_REPEAT_9(b, s) DELEGATE_REPEAT_8(b, s) s##_ b(9)
 #define DELEGATE_REPEAT(n, b, s) DELEGATE_REPEAT_##n(b, s)
 
 #define DELEGATE_TEMPLATE_PARAM_ELEMENT(n) typename Arg##n
@@ -275,10 +278,13 @@ public:
 #define DELEGATE_TEMPLATE_ARG_ELEMENT(n) Arg##n
 #define DELEGATE_TEMPLATE_ARG(n) DELEGATE_REPEAT(n, DELEGATE_TEMPLATE_ARG_ELEMENT, DELEGATE_COMMA)
 
-#define DELEGATE_FUNCTION_PARAM_ELEMENT(n) Arg##n arg##n
+#define DELEGATE_FUNCTION_PARAM_ELEMENT(n) Arg##n &&arg##n
 #define DELEGATE_FUNCTION_PARAM(n) DELEGATE_REPEAT(n, DELEGATE_FUNCTION_PARAM_ELEMENT, DELEGATE_COMMA)
 
-#define DELEGATE_FUNCTION_ARG_ELEMENT(n) arg##n
+#define DELEGATE_FUNCTION_PARAM_NONAME_ELEMENT(n) Arg##n &&
+#define DELEGATE_FUNCTION_PARAM_NONAME(n) DELEGATE_REPEAT(n, DELEGATE_FUNCTION_PARAM_NONAME_ELEMENT, DELEGATE_COMMA)
+
+#define DELEGATE_FUNCTION_ARG_ELEMENT(n) std::forward<Arg##n>(arg##n)
 #define DELEGATE_FUNCTION_ARG(n) DELEGATE_REPEAT(n, DELEGATE_FUNCTION_ARG_ELEMENT, DELEGATE_COMMA)
 
 #define DELEGATE_TEMPLATE_COMMA
@@ -325,5 +331,7 @@ public:
 #define DELEGATE_NUM_ARG 9
 #include "ERDelegateStub.h"
 #undef DELEGATE_NUM_ARG
+
+#undef DELEGATE_TEMPLATE_COMMA
 
 // #endif

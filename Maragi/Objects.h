@@ -215,6 +215,8 @@ namespace Maragi
 
 			typedef Rectangle<int32_t> RectangleI;
 			typedef Rectangle<float> RectangleF;
+
+			typedef D2D1::ColorF ColorF;
 		}
 	}
 }

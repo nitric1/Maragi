@@ -14,6 +14,9 @@ namespace Maragi
 		{
 		protected:
 			Layout(const ControlID &);
+
+		public:
+			virtual ControlWeakPtr<> findByPoint(const Objects::PointF &) = 0;
 		};
 
 		class ShellLayout : public Layout
@@ -38,6 +41,7 @@ namespace Maragi
 			virtual void discardDrawingResources(Drawing::Context &);
 			virtual void draw(Drawing::Context &);
 			virtual Objects::SizeF computeSize();
+			virtual ControlWeakPtr<> findByPoint(const Objects::PointF &);
 
 		protected:
 			virtual void onResizeInternal(const Objects::RectangleF &);
