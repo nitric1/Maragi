@@ -62,6 +62,9 @@ namespace Maragi
 			void onMouseButtonUpImpl(const ControlEventArg &);
 
 		public:
+			ControlEvent onClick;
+
+		public:
 			Property::RW<Button, std::wstring> text;
 
 		private:

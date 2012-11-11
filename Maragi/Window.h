@@ -285,7 +285,26 @@ namespace Maragi
 			void operator ()(const Arg &arg)
 			{
 				sig(arg);
-				// TODO: propagatable
+				// TODO: check propagatable
+			}
+
+		public:
+			template<typename Func>
+			boost::signals2::connection operator +=(Func rhs)
+			{
+				return sig.connect(rhs);
+			}
+
+			template<typename FunctionType>
+			boost::signals2::connection operator +=(const ERDelegateWrapper<FunctionType> &rhs)
+			{
+				return sig.connect(rhs);
+			}
+
+			template<typename FunctionType>
+			boost::signals2::connection connect(const std::shared_ptr<ERDelegate<FunctionType>> &rhs)
+			{
+				return sig.connect(ERDelegateWrapper<FunctionType>(rhs));
 			}
 		};
 
@@ -314,13 +333,13 @@ namespace Maragi
 			wchar_t charCode; // Char, ImeChar?
 			uint32_t repeated;
 
-			void stopPropagation() const
+			/*void stopPropagation() const
 			{
 				propagatable = false;
 			}
 
 		private:
-			mutable bool propagatable;
+			mutable bool propagatable;*/
 
 			template<typename>
 			friend class Event;
