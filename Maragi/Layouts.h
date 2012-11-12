@@ -42,6 +42,7 @@ namespace Maragi
 			virtual void draw(Drawing::Context &);
 			virtual Objects::SizeF computeSize();
 			virtual ControlWeakPtr<> findByPoint(const Objects::PointF &);
+			virtual std::vector<ControlWeakPtr<>> findTreeByPoint(const Objects::PointF &);
 
 		protected:
 			virtual void onResizeInternal(const Objects::RectangleF &);

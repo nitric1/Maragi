@@ -333,13 +333,13 @@ namespace Maragi
 			wchar_t charCode; // Char, ImeChar?
 			uint32_t repeated;
 
-			/*void stopPropagation() const
+			void stopPropagation() const
 			{
 				propagatable = false;
 			}
 
 		private:
-			mutable bool propagatable;*/
+			mutable bool propagatable;
 
 			template<typename>
 			friend class Event;
@@ -383,6 +383,7 @@ namespace Maragi
 			virtual void draw(Drawing::Context &) = 0;
 			virtual Objects::SizeF computeSize() = 0;
 			virtual ControlWeakPtr<> findByPoint(const Objects::PointF &);
+			virtual std::vector<ControlWeakPtr<>> findTreeByPoint(const Objects::PointF &); // including myself, order by top first (= leaf last)
 
 		public: // internal event handlers
 			virtual void onResizeInternal(const Objects::RectangleF &);

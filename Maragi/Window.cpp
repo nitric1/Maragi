@@ -146,6 +146,13 @@ namespace Maragi
 			return nullptr;
 		}
 
+		std::vector<ControlWeakPtr<>> Control::findTreeByPoint(const Objects::PointF &pt)
+		{
+			if(rect_.isIn(pt))
+				return std::vector<ControlWeakPtr<>>(1, sharedFromThis());
+			return std::vector<ControlWeakPtr<>>();
+		}
+
 		void Control::onResizeInternal(const Objects::RectangleF &)
 		{
 		}

@@ -87,11 +87,25 @@ namespace Maragi
 
 		ControlWeakPtr<> ShellLayout::findByPoint(const Objects::PointF &pt)
 		{
-			ControlWeakPtr<> child = slot_.child;
-			ControlPtr<> lchild = child.lock();
-			if(lchild && lchild->rect.get().isIn(pt))
-				return child;
+			ControlPtr<> lchild = slot_.child.get().lock();
+			if(lchild)
+				return lchild->findByPoint(pt);
 			return nullptr;
+		}
+
+		std::vector<ControlWeakPtr<>> ShellLayout::findTreeByPoint(const Objects::PointF &pt)
+		{
+			if(!rect.get().isIn(pt))
+				return std::vector<ControlWeakPtr<>>();
+
+			ControlPtr<> lchild = slot_.child.get().lock();
+			if(lchild)
+			{
+				std::vector<ControlWeakPtr<>> ve = lchild->findTreeByPoint(pt);
+				ve.insert(ve.begin(), sharedFromThis());
+				return ve;
+			}
+			return std::vector<ControlWeakPtr<>>(1, sharedFromThis());
 		}
 
 		void ShellLayout::onResizeInternal(const Objects::RectangleF &rect)

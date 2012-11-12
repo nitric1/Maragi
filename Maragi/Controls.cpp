@@ -134,6 +134,7 @@ namespace Maragi
 
 		void Button::onMouseButtonUpImpl(const ControlEventArg &arg)
 		{
+			onClick(arg);
 		}
 	}
 }
