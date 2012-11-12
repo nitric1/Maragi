@@ -86,8 +86,8 @@ namespace Maragi
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			text.init(impl.get(), &Impl::getText, &Impl::setText);
 
-			onMouseButtonDown.connect(delegateControlEvent(this, &Button::onMouseButtonDownImpl));
-			onMouseButtonUp.connect(delegateControlEvent(this, &Button::onMouseButtonDownImpl));
+			onMouseButtonDown += delegateControlEvent(this, &Button::onMouseButtonDownImpl);
+			onMouseButtonUp += delegateControlEvent(this, &Button::onMouseButtonDownImpl);
 		}
 
 		Button::~Button()
