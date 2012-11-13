@@ -64,13 +64,33 @@ namespace Maragi
 		class GridLayout : public Layout
 		{
 		public:
-			class RowProxy
+			struct Size
 			{
+				union
+				{
+					uint32_t ratio; // ratio 0 represents max
+					float realSize;
+				};
+				enum { RATIO, REAL } mode;
+
+				Size()
+					: ratio(0)
+					, mode(RATIO)
+				{}
 			};
 
-			class CellProxy : public Control
-			{
-			};
+		private:
+			std::vector<Slot> slot_;
+			size_t rows_, cols_;
+			std::vector<Size> rowsSize_, colsSize_;
+
+		protected:
+			GridLayout(const ControlID &, size_t, size_t);
+
+		public:
+			virtual void draw(Drawing::Context &);
+			virtual Objects::SizeF computeSize();
+			virtual Slot *operator ()(size_t, size_t);
 		};
 	}
 }

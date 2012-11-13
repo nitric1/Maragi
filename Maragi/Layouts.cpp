@@ -148,5 +148,34 @@ namespace Maragi
 			ControlPtr<> lchild = slot_.child.get().lock();
 			lchild->rect = rect;
 		}
+
+		GridLayout::GridLayout(const ControlID &id, size_t rows, size_t cols)
+			: Layout(id)
+			, slot_(rows * cols)
+			, rows_(rows)
+			, cols_(cols)
+			, rowsSize_(rows)
+			, colsSize_(cols)
+		{
+		}
+
+		void GridLayout::draw(Drawing::Context &ctx)
+		{
+		}
+
+		Objects::SizeF GridLayout::computeSize()
+		{
+			// TODO: fix
+			return Objects::SizeF(64.0f, 64.0f);
+		}
+
+		Slot *GridLayout::operator ()(size_t row, size_t col)
+		{
+			if(row >= rows_)
+				throw(std::out_of_range("row is bigger than allocated rows"));
+			else if(col >= cols_)
+				throw(std::out_of_range("col is bigger than allocated columns"));
+			return &slot_[row * cols_ + col];
+		}
 	}
 }
