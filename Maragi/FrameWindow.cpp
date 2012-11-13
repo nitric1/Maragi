@@ -122,6 +122,7 @@ namespace Maragi
 			: Shell()
 			, bgColor_(Objects::ColorF::White)
 			, inDestroy(false)
+			, capturedButtons(0)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			client.init(impl.get(), &Impl::getClient);
@@ -139,6 +140,7 @@ namespace Maragi
 			: Shell(parent)
 			, bgColor_(Objects::ColorF::White)
 			, inDestroy(false)
+			, capturedButtons(0)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			client.init(impl.get(), &Impl::getClient);
@@ -206,6 +208,22 @@ namespace Maragi
 			frm->client_ = ShellLayout::create(frm);
 
 			return frm;
+		}
+
+		void FrameWindow::fireEvent(const std::vector<ControlWeakPtr<>> &controls, ControlEvent (Control::*ev), ControlEventArg arg)
+		{
+			for(auto it = std::begin(controls); it != std::end(controls); ++ it)
+			{
+				ControlPtr<> lctl = it->lock();
+				if(lctl)
+				{
+					if(arg.shellClientPoint != Objects::PointF::invalid)
+						arg.controlPoint = translatePointIn(arg.shellClientPoint, lctl->rect);
+					(lctl.get()->*ev)(arg);
+					if(!arg.isPropagatable())
+						break;
+				}
+			}
 		}
 
 		bool FrameWindow::show()
@@ -371,30 +389,114 @@ namespace Maragi
 				break;
 
 			case WM_MOUSEMOVE:
+				{
+					Objects::PointF pt(static_cast<float>(GET_X_LPARAM(lParam)), static_cast<float>(GET_Y_LPARAM(lParam)));
+					std::vector<ControlWeakPtr<>> hovereds;
+					if(captureds.empty())
+						hovereds = client_->findReverseTreeByPoint(pt);
+					else
+						hovereds = captureds;
+					if(!hovereds.empty())
+					{
+						ev.shellClientPoint = pt;
+						fireEvent(hovereds, &Control::onMouseMove, ev);
+					}
+				}
 				return 0;
 
 			case WM_LBUTTONDOWN:
 			case WM_LBUTTONUP:
 			case WM_LBUTTONDBLCLK:
-				ev.buttonNum = 1;
-				return 0;
-
 			case WM_RBUTTONDOWN:
 			case WM_RBUTTONUP:
 			case WM_RBUTTONDBLCLK:
-				ev.buttonNum = 2;
-				return 0;
-
 			case WM_MBUTTONDOWN:
 			case WM_MBUTTONUP:
 			case WM_MBUTTONDBLCLK:
-				ev.buttonNum = 3;
-				return 0;
-
 			case WM_XBUTTONDOWN:
 			case WM_XBUTTONUP:
 			case WM_XBUTTONDBLCLK:
-				ev.buttonNum = 4; // TODO: X button number
+				{
+					Objects::PointF pt(static_cast<float>(GET_X_LPARAM(lParam)), static_cast<float>(GET_Y_LPARAM(lParam)));
+					std::vector<ControlWeakPtr<>> hovereds;
+					if(captureds.empty())
+						hovereds = client_->findReverseTreeByPoint(pt);
+					else
+						hovereds = captureds;
+					if(!hovereds.empty())
+					{
+						ev.shellClientPoint = pt;
+
+						switch(message)
+						{
+						case WM_LBUTTONDOWN:
+						case WM_LBUTTONUP:
+						case WM_LBUTTONDBLCLK:
+							ev.buttonNum = 1;
+							break;
+
+						case WM_RBUTTONDOWN:
+						case WM_RBUTTONUP:
+						case WM_RBUTTONDBLCLK:
+							ev.buttonNum = 2;
+							break;
+
+						case WM_MBUTTONDOWN:
+						case WM_MBUTTONUP:
+						case WM_MBUTTONDBLCLK:
+							ev.buttonNum = 3;
+							break;
+
+						case WM_XBUTTONDOWN:
+						case WM_XBUTTONUP:
+						case WM_XBUTTONDBLCLK:
+							ev.buttonNum = 4; // TODO: X button number
+							break;
+						}
+
+						switch(message)
+						{
+						case WM_LBUTTONDOWN:
+						case WM_RBUTTONDOWN:
+						case WM_MBUTTONDOWN:
+						case WM_XBUTTONDOWN:
+							if(capturedButtons == 0)
+							{
+								SetCapture(hwnd_);
+								captureds = hovereds;
+							}
+							++ capturedButtons;
+							fireEvent(hovereds, &Control::onMouseButtonDown, ev);
+							break;
+
+						case WM_LBUTTONDBLCLK:
+						case WM_RBUTTONDBLCLK:
+						case WM_MBUTTONDBLCLK:
+						case WM_XBUTTONDBLCLK:
+							if(capturedButtons == 0)
+							{
+								SetCapture(hwnd_);
+								captureds = hovereds;
+							}
+							++ capturedButtons;
+							fireEvent(hovereds, &Control::onMouseButtonDoubleClick, ev);
+							break;
+
+						case WM_LBUTTONUP:
+						case WM_RBUTTONUP:
+						case WM_MBUTTONUP:
+						case WM_XBUTTONUP:
+							fireEvent(hovereds, &Control::onMouseButtonUp, ev);
+							-- capturedButtons;
+							if(capturedButtons == 0)
+							{
+								ReleaseCapture();
+								captureds.clear();
+							}
+							break;
+						}
+					}
+				}
 				return 0;
 
 			case WM_DESTROY:

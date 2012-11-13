@@ -26,6 +26,7 @@ namespace Maragi
 			void setText(const std::wstring &text)
 			{
 				self->text_ = text;
+				self->redraw();
 			}
 		};
 
@@ -48,9 +49,16 @@ namespace Maragi
 			return lbl;
 		}
 
+		void Label::createDrawingResources(Drawing::Context &ctx)
+		{
+		}
+
+		void Label::discardDrawingResources(Drawing::Context &ctx)
+		{
+		}
+
 		void Label::draw(Drawing::Context &ctx)
 		{
-			;
 		}
 
 		Objects::SizeF Label::computeSize()
@@ -82,12 +90,14 @@ namespace Maragi
 
 		Button::Button(const ControlID &id)
 			: Control(id)
+			, clicked(false)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			text.init(impl.get(), &Impl::getText, &Impl::setText);
 
 			onMouseButtonDown += delegateControlEvent(this, &Button::onMouseButtonDownImpl);
-			onMouseButtonUp += delegateControlEvent(this, &Button::onMouseButtonDownImpl);
+			onMouseButtonDoubleClick += delegateControlEvent(this, &Button::onMouseButtonDownImpl);
+			onMouseButtonUp += delegateControlEvent(this, &Button::onMouseButtonUpImpl);
 		}
 
 		Button::~Button()
@@ -104,12 +114,14 @@ namespace Maragi
 
 		void Button::createDrawingResources(Drawing::Context &ctx)
 		{
-			ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGray), &brush);
+			ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGray), &brushUp);
+			ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkGray), &brushDown);
 		}
 
 		void Button::discardDrawingResources(Drawing::Context &ctx)
 		{
-			brush.release();
+			brushUp.release();
+			brushDown.release();
 		}
 
 		void Button::draw(Drawing::Context &ctx)
@@ -119,7 +131,10 @@ namespace Maragi
 			rect.top += 50.0f;
 			rect.right -= 50.0f;
 			rect.bottom -= 50.0f;
-			ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brush);
+			if(clicked)
+				ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushDown);
+			else
+				ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushUp);
 		}
 
 		Objects::SizeF Button::computeSize()
@@ -130,11 +145,21 @@ namespace Maragi
 
 		void Button::onMouseButtonDownImpl(const ControlEventArg &arg)
 		{
+			if(arg.buttonNum == 1)
+			{
+				clicked = true;
+				redraw();
+			}
 		}
 
 		void Button::onMouseButtonUpImpl(const ControlEventArg &arg)
 		{
-			onClick(arg);
+			if(arg.buttonNum == 1)
+			{
+				onClick(arg);
+				clicked = false;
+				redraw();
+			}
 		}
 	}
 }

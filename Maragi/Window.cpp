@@ -3,6 +3,7 @@
 #include "Common.h"
 
 #include "Global.h"
+#include "Layouts.h"
 #include "Window.h"
 
 namespace Maragi
@@ -56,13 +57,13 @@ namespace Maragi
 		{
 		}
 
-		bool Slot::attach(const ControlWeakPtr<> &child)
+		bool Slot::attach(const ControlWeakPtr<> &newChild)
 		{
-			ControlPtr<> lchild = child.lock();
-			if(!child_.lock() && lchild && !lchild->parent_)
+			ControlPtr<> lnewChild = newChild.lock();
+			if(!child_.lock() && lnewChild && !lnewChild->parent_)
 			{
-				child_ = child;
-				lchild->parent_ = this;
+				child_ = newChild;
+				lnewChild->parent_ = this;
 				return true;
 			}
 			return false;
@@ -70,8 +71,10 @@ namespace Maragi
 
 		ControlWeakPtr<> Slot::detach()
 		{
-			if(child_.lock())
+			ControlPtr<> lchild = child_.lock();
+			if(lchild)
 			{
+				lchild->parent_ = nullptr;
 				ControlWeakPtr<> child = child_;
 				child_ = nullptr;
 				return child;
@@ -88,6 +91,23 @@ namespace Maragi
 			explicit Impl(Control *iself)
 				: self(iself)
 			{
+			}
+
+			ShellWeakPtr<> getShell()
+			{
+				ControlWeakPtr<> ctl = self->sharedFromThis();
+				ControlPtr<> lctl;
+				while(true)
+				{
+					lctl = ctl.lock();
+					if(!lctl || !lctl->parent_)
+						break;
+					ctl = lctl->parent_->parent;
+				}
+				ControlPtr<ShellLayout> llayout = lctl;
+				if(llayout)
+					return llayout->shell;
+				return nullptr;
 			}
 
 			Slot *getParent()
@@ -117,6 +137,7 @@ namespace Maragi
 			, id_(iid)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
+			shell.init(impl.get(), &Impl::getShell);
 			parent.init(impl.get(), &Impl::getParent);
 			id.init(impl.get(), &Impl::getId);
 			rect.init(impl.get(), &Impl::getRect, &Impl::setRect);
@@ -151,6 +172,30 @@ namespace Maragi
 			if(rect_.isIn(pt))
 				return std::vector<ControlWeakPtr<>>(1, sharedFromThis());
 			return std::vector<ControlWeakPtr<>>();
+		}
+
+		std::vector<ControlWeakPtr<>> Control::findReverseTreeByPoint(const Objects::PointF &pt)
+		{
+			if(rect_.isIn(pt))
+				return std::vector<ControlWeakPtr<>>(1, sharedFromThis());
+			return std::vector<ControlWeakPtr<>>();
+		}
+
+		void Control::walk(const std::function<void (const ControlWeakPtr<> &)> &fn)
+		{
+			fn(sharedFromThis());
+		}
+
+		void Control::walkReverse(const std::function<void (const ControlWeakPtr<> &)> &fn)
+		{
+			fn(sharedFromThis());
+		}
+
+		void Control::redraw()
+		{
+			ShellPtr<> lshell = shell.get().lock();
+			if(lshell)
+				lshell->redraw();
 		}
 
 		void Control::onResizeInternal(const Objects::RectangleF &)
@@ -213,6 +258,10 @@ namespace Maragi
 		ShellPtr<> Shell::sharedFromThis()
 		{
 			return ShellPtr<>(shared_from_this());
+		}
+
+		void Shell::redraw()
+		{
 		}
 	}
 }

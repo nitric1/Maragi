@@ -10,6 +10,17 @@ namespace Maragi
 	{
 		class Label : public Control
 		{
+		public:
+			enum
+			{
+				LEFT = 0x00000000,
+				CENTER = 0x00000001,
+				RIGHT = 0x00000002,
+				TOP = 0x00000000,
+				VCENTER = 0x00000004,
+				BOTTOM = 0x00000008
+			};
+
 		private:
 			std::wstring text_;
 
@@ -23,6 +34,8 @@ namespace Maragi
 				);
 
 		public:
+			virtual void createDrawingResources(Drawing::Context &);
+			virtual void discardDrawingResources(Drawing::Context &);
 			virtual void draw(Drawing::Context &);
 			virtual Objects::SizeF computeSize();
 
@@ -40,7 +53,10 @@ namespace Maragi
 		{
 		private:
 			std::wstring text_;
-			ComPtr<ID2D1SolidColorBrush> brush;
+
+			ComPtr<ID2D1SolidColorBrush> brushUp, brushDown;
+			bool clicked;
+			Objects::PointF pt;
 
 		protected:
 			Button(const ControlID &);

@@ -108,6 +108,41 @@ namespace Maragi
 			return std::vector<ControlWeakPtr<>>(1, sharedFromThis());
 		}
 
+		std::vector<ControlWeakPtr<>> ShellLayout::findReverseTreeByPoint(const Objects::PointF &pt)
+		{
+			if(!rect.get().isIn(pt))
+				return std::vector<ControlWeakPtr<>>();
+
+			ControlPtr<> lchild = slot_.child.get().lock();
+			if(lchild)
+			{
+				std::vector<ControlWeakPtr<>> ve = lchild->findReverseTreeByPoint(pt);
+				ve.push_back(sharedFromThis());
+				return ve;
+			}
+			return std::vector<ControlWeakPtr<>>(1, sharedFromThis());
+		}
+
+		void ShellLayout::walk(const std::function<void (const ControlWeakPtr<> &)> &fn)
+		{
+			fn(sharedFromThis());
+			ControlPtr<> lchild = slot_.child.get().lock();
+			if(lchild)
+			{
+				lchild->walk(fn);
+			}
+		}
+
+		void ShellLayout::walkReverse(const std::function<void (const ControlWeakPtr<> &)> &fn)
+		{
+			ControlPtr<> lchild = slot_.child.get().lock();
+			if(lchild)
+			{
+				lchild->walk(fn);
+			}
+			fn(sharedFromThis());
+		}
+
 		void ShellLayout::onResizeInternal(const Objects::RectangleF &rect)
 		{
 			ControlPtr<> lchild = slot_.child.get().lock();

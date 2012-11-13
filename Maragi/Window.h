@@ -319,10 +319,10 @@ namespace Maragi
 			longptr_t lParam;
 
 			// mouse
-			uint32_t buttonNum; // 1 (left), 2 (right), 3 (middle), 4, 5, ...
+			uint32_t buttonNum; // 0 (invalid), 1 (left), 2 (right), 3 (middle), 4, 5, ...
 			Objects::PointF controlPoint;
 			Objects::PointF shellClientPoint;
-			Objects::PointF screenPoint;
+			//Objects::PointF screenPoint;
 			float wheelAmount;
 
 			// key
@@ -333,9 +333,26 @@ namespace Maragi
 			wchar_t charCode; // Char, ImeChar?
 			uint32_t repeated;
 
+			ControlEventArg()
+				: rawMessage(0)
+				, wParam(0), lParam(0)
+				, buttonNum(0)
+				, controlPoint(Objects::PointF::invalid), shellClientPoint(Objects::PointF::invalid) // , screenPoint(Objects::PointF::invalid)
+				, wheelAmount(0.0f)
+				, altKey(false), ctrlKey(false), shiftKey(false)
+				, keyCode('\0')
+				, charCode(L'\0')
+				, repeated(0)
+			{}
+
 			void stopPropagation() const
 			{
 				propagatable = false;
+			}
+
+			bool isPropagatable() const
+			{
+				return propagatable;
 			}
 
 		private:
@@ -383,7 +400,11 @@ namespace Maragi
 			virtual void draw(Drawing::Context &) = 0;
 			virtual Objects::SizeF computeSize() = 0;
 			virtual ControlWeakPtr<> findByPoint(const Objects::PointF &);
-			virtual std::vector<ControlWeakPtr<>> findTreeByPoint(const Objects::PointF &); // including myself, order by top first (= leaf last)
+			virtual std::vector<ControlWeakPtr<>> findTreeByPoint(const Objects::PointF &); // including myself, order by root first (= leaf last)
+			virtual std::vector<ControlWeakPtr<>> findReverseTreeByPoint(const Objects::PointF &); // including myself, order by leaf first (= root last)
+			virtual void walk(const std::function<void (const ControlWeakPtr<> &)> &); // called from root to leaf
+			virtual void walkReverse(const std::function<void (const ControlWeakPtr<> &)> &); // called from leaf to root
+			void redraw();
 
 		public: // internal event handlers
 			virtual void onResizeInternal(const Objects::RectangleF &);
@@ -396,6 +417,7 @@ namespace Maragi
 			ControlEvent onMouseButtonUp;
 
 		public:
+			Property::R<Control, ShellWeakPtr<>> shell;
 			Property::R<Control, Slot *> parent;
 			Property::R<Control, ControlID> id;
 			Property::RW<Control, Objects::RectangleF> rect;
@@ -450,11 +472,12 @@ namespace Maragi
 		private: // no implementation
 			Shell(const Shell &); // = delete;
 
-		public:
-			virtual bool show() = 0;
-
 		protected:
 			ShellPtr<> sharedFromThis();
+
+		public:
+			virtual bool show() = 0;
+			virtual void redraw();
 
 		public:
 			Property::R<Shell, ShellWeakPtr<>> parent;

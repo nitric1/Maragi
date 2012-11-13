@@ -43,6 +43,9 @@ namespace Maragi
 			virtual Objects::SizeF computeSize();
 			virtual ControlWeakPtr<> findByPoint(const Objects::PointF &);
 			virtual std::vector<ControlWeakPtr<>> findTreeByPoint(const Objects::PointF &);
+			virtual std::vector<ControlWeakPtr<>> findReverseTreeByPoint(const Objects::PointF &);
+			virtual void walk(const std::function<void (const ControlWeakPtr<> &)> &);
+			virtual void walkReverse(const std::function<void (const ControlWeakPtr<> &)> &);
 
 		protected:
 			virtual void onResizeInternal(const Objects::RectangleF &);
