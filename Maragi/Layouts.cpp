@@ -23,10 +23,10 @@ namespace Maragi
 				: self(iself)
 			{}
 
-			ShellWeakPtr<> getShell()
+			/*ShellWeakPtr<> getShell()
 			{
 				return self->shell_;
-			}
+			}*/
 
 			Slot *getSlot()
 			{
@@ -36,10 +36,12 @@ namespace Maragi
 
 		ShellLayout::ShellLayout(const ShellWeakPtr<> &ishell, const ControlID &id)
 			: Layout(id)
-			, shell_(ishell)
+			//, shell_(ishell)
 		{
+			shell_ = ishell;
+
 			impl = std::shared_ptr<Impl>(new Impl(this));
-			shell.init(impl.get(), &Impl::getShell);
+			//shell.init(impl.get(), &Impl::getShell);
 			slot.init(impl.get(), &Impl::getSlot);
 		}
 

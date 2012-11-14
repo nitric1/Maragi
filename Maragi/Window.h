@@ -378,6 +378,9 @@ namespace Maragi
 
 		class Control : public std::enable_shared_from_this<Control>
 		{
+		protected:
+			ShellWeakPtr<> shell_;
+
 		private:
 			Slot *parent_;
 			ControlID id_;

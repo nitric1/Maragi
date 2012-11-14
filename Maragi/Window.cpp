@@ -64,6 +64,16 @@ namespace Maragi
 			{
 				child_ = newChild;
 				lnewChild->parent_ = this;
+				ControlPtr<> lparent = parent_.lock();
+				if(lparent)
+				{
+					lnewChild->walk([lparent](const ControlWeakPtr<> &ctl)
+					{
+						ControlPtr<> lctl = ctl.lock();
+						if(lctl)
+							lctl->shell_ = lparent->shell_;
+					});
+				}
 				return true;
 			}
 			return false;
@@ -75,6 +85,12 @@ namespace Maragi
 			if(lchild)
 			{
 				lchild->parent_ = nullptr;
+				lchild->walk([](const ControlWeakPtr<> &ctl)
+				{
+					ControlPtr<> lctl = ctl.lock();
+					if(lctl)
+						lctl->shell_ = nullptr;
+				});
 				ControlWeakPtr<> child = child_;
 				child_ = nullptr;
 				return child;
@@ -95,7 +111,7 @@ namespace Maragi
 
 			ShellWeakPtr<> getShell()
 			{
-				ControlWeakPtr<> ctl = self->sharedFromThis();
+				/*ControlWeakPtr<> ctl = self->sharedFromThis();
 				ControlPtr<> lctl;
 				while(true)
 				{
@@ -107,7 +123,8 @@ namespace Maragi
 				ControlPtr<ShellLayout> llayout = lctl;
 				if(llayout)
 					return llayout->shell;
-				return nullptr;
+				return nullptr;*/
+				return self->shell_;
 			}
 
 			Slot *getParent()

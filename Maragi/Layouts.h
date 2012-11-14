@@ -22,7 +22,7 @@ namespace Maragi
 		class ShellLayout : public Layout
 		{
 		private:
-			ShellWeakPtr<> shell_;
+			//ShellWeakPtr<> shell_;
 			Slot slot_;
 
 			ComPtr<ID2D1SolidColorBrush> brush;
@@ -51,7 +51,7 @@ namespace Maragi
 			virtual void onResizeInternal(const Objects::RectangleF &);
 
 		public:
-			Property::R<ShellLayout, ShellWeakPtr<>> shell;
+			//Property::R<ShellLayout, ShellWeakPtr<>> shell;
 			Property::R<ShellLayout, Slot *> slot;
 
 		private:
