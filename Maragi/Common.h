@@ -14,6 +14,7 @@
 #include <exception>
 #include <functional>
 #include <map>
+#include <numeric>
 #include <random>
 #include <set>
 #include <sstream>

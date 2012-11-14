@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Objects.h"
+#include "UIUtility.h"
 
 namespace Maragi
 {
@@ -76,7 +77,7 @@ namespace Maragi
 			template<typename = Resource>
 			class ResourcePtr;
 
-			template<typename T>
+			/*template<typename T>
 			class ResourcePtr : public std::shared_ptr<T>
 			{
 				static_assert(std::is_convertible<T *, Resource *>::value, "T must be a derived class from Maragi::UI::Resources::Resource.");
@@ -103,6 +104,41 @@ namespace Maragi
 				ResourcePtr(ResourcePtr<Other> &&that)
 					: std::shared_ptr<T>(std::forward<ResourcePtr<Other>>(that))
 				{}
+			};*/
+
+			template<typename T>
+			class ResourcePtr : public SharedPtr<Resource, ResourcePtrDeleter, T>
+			{
+			public:
+				ResourcePtr()
+					: SharedPtr<Resource, ResourcePtrDeleter, T>()
+				{}
+
+				ResourcePtr(Resource *iptr)
+					: SharedPtr<Resource, ResourcePtrDeleter, T>(iptr)
+				{}
+
+				template<typename Other>
+				ResourcePtr(const ResourcePtr<Other> &that)
+					: SharedPtr<Resource, ResourcePtrDeleter, T>(that)
+				{}
+
+				template<typename Other>
+				ResourcePtr(ResourcePtr<Other> &&that)
+					: SharedPtr<Resource, ResourcePtrDeleter, T>(std::move(that))
+				{}
+
+				ResourcePtr(const std::shared_ptr<Resource> &iptr)
+					: SharedPtr<Resource, ResourcePtrDeleter, T>(iptr)
+				{}
+
+				ResourcePtr(std::shared_ptr<Resource> &&iptr)
+					: SharedPtr<Resource, ResourcePtrDeleter, T>(std::move(iptr))
+				{}
+
+				friend class Resource;
+				template<typename Other>
+				friend class ResourcePtr;
 			};
 
 			class Resource

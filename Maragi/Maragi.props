@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>d2d1.lib;crypt32.lib;libcurl.lib;libeay32.lib;ssleay32.lib;zlibwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d2d1.lib;dwrite.lib;crypt32.lib;libcurl.lib;libeay32.lib;ssleay32.lib;zlibwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>JSON_IS_AMALGAMATION;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>

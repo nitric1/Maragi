@@ -123,6 +123,11 @@ namespace Maragi
 				return castPtr == nullptr;
 			}
 
+			T &operator *() const
+			{
+				return *castPtr;
+			}
+
 			template<typename Base, typename Deleter, typename Other>
 			friend class SharedPtr;
 			template<typename Base, typename Deleter, typename SharedPtrReturn, typename Other>

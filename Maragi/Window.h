@@ -7,6 +7,7 @@
 #include "Global.h"
 #include "Objects.h"
 #include "Primitives.h"
+#include "Resources.h"
 #include "Singleton.h"
 #include "UIUtility.h"
 
@@ -285,7 +286,6 @@ namespace Maragi
 			void operator ()(const Arg &arg)
 			{
 				sig(arg);
-				// TODO: check propagatable
 			}
 
 		public:
@@ -385,6 +385,7 @@ namespace Maragi
 			Slot *parent_;
 			ControlID id_;
 			Objects::RectangleF rect_;
+			Resources::ResourcePtr<Resources::Cursor> cursor_;
 
 		protected:
 			Control(const ControlID &);
@@ -414,6 +415,8 @@ namespace Maragi
 			virtual bool onSetCursorInternal();
 
 		public: // external event handlers
+			ControlEvent onMouseOver;
+			ControlEvent onMouseOut;
 			ControlEvent onMouseMove;
 			ControlEvent onMouseButtonDown;
 			ControlEvent onMouseButtonDoubleClick;
@@ -424,6 +427,9 @@ namespace Maragi
 			Property::R<Control, Slot *> parent;
 			Property::R<Control, ControlID> id;
 			Property::RW<Control, Objects::RectangleF> rect;
+
+		protected:
+			Property::RW<Control, Resources::ResourcePtr<Resources::Cursor>> cursor;
 
 		private:
 			class Impl;

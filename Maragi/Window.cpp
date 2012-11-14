@@ -55,6 +55,7 @@ namespace Maragi
 
 		Slot::~Slot()
 		{
+			detach();
 		}
 
 		bool Slot::attach(const ControlWeakPtr<> &newChild)
@@ -147,6 +148,18 @@ namespace Maragi
 				self->rect_ = rect;
 				self->onResizeInternal(rect);
 			}
+
+			Resources::ResourcePtr<Resources::Cursor> getCursor()
+			{
+				return self->cursor_;
+			}
+
+			void setCursor(const Resources::ResourcePtr<Resources::Cursor> &cursor)
+			{
+				self->cursor_ = cursor;
+				if(cursor)
+					SetCursor(*cursor);
+			}
 		};
 
 		Control::Control(const ControlID &iid)
@@ -158,6 +171,7 @@ namespace Maragi
 			parent.init(impl.get(), &Impl::getParent);
 			id.init(impl.get(), &Impl::getId);
 			rect.init(impl.get(), &Impl::getRect, &Impl::setRect);
+			cursor.init(impl.get(), &Impl::getCursor, &Impl::setCursor);
 		}
 
 		Control::~Control()
@@ -221,6 +235,11 @@ namespace Maragi
 
 		bool Control::onSetCursorInternal()
 		{
+			if(cursor_)
+			{
+				SetCursor(*cursor_);
+				return true;
+			}
 			return false;
 		}
 

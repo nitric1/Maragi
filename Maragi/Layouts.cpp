@@ -151,6 +151,7 @@ namespace Maragi
 			lchild->rect = rect;
 		}
 
+		/*
 		GridLayout::GridLayout(const ControlID &id, size_t rows, size_t cols)
 			: Layout(id)
 			, slot_(rows * cols)
@@ -178,6 +179,6 @@ namespace Maragi
 			else if(col >= cols_)
 				throw(std::out_of_range("col is bigger than allocated columns"));
 			return &slot_[row * cols_ + col];
-		}
+		}*/
 	}
 }
