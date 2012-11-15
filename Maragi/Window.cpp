@@ -4,6 +4,7 @@
 
 #include "Global.h"
 #include "Layouts.h"
+#include "UIGlobal.h"
 #include "Window.h"
 
 namespace Maragi
@@ -289,6 +290,22 @@ namespace Maragi
 
 		Shell::~Shell()
 		{
+		}
+
+		void Shell::fireEvent(const std::vector<ControlWeakPtr<>> &controls, ControlEvent (Control::*ev), ControlEventArg arg)
+		{
+			for(auto it = std::begin(controls); it != std::end(controls); ++ it)
+			{
+				ControlPtr<> lctl = it->lock();
+				if(lctl)
+				{
+					if(arg.shellClientPoint != Objects::PointF::invalid)
+						arg.controlPoint = translatePointIn(arg.shellClientPoint, lctl->rect);
+					(lctl.get()->*ev)(arg);
+					if(!arg.isPropagatable())
+						break;
+				}
+			}
 		}
 
 		ShellPtr<> Shell::sharedFromThis()

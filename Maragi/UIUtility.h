@@ -43,7 +43,6 @@ namespace Maragi
 				castPtr = dynamic_cast<T *>(ptr.get());
 			}
 
-		protected:
 			SharedPtr(const std::shared_ptr<Base> &iptr)
 				: ptr(iptr)
 				, castPtr(dynamic_cast<T *>(iptr.get()))
@@ -128,9 +127,9 @@ namespace Maragi
 				return *castPtr;
 			}
 
-			template<typename Base, typename Deleter, typename Other>
+			template<typename, typename, typename>
 			friend class SharedPtr;
-			template<typename Base, typename Deleter, typename SharedPtrReturn, typename Other>
+			template<typename, typename, typename, typename>
 			friend class WeakPtr;
 		};
 
@@ -186,6 +185,18 @@ namespace Maragi
 				return *this;
 			}
 
+			template<typename Other>
+			bool operator ==(const WeakPtr<Base, Deleter, SharedPtrReturn, Other> &rhs)
+			{
+				return lock() == rhs.lock();
+			}
+
+			template<typename Other>
+			bool operator !=(const WeakPtr<Base, Deleter, SharedPtrReturn, Other> &rhs)
+			{
+				return lock() != rhs.lock();
+			}
+
 			template<typename Base, typename Deleter, typename SharedPtrReturn, typename Other>
 			friend class WeakPtr;
 		};
@@ -222,7 +233,6 @@ namespace Maragi
 				: SharedPtr<Control, ControlPtrDeleter, T>(std::move(that))
 			{}
 
-		protected:
 			ControlPtr(const std::shared_ptr<Control> &iptr)
 				: SharedPtr<Control, ControlPtrDeleter, T>(iptr)
 			{}
@@ -232,9 +242,9 @@ namespace Maragi
 			{}
 
 			friend class Control;
-			template<typename Other>
+			template<typename>
 			friend class ControlPtr;
-			template<typename Other>
+			template<typename>
 			friend class ControlWeakPtr;
 		};
 
@@ -263,12 +273,6 @@ namespace Maragi
 			ControlWeakPtr(const ControlWeakPtr<Other> &that)
 				: WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>(that)
 			{}
-
-		public:
-			ControlPtr<T> lock() const
-			{
-				return ptr.lock();
-			}
 
 			template<typename Other>
 			friend class ControlWeakPtr;
@@ -306,7 +310,6 @@ namespace Maragi
 				: SharedPtr<Shell, ShellPtrDeleter, T>(std::move(that))
 			{}
 
-		protected:
 			ShellPtr(const std::shared_ptr<Shell> &iptr)
 				: SharedPtr<Shell, ShellPtrDeleter, T>(iptr)
 			{}
@@ -347,12 +350,6 @@ namespace Maragi
 			ShellWeakPtr(const ShellWeakPtr<Other> &that)
 				: WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>(that)
 			{}
-
-		public:
-			ShellPtr<T> lock() const
-			{
-				return ptr.lock();
-			}
 
 			template<typename Other>
 			friend class ShellWeakPtr;

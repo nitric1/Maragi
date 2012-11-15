@@ -62,11 +62,15 @@ namespace Maragi
 				UI::Objects::SizeI(400, 300),
 				UI::Objects::SizeI::invalid
 				);
-			//UI::ControlPtr<UI::GridLayout> layout = UI::GridLayout::create(1, 2);
-			//frm->client->slot.get().attach(layout);
+			using UI::GridSize;
+			GridSize rows[] = { GridSize(1), GridSize(1) }, cols[] = { GridSize(1), GridSize(1) };
+			UI::ControlPtr<UI::GridLayout<2, 2>> layout = UI::GridLayout<2, 2>::create(
+				std::vector<GridSize>(std::begin(rows), std::end(rows)),
+				std::vector<GridSize>(std::begin(cols), std::end(cols))
+				);
+			frm->client->slot->attach(layout);
 			UI::ControlPtr<UI::Button> button = UI::Button::create(L"Button Text");
-			frm->client->slot->attach(button);
-			//layout->slot[0][1].attach(button);
+			(*layout)(0, 1)->attach(button);
 			//button.onClick += delegate(this, &onButtonClick);
 			return frm->show(showCommand);
 		}

@@ -184,7 +184,7 @@ namespace Maragi
 			};
 		}
 
-		namespace Message
+		/*namespace Message
 		{
 			enum
 			{
@@ -212,7 +212,7 @@ namespace Maragi
 				MouseWheel = WM_MOUSEWHEEL,
 				MouseWheelHorizontal = WM_MOUSEHWHEEL,
 			};
-		}
+		}*/
 
 		class Slot
 		{
@@ -360,6 +360,7 @@ namespace Maragi
 
 			template<typename>
 			friend class Event;
+			friend class Shell;
 		};
 
 		template<typename Func>
@@ -488,16 +489,19 @@ namespace Maragi
 			virtual bool show() = 0;
 			virtual void redraw();
 
-		public:
-			Property::R<Shell, ShellWeakPtr<>> parent;
-			Property::R<Shell, HWND> hwnd;
-			Property::R<Shell, Objects::SizeI> clientSize;
+		protected:
+			void fireEvent(const std::vector<ControlWeakPtr<>> &, ControlEvent (Control::*), ControlEventArg);
 
 		private:
 			virtual longptr_t procMessage(HWND, uint32_t, uintptr_t, longptr_t)
 			{
 				return 0;
 			}
+
+		public:
+			Property::R<Shell, ShellWeakPtr<>> parent;
+			Property::R<Shell, HWND> hwnd;
+			Property::R<Shell, Objects::SizeI> clientSize;
 
 		private:
 			class Impl;

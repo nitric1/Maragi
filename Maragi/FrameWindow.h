@@ -30,7 +30,7 @@ namespace Maragi
 			Objects::SizeI initClientSize;
 			bool inDestroy;
 			int32_t capturedButtons;
-			std::vector<ControlWeakPtr<>> captureds;
+			std::vector<ControlWeakPtr<>> captureds, prevHovereds;
 
 		protected:
 			FrameWindow();
@@ -49,9 +49,6 @@ namespace Maragi
 				const Objects::SizeI & = Objects::SizeI::invalid,
 				const Objects::SizeI & = Objects::SizeI::invalid
 				); // TODO: menu
-
-		protected:
-			void fireEvent(const std::vector<ControlWeakPtr<>> &, ControlEvent (Control::*), ControlEventArg);
 
 		public:
 			virtual bool show();

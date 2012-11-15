@@ -210,22 +210,6 @@ namespace Maragi
 			return frm;
 		}
 
-		void FrameWindow::fireEvent(const std::vector<ControlWeakPtr<>> &controls, ControlEvent (Control::*ev), ControlEventArg arg)
-		{
-			for(auto it = std::begin(controls); it != std::end(controls); ++ it)
-			{
-				ControlPtr<> lctl = it->lock();
-				if(lctl)
-				{
-					if(arg.shellClientPoint != Objects::PointF::invalid)
-						arg.controlPoint = translatePointIn(arg.shellClientPoint, lctl->rect);
-					(lctl.get()->*ev)(arg);
-					if(!arg.isPropagatable())
-						break;
-				}
-			}
-		}
-
 		bool FrameWindow::show()
 		{
 			return show(SW_SHOW);
@@ -399,7 +383,16 @@ namespace Maragi
 					if(!hovereds.empty())
 					{
 						ev.shellClientPoint = pt;
+						if(hovereds.size() != prevHovereds.size()
+							|| !std::equal(hovereds.begin(), hovereds.end(), prevHovereds.begin()))
+						{
+							// mouseout & mouseover
+							fireEvent(prevHovereds, &Control::onMouseOut, ev);
+							fireEvent(hovereds, &Control::onMouseOver, ev);
+						}
+
 						fireEvent(hovereds, &Control::onMouseMove, ev);
+						prevHovereds = std::move(hovereds);
 					}
 				}
 				return 0;

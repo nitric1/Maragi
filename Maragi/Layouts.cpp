@@ -23,11 +23,6 @@ namespace Maragi
 				: self(iself)
 			{}
 
-			/*ShellWeakPtr<> getShell()
-			{
-				return self->shell_;
-			}*/
-
 			Slot *getSlot()
 			{
 				return &self->slot_;
@@ -36,13 +31,15 @@ namespace Maragi
 
 		ShellLayout::ShellLayout(const ShellWeakPtr<> &ishell, const ControlID &id)
 			: Layout(id)
-			//, shell_(ishell)
 		{
 			shell_ = ishell;
 
 			impl = std::shared_ptr<Impl>(new Impl(this));
-			//shell.init(impl.get(), &Impl::getShell);
 			slot.init(impl.get(), &Impl::getSlot);
+		}
+
+		ShellLayout::~ShellLayout()
+		{
 		}
 
 		ControlPtr<ShellLayout> ShellLayout::create(
@@ -52,10 +49,6 @@ namespace Maragi
 			ControlPtr<ShellLayout> layout(new ShellLayout(shell, ControlManager::instance().getNextID()));
 			layout->slot_.parent = layout;
 			return layout;
-		}
-
-		ShellLayout::~ShellLayout()
-		{
 		}
 
 		void ShellLayout::createDrawingResources(Drawing::Context &ctx)
@@ -130,18 +123,14 @@ namespace Maragi
 			fn(sharedFromThis());
 			ControlPtr<> lchild = slot_.child.get().lock();
 			if(lchild)
-			{
 				lchild->walk(fn);
-			}
 		}
 
 		void ShellLayout::walkReverse(const std::function<void (const ControlWeakPtr<> &)> &fn)
 		{
 			ControlPtr<> lchild = slot_.child.get().lock();
 			if(lchild)
-			{
-				lchild->walk(fn);
-			}
+				lchild->walkReverse(fn);
 			fn(sharedFromThis());
 		}
 
@@ -150,35 +139,5 @@ namespace Maragi
 			ControlPtr<> lchild = slot_.child.get().lock();
 			lchild->rect = rect;
 		}
-
-		/*
-		GridLayout::GridLayout(const ControlID &id, size_t rows, size_t cols)
-			: Layout(id)
-			, slot_(rows * cols)
-			, rows_(rows)
-			, cols_(cols)
-			, rowsSize_(rows)
-			, colsSize_(cols)
-		{
-		}
-
-		void GridLayout::draw(Drawing::Context &ctx)
-		{
-		}
-
-		Objects::SizeF GridLayout::computeSize()
-		{
-			// TODO: fix
-			return Objects::SizeF(64.0f, 64.0f);
-		}
-
-		Slot *GridLayout::operator ()(size_t row, size_t col)
-		{
-			if(row >= rows_)
-				throw(std::out_of_range("row is bigger than allocated rows"));
-			else if(col >= cols_)
-				throw(std::out_of_range("col is bigger than allocated columns"));
-			return &slot_[row * cols_ + col];
-		}*/
 	}
 }

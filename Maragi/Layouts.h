@@ -61,50 +61,107 @@ namespace Maragi
 			std::shared_ptr<Impl> impl;
 		};
 
+		struct GridSize
+		{
+			union
+			{
+				uint32_t ratio; // ratio 0 represents invalid
+				float realSize;
+			};
+			enum { RATIO, REAL } mode;
+
+			GridSize()
+				: ratio(0)
+				, mode(RATIO)
+			{}
+
+			GridSize(int iratio)
+				: ratio(static_cast<uint32_t>(iratio))
+				, mode(RATIO)
+			{}
+
+			GridSize(uint32_t iratio)
+				: ratio(iratio)
+				, mode(RATIO)
+			{}
+
+			GridSize(float irealSize)
+				: realSize(irealSize)
+				, mode(REAL)
+			{}
+
+			GridSize(const GridSize &that)
+				: ratio(that.ratio)
+				, mode(that.mode)
+			{}
+		};
+
 		template<size_t rows, size_t cols>
 		class GridLayout : public Layout
 		{
 			static_assert(rows > 0 && cols > 0, "rows and cols are must be greater than 0.");
 
-		public:
-			struct Size
-			{
-				union
-				{
-					uint32_t ratio; // ratio 0 represents remain
-					float realSize;
-				};
-				enum { RATIO, REAL } mode;
-
-				Size()
-					: ratio(0)
-					, mode(RATIO)
-				{}
-			};
-
 		private:
 			Slot slot_[rows][cols];
-			Size rowsSize_[rows], colsSize_[cols];
+			GridSize rowsSize_[rows], colsSize_[cols];
+			float widths[cols], heights[rows], widthSubtotal[cols], heightSubtotal[rows];
 
 		protected:
 			// TODO: elegant passing array (initializer list will make C++ world elegant...)
-			GridLayout(const ControlID &id, const std::vector<Size> &rowsSize, const std::vector<Size> &colsSize)
+			GridLayout(const ControlID &id, const std::vector<GridSize> &rowsSize, const std::vector<GridSize> &colsSize)
 				: Layout(id)
 			{
 				if(rowsSize.size() != rows || colsSize.size() != cols)
-					throw(std::logic_error("size of rowsSize and size of colsSize must match with rows and cols."));
+					throw(std::logic_error("GridSize of rowsSize and GridSize of colsSize must match with rows and cols."));
+				std::copy(std::begin(rowsSize), std::end(rowsSize), rowsSize_);
+				std::copy(std::begin(colsSize), std::end(colsSize), colsSize_);
 			}
+
+			virtual ~GridLayout()
+			{}
 
 		public:
 			static ControlPtr<GridLayout> create(
-				const std::vector<Size> &rowsSize,
-				const std::vector<Size> &colsSize
+				const std::vector<GridSize> &rowsSize,
+				const std::vector<GridSize> &colsSize
 				)
 			{
-				return new GridLayout(rowsSize, colsSize);
+				ControlPtr<GridLayout> layout(new GridLayout(ControlManager::instance().getNextID(), rowsSize, colsSize));
+				for(size_t i = 0; i < rows; ++ i)
+				{
+					for(size_t j = 0; j < cols; ++ j)
+						layout->slot_[i][j].parent = layout;
+				}
+				return layout;
 			}
 
 		public:
+			void createDrawingResources(Drawing::Context &ctx)
+			{
+				for(size_t i = 0; i < rows; ++ i)
+				{
+					for(size_t j = 0; j < cols; ++ j)
+					{
+						ControlPtr<> lchild = slot_[i][j].child.get().lock();
+						if(lchild)
+							lchild->createDrawingResources(ctx);
+					}
+				}
+			}
+
+			void discardDrawingResources(Drawing::Context &ctx)
+			{
+				for(size_t i = 0; i < rows; ++ i)
+				{
+					for(size_t j = 0; j < cols; ++ j)
+					{
+						ControlPtr<> lchild = slot_[i][j].child.get().lock();
+						if(lchild)
+							lchild->discardDrawingResources(ctx);
+					}
+				}
+			}
+
 			virtual void draw(Drawing::Context &ctx)
 			{
 				for(size_t i = 0; i < rows; ++ i)
@@ -121,7 +178,7 @@ namespace Maragi
 			virtual Objects::SizeF computeSize()
 			{
 				float widths[cols] = {0.0f, }, heights[rows] = {0.0f, };
-				Objects::SizeF size;
+				Objects::SizeF GridSize;
 				for(size_t i = 0; i < rows; ++ i)
 				{
 					for(size_t j = 0; j < cols; ++ j)
@@ -129,11 +186,11 @@ namespace Maragi
 						ControlPtr<> lchild = slot_[i][j].child.get().lock();
 						if(lchild)
 						{
-							size = lchild->computeSize();
-							if(widths[j] < size.width)
-								widths[j] = size.width;
-							if(heights[i] < size.height)
-								heights[i] = size.height;
+							GridSize = lchild->computeSize();
+							if(widths[j] < GridSize.width)
+								widths[j] = GridSize.width;
+							if(heights[i] < GridSize.height)
+								heights[i] = GridSize.height;
 						}
 					}
 				}
@@ -143,19 +200,220 @@ namespace Maragi
 					);
 			}
 
-			virtual Slot *operator ()(size_t row, size_t col)
+			virtual ControlWeakPtr<> findByPoint(const Objects::PointF &pt)
 			{
-				if(row >= rows_)
+				for(size_t i = 0; i < rows; ++ i)
+				{
+					for(size_t j = 0; j < cols; ++ j)
+					{
+						if(Objects::RectangleF(
+							Objects::PointF(widthSubtotal[j], heightSubtotal[i]),
+							Objects::SizeF(widths[j], heights[i])
+							).isIn(pt))
+						{
+							ControlPtr<> lchild = slot_[i][j].child.get().lock();
+							if(lchild)
+								return lchild->findByPoint(pt);
+							else
+								break;
+						}
+					}
+				}
+				return nullptr;
+			}
+
+			virtual std::vector<ControlWeakPtr<>> findTreeByPoint(const Objects::PointF &pt)
+			{
+				if(!rect.get().isIn(pt))
+					return std::vector<ControlWeakPtr<>>();
+
+				for(size_t i = 0; i < rows; ++ i)
+				{
+					for(size_t j = 0; j < cols; ++ j)
+					{
+						if(Objects::RectangleF(
+							Objects::PointF(widthSubtotal[j], heightSubtotal[i]),
+							Objects::SizeF(widths[j], heights[i])
+							).isIn(pt))
+						{
+							ControlPtr<> lchild = slot_[i][j].child.get().lock();
+							if(lchild)
+							{
+								std::vector<ControlWeakPtr<>> ve = lchild->findTreeByPoint(pt);
+								ve.insert(ve.begin(), sharedFromThis());
+								return ve;
+							}
+							else
+								break;
+						}
+					}
+				}
+				return std::vector<ControlWeakPtr<>>(1, sharedFromThis());
+			}
+
+			virtual std::vector<ControlWeakPtr<>> findReverseTreeByPoint(const Objects::PointF &pt)
+			{
+				if(!rect.get().isIn(pt))
+					return std::vector<ControlWeakPtr<>>();
+
+				for(size_t i = 0; i < rows; ++ i)
+				{
+					for(size_t j = 0; j < cols; ++ j)
+					{
+						if(Objects::RectangleF(
+							Objects::PointF(widthSubtotal[j], heightSubtotal[i]),
+							Objects::SizeF(widths[j], heights[i])
+							).isIn(pt))
+						{
+							ControlPtr<> lchild = slot_[i][j].child.get().lock();
+							if(lchild)
+							{
+								std::vector<ControlWeakPtr<>> ve = lchild->findReverseTreeByPoint(pt);
+								ve.push_back(sharedFromThis());
+								return ve;
+							}
+							else
+								break;
+						}
+					}
+				}
+				return std::vector<ControlWeakPtr<>>(1, sharedFromThis());
+			}
+
+			void walk(const std::function<void (const ControlWeakPtr<> &)> &fn)
+			{
+				fn(sharedFromThis());
+				for(size_t i = 0; i < rows; ++ i)
+				{
+					for(size_t j = 0; j < cols; ++ j)
+					{
+						ControlPtr<> lchild = slot_[i][j].child.get().lock();
+						if(lchild)
+							lchild->walk(fn);
+					}
+				}
+			}
+
+			void walkReverse(const std::function<void (const ControlWeakPtr<> &)> &fn)
+			{
+				for(size_t i = 0; i < rows; ++ i)
+				{
+					for(size_t j = 0; j < cols; ++ j)
+					{
+						ControlPtr<> lchild = slot_[i][j].child.get().lock();
+						if(lchild)
+							lchild->walkReverse(fn);
+					}
+				}
+				fn(sharedFromThis());
+			}
+
+			Slot *operator ()(size_t row, size_t col)
+			{
+				if(row >= rows)
 					throw(std::out_of_range("row is bigger than allocated rows"));
-				else if(col >= cols_)
+				else if(col >= cols)
 					throw(std::out_of_range("col is bigger than allocated columns"));
 				return &slot_[row][col];
+			}
+
+			const GridSize &getRowSize(size_t row) const
+			{
+				return rowsSize_[row];
+			}
+
+			void setRowSize(size_t row, const GridSize &GridSize)
+			{
+				if(GridSize.mode == RATIO && GridSize.ratio == 0)
+					throw(std::logic_error("GridSize.ratio must not be zero."));
+				rowsSize_[row] = GridSize;
+			}
+
+			const GridSize &getColumnSize(size_t col) const
+			{
+				return colsSize_[col];
+			}
+
+			void setColumnSize(size_t col, const GridSize &GridSize)
+			{
+				if(GridSize.mode == RATIO && GridSize.ratio == 0)
+					thcol(std::logic_error("GridSize.ratio must not be zero."));
+				colsSize_[col] = GridSize;
+			}
+
+			/*
+			Actual GridSize decided by below process:
+			1. set GridSize if REAL mode
+			2. calculate ratio using remain GridSize
+			*/
+			void calculateSizes(const Objects::RectangleF &rect)
+			{
+				float remainWidth = rect.width(), remainHeight = rect.height();
+				uint32_t totalWidthRatio = 0, totalHeightRatio = 0;
+				size_t i;
+
+				widthSubtotal[0] = rect.left;
+				heightSubtotal[0] = rect.top;
+
+				for(i = 0; i < rows; ++ i)
+				{
+					if(rowsSize_[i].mode == GridSize::REAL)
+					{
+						heights[i] = rowsSize_[i].realSize;
+						remainHeight -= rowsSize_[i].realSize;
+					}
+					else
+						totalHeightRatio += rowsSize_[i].ratio;
+				}
+
+				for(i = 0; i < cols; ++ i)
+				{
+					if(colsSize_[i].mode == GridSize::REAL)
+					{
+						widths[i] = colsSize_[i].realSize;
+						remainWidth -= colsSize_[i].realSize;
+					}
+					else
+						totalWidthRatio += colsSize_[i].ratio;
+				}
+
+				for(i = 0; i < rows; ++ i)
+				{
+					if(rowsSize_[i].mode == GridSize::RATIO)
+						heights[i] = remainHeight * rowsSize_[i].ratio / totalHeightRatio;
+				}
+
+				for(i = 0; i < cols; ++ i)
+				{
+					if(colsSize_[i].mode == GridSize::RATIO)
+						widths[i] = remainWidth * colsSize_[i].ratio / totalWidthRatio;
+				}
+
+				for(i = 1; i < rows; ++ i)
+					heightSubtotal[i] = heightSubtotal[i - 1] + heights[i - 1];
+				for(i = 1; i < cols; ++ i)
+					widthSubtotal[i] = widthSubtotal[i - 1] + widths[i - 1];
 			}
 
 		public:
 			virtual void onResizeInternal(const Objects::RectangleF &rect)
 			{
-				// TODO: calculate childs
+				calculateSizes(rect);
+
+				for(size_t i = 0; i < rows; ++ i)
+				{
+					for(size_t j = 0; j < cols; ++ j)
+					{
+						ControlPtr<> lchild = slot_[i][j].child.get().lock();
+						if(lchild)
+						{
+							lchild->rect = Objects::RectangleF(
+								Objects::PointF(widthSubtotal[j], heightSubtotal[i]),
+								Objects::SizeF(widths[j], heights[i])
+								);
+						}
+					}
+				}
 			}
 		};
 	}
