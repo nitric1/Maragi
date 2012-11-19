@@ -166,8 +166,7 @@ namespace Maragi
 
 				Size<T> size() const
 				{
-					Size<T> sz = { width(), height() };
-					return sz;
+					return Size<T>(width(), height());
 				}
 
 				bool isIn(const Point<T> &pt) const

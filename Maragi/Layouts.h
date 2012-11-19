@@ -342,15 +342,17 @@ namespace Maragi
 			}
 
 			/*
-			Actual GridSize decided by below process:
-			1. set GridSize if REAL mode
-			2. calculate ratio using remain GridSize
+			Actual grid size is decided by follow process:
+			1. set grid sizes which has REAL mode
+			2-1. if total ratio is 0, set grid sizes by remain size and computeSize ratios.
+			2-2. else, calculate sizes which has ratio = 0 with computeSize, and set remain grid sizes.
 			*/
 			void calculateSizes(const Objects::RectangleF &rect)
 			{
 				float remainWidth = rect.width(), remainHeight = rect.height();
 				uint32_t totalWidthRatio = 0, totalHeightRatio = 0;
-				size_t i;
+				Objects::SizeF computeSizeCache[rows][cols] = { Objects::SizeF::invalid, };
+				size_t i, j;
 
 				widthSubtotal[0] = rect.left;
 				heightSubtotal[0] = rect.top;
@@ -377,16 +379,72 @@ namespace Maragi
 						totalWidthRatio += colsSize_[i].ratio;
 				}
 
-				for(i = 0; i < rows; ++ i)
+				if(totalHeightRatio == 0)
 				{
-					if(rowsSize_[i].mode == GridSize::RATIO)
-						heights[i] = remainHeight * rowsSize_[i].ratio / totalHeightRatio;
+				}
+				else
+				{
+					for(i = 0; i < rows; ++ i)
+					{
+						if(rowsSize_[i].mode == GridSize::RATIO && rowsSize_[i].ratio == 0)
+						{
+							float maxHeight = 0.0f;
+							for(j = 0; j < cols; ++ j)
+							{
+								ControlPtr<> lchild = slot_[i][j].child.get().lock();
+								if(lchild)
+								{
+									computeSizeCache[i][j] = lchild->rect.get().size();
+									if(maxHeight < computeSizeCache[i][j].height)
+										maxHeight = computeSizeCache[i][j].height;
+								}
+							}
+
+							heights[i] = maxHeight;
+							remainHeight -= maxHeight;
+						}
+					}
+
+					for(i = 0; i < rows; ++ i)
+					{
+						if(rowsSize_[i].mode == GridSize::RATIO && rowsSize_[i].ratio != 0)
+							heights[i] = remainHeight * rowsSize_[i].ratio / totalHeightRatio;
+					}
 				}
 
-				for(i = 0; i < cols; ++ i)
+				if(totalWidthRatio == 0)
 				{
-					if(colsSize_[i].mode == GridSize::RATIO)
-						widths[i] = remainWidth * colsSize_[i].ratio / totalWidthRatio;
+				}
+				else
+				{
+					for(i = 0; i < cols; ++ i)
+					{
+						if(colsSize_[i].mode == GridSize::RATIO && colsSize_[i].ratio == 0)
+						{
+							float maxWidth = 0.0f;
+							for(j = 0; j < rows; ++ j)
+							{
+								if(computeSizeCache[i][j] == Objects::SizeF::invalid)
+								{
+									ControlPtr<> lchild = slot_[i][j].child.get().lock();
+									if(lchild)
+										computeSizeCache[i][j] = lchild->rect.get().size();
+								}
+
+								if(maxWidth < computeSizeCache[i][j].width)
+									maxWidth = computeSizeCache[i][j].width;
+							}
+
+							widths[i] = maxWidth;
+							remainWidth -= maxWidth;
+						}
+					}
+
+					for(i = 0; i < cols; ++ i)
+					{
+						if(colsSize_[i].mode == GridSize::RATIO && colsSize_[i].ratio != 0)
+							widths[i] = remainWidth * colsSize_[i].ratio / totalWidthRatio;
+					}
 				}
 
 				for(i = 1; i < rows; ++ i)
