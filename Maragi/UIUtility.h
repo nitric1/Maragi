@@ -363,10 +363,8 @@ namespace Maragi
 		private:
 			ControlID nextID;
 
-		public:
-			ControlManager();
-
 		private:
+			ControlManager();
 			~ControlManager();
 
 		public:
@@ -386,10 +384,8 @@ namespace Maragi
 		private:
 			uint32_t nextID;
 
-		public:
-			ShellManager();
-
 		private:
+			ShellManager();
 			~ShellManager();
 
 		public:

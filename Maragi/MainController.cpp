@@ -63,15 +63,17 @@ namespace Maragi
 				UI::Objects::SizeI::invalid
 				);
 			using UI::GridSize;
-			GridSize rows[] = { GridSize(1), GridSize(1) }, cols[] = { GridSize(1), GridSize(1) };
+			GridSize rows[] = { GridSize(20.0f), GridSize(1) }, cols[] = { GridSize(120.0f), GridSize(1) };
 			UI::ControlPtr<UI::GridLayout<2, 2>> layout = UI::GridLayout<2, 2>::create(
 				std::vector<GridSize>(std::begin(rows), std::end(rows)),
 				std::vector<GridSize>(std::begin(cols), std::end(cols))
 				);
 			frm->client->slot->attach(layout);
+			UI::ControlPtr<UI::Label> label = UI::Label::create(L"Label Text", UI::Objects::ColorF(UI::Objects::ColorF::White));
+			(*layout)(0, 0)->attach(label);
 			UI::ControlPtr<UI::Button> button = UI::Button::create(L"Button Text");
 			(*layout)(0, 1)->attach(button);
-			//button.onClick += delegate(this, &onButtonClick);
+			button->onClick += delegate(this, &MainController::onButtonClick);
 			return frm->show(showCommand);
 		}
 		catch(std::exception &e)
@@ -125,6 +127,11 @@ namespace Maragi
 		{
 			// TODO: Maragi.exe --help
 		}
+	}
+
+	void MainController::onButtonClick(const UI::ControlEventArg &arg)
+	{
+		MessageBoxW(nullptr, L"Button Clicked", L"Maragi", MB_OK);
 	}
 }
 

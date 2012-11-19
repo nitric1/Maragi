@@ -363,7 +363,7 @@ namespace Maragi
 			friend class Shell;
 		};
 
-		template<typename Func>
+		/*template<typename Func>
 		ERDelegateWrapper<void (const ControlEventArg &)> delegateControlEvent(Func fn)
 		{
 			return delegate<void (const ControlEventArg &)>(fn);
@@ -373,7 +373,7 @@ namespace Maragi
 		ERDelegateWrapper<void (const ControlEventArg &)> delegateControlEvent(Class *p, Func fn)
 		{
 			return delegate<void (const ControlEventArg &)>(p, fn);
-		}
+		}*/
 
 		typedef Event<ControlEventArg> ControlEvent;
 
@@ -409,7 +409,8 @@ namespace Maragi
 			virtual std::vector<ControlWeakPtr<>> findReverseTreeByPoint(const Objects::PointF &); // including myself, order by leaf first (= root last)
 			virtual void walk(const std::function<void (const ControlWeakPtr<> &)> &); // called from root to leaf
 			virtual void walkReverse(const std::function<void (const ControlWeakPtr<> &)> &); // called from leaf to root
-			void redraw();
+			virtual void redraw();
+			virtual void focus();
 
 		public: // internal event handlers
 			virtual void onResizeInternal(const Objects::RectangleF &);

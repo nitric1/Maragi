@@ -83,6 +83,69 @@ namespace Maragi
 
 				return true;
 			}
+
+			FontFactory::FontFactory()
+			{
+			}
+
+			FontFactory::~FontFactory()
+			{
+			}
+
+			ComPtr<IDWriteTextFormat> FontFactory::createFont(
+				float size,
+				DWRITE_FONT_WEIGHT weight,
+				DWRITE_TEXT_ALIGNMENT textAlign,
+				DWRITE_PARAGRAPH_ALIGNMENT paraAlign,
+				DWRITE_FONT_STYLE style,
+				DWRITE_FONT_STRETCH stretch
+				)
+			{
+				/*std::tuple<
+					int32_t,
+					DWRITE_FONT_WEIGHT,
+					DWRITE_FONT_STYLE,
+					DWRITE_FONT_STRETCH,
+					DWRITE_TEXT_ALIGNMENT,
+					DWRITE_PARAGRAPH_ALIGNMENT
+				> key = std::make_tuple(
+					static_cast<int32_t>(floor(size * 10.0f + 0.5f)),
+					weight, style, stretch, textAlign, paraAlign
+					);
+				auto it = fonts.find(key);
+				if(it == fonts.end())
+				{*/
+					const auto &dwfac = D2DFactory::instance().getDWriteFactory();
+					ComPtr<IDWriteTextFormat> format;
+					HRESULT hr;
+
+					hr = dwfac->CreateTextFormat(
+						L"Segoe UI", // TODO: Setting & font fallback
+						nullptr,
+						weight,
+						style,
+						stretch,
+						floor(size * 10.0f + 0.5f) / 10.0f,
+						L"",
+						&format
+						);
+					if(FAILED(hr))
+						throw(ComException("CreateTextFormat failed."));
+
+					hr = format->SetTextAlignment(textAlign);
+					if(FAILED(hr))
+						throw(ComException("SetTextAlignment failed."));
+
+					hr = format->SetParagraphAlignment(paraAlign);
+					if(FAILED(hr))
+						throw(ComException("SetParagraphAlignment failed."));
+
+					//fonts.insert(std::make_pair(key, format));
+					return format;
+				/*}
+
+				return it->second;*/
+			}
 		}
 	}
 }

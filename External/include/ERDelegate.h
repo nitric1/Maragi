@@ -9,6 +9,10 @@ class ERDelegateImpl;
 template<typename FunctionType>
 class ERDelegateWrapper;
 
+template<typename Fn>
+struct ERDelegateFunctionTraits : ERDelegateFunctionTraits<decltype(&Fn::operator ())>
+{};
+
 /*
 #if !defined(_MSC_VER)
 #include <boost/bind.hpp>

@@ -453,12 +453,11 @@ namespace Maragi
 						case WM_RBUTTONDOWN:
 						case WM_MBUTTONDOWN:
 						case WM_XBUTTONDOWN:
-							if(capturedButtons == 0)
+							if(capturedButtons ++ == 0)
 							{
 								SetCapture(hwnd_);
 								captureds = hovereds;
 							}
-							++ capturedButtons;
 							fireEvent(hovereds, &Control::onMouseButtonDown, ev);
 							break;
 
@@ -466,12 +465,11 @@ namespace Maragi
 						case WM_RBUTTONDBLCLK:
 						case WM_MBUTTONDBLCLK:
 						case WM_XBUTTONDBLCLK:
-							if(capturedButtons == 0)
+							if(capturedButtons ++ == 0)
 							{
 								SetCapture(hwnd_);
 								captureds = hovereds;
 							}
-							++ capturedButtons;
 							fireEvent(hovereds, &Control::onMouseButtonDoubleClick, ev);
 							break;
 
@@ -479,13 +477,12 @@ namespace Maragi
 						case WM_RBUTTONUP:
 						case WM_MBUTTONUP:
 						case WM_XBUTTONUP:
-							fireEvent(hovereds, &Control::onMouseButtonUp, ev);
-							-- capturedButtons;
-							if(capturedButtons == 0)
+							if(-- capturedButtons == 0)
 							{
 								ReleaseCapture();
 								captureds.clear();
 							}
+							fireEvent(hovereds, &Control::onMouseButtonUp, ev);
 							break;
 						}
 					}

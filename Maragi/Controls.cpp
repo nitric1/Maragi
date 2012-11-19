@@ -28,24 +28,99 @@ namespace Maragi
 				self->text_ = text;
 				self->redraw();
 			}
+
+			Objects::ColorF getColor()
+			{
+				return self->color_;
+			}
+
+			void setColor(const Objects::ColorF &color)
+			{
+				self->color_ = color;
+				self->brush.release();
+				self->redraw();
+			}
+
+			uint32_t getAlign()
+			{
+				return self->align_;
+			}
+
+			void setAlign(uint32_t align)
+			{
+				self->align_ = align;
+
+				switch(align & HORZ_MASK)
+				{
+				case LEFT:
+					self->format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+					break;
+
+				case CENTER:
+					self->format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+					break;
+
+				case RIGHT:
+					self->format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+					break;
+				}
+
+				switch(align & VERT_MASK)
+				{
+				case TOP:
+					self->format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+					break;
+
+				case VCENTER:
+					self->format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+					break;
+
+				case BOTTOM:
+					self->format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR);
+					break;
+				}
+
+				self->redraw();
+			}
 		};
 
 		Label::Label(const ControlID &id)
 			: Control(id)
+			, color_(Objects::ColorF::Black)
 		{
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			text.init(impl.get(), &Impl::getText, &Impl::setText);
+			color.init(impl.get(), &Impl::getColor, &Impl::setColor);
+			align.init(impl.get(), &Impl::getAlign, &Impl::setAlign);
+
+			format = Drawing::FontFactory::instance().createFont(12.0f);
+
+			const auto &dwfac = Drawing::D2DFactory::instance().getDWriteFactory();
+			ComPtr<IDWriteRenderingParams> renderParamsTemp;
+			dwfac->CreateRenderingParams(&renderParamsTemp);
+			dwfac->CreateCustomRenderingParams(
+				renderParamsTemp->GetGamma(),
+				renderParamsTemp->GetEnhancedContrast(),
+				renderParamsTemp->GetClearTypeLevel(),
+				renderParamsTemp->GetPixelGeometry(),
+				DWRITE_RENDERING_MODE_CLEARTYPE_GDI_CLASSIC,
+				&renderParams
+				);
 		}
 
 		Label::~Label()
 		{}
 
 		ControlPtr<Label> Label::create(
-			const std::wstring &text
+			const std::wstring &text,
+			const Objects::ColorF &color,
+			uint32_t align
 			)
 		{
 			ControlPtr<Label> lbl(new Label(ControlManager::instance().getNextID()));
 			lbl->text_ = text;
+			lbl->color_ = color;
+			lbl->align = align;
 			return lbl;
 		}
 
@@ -55,10 +130,32 @@ namespace Maragi
 
 		void Label::discardDrawingResources(Drawing::Context &ctx)
 		{
+			brush.release();
 		}
 
 		void Label::draw(Drawing::Context &ctx)
 		{
+			if(!brush)
+			{
+				HRESULT hr;
+				hr = ctx->CreateSolidColorBrush(color_, &brush);
+				if(FAILED(hr))
+					throw(UIException("CreateSolidColorBrush failed in Label::draw."));
+			}
+
+			ComPtr<IDWriteRenderingParams> originalRenderParams;
+			ctx->GetTextRenderingParams(&originalRenderParams);
+			ctx->SetTextRenderingParams(renderParams);
+			ctx->DrawTextW(
+				text_.c_str(),
+				static_cast<unsigned>(text_.size()),
+				format,
+				rect.get(),
+				brush,
+				D2D1_DRAW_TEXT_OPTIONS_NONE,
+				DWRITE_MEASURING_MODE_GDI_CLASSIC
+				);
+			ctx->SetTextRenderingParams(originalRenderParams);
 		}
 
 		Objects::SizeF Label::computeSize()
@@ -95,9 +192,9 @@ namespace Maragi
 			impl = std::shared_ptr<Impl>(new Impl(this));
 			text.init(impl.get(), &Impl::getText, &Impl::setText);
 
-			onMouseButtonDown += delegateControlEvent(this, &Button::onMouseButtonDownImpl);
-			onMouseButtonDoubleClick += delegateControlEvent(this, &Button::onMouseButtonDownImpl);
-			onMouseButtonUp += delegateControlEvent(this, &Button::onMouseButtonUpImpl);
+			onMouseButtonDown += delegate(this, &Button::onMouseButtonDownImpl);
+			onMouseButtonDoubleClick += delegate(this, &Button::onMouseButtonDownImpl);
+			onMouseButtonUp += delegate(this, &Button::onMouseButtonUpImpl);
 		}
 
 		Button::~Button()
@@ -114,6 +211,7 @@ namespace Maragi
 
 		void Button::createDrawingResources(Drawing::Context &ctx)
 		{
+			// TODO: neat rendering
 			ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGray), &brushUp);
 			ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkGray), &brushDown);
 		}
@@ -127,10 +225,6 @@ namespace Maragi
 		void Button::draw(Drawing::Context &ctx)
 		{
 			Objects::RectangleF rect = this->rect.get();
-			rect.left += 50.0f;
-			rect.top += 50.0f;
-			rect.right -= 50.0f;
-			rect.bottom -= 50.0f;
 			if(clicked)
 				ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushDown);
 			else
@@ -156,9 +250,9 @@ namespace Maragi
 		{
 			if(arg.buttonNum == 1)
 			{
-				onClick(arg);
 				clicked = false;
 				redraw();
+				onClick(arg);
 			}
 		}
 	}

@@ -44,6 +44,12 @@ namespace Maragi
 				ptr->AddRef();
 			}
 
+			ComPtr(ComPtr &&that)
+				: ptr(that.ptr)
+			{
+				that.ptr = nullptr;
+			}
+
 			~ComPtr()
 			{
 				if(ptr)
@@ -101,9 +107,23 @@ namespace Maragi
 			{
 				if(ptr != rhs.ptr)
 				{
-					ptr->Release();
+					if(ptr != nullptr)
+						ptr->Release();
 					ptr = rhs.ptr;
-					ptr->AddRef();
+					if(ptr != nullptr)
+						ptr->AddRef();
+				}
+				return *this;
+			}
+
+			ComPtr &operator =(ComPtr &&rhs)
+			{
+				if(ptr != rhs.ptr)
+				{
+					if(ptr != nullptr)
+						ptr->Release();
+					ptr = rhs.ptr;
+					rhs.ptr = nullptr;
 				}
 				return *this;
 			}

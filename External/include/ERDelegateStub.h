@@ -247,3 +247,38 @@ public:
 		return dg;
 	}
 };
+
+template<typename Return DELEGATE_TEMPLATE_COMMA DELEGATE_TEMPLATE_PARAM(DELEGATE_NUM_ARG)>
+struct ERDelegateFunctionTraits<Return (*)(DELEGATE_TEMPLATE_ARG(DELEGATE_NUM_ARG))>
+{
+	enum
+	{
+		arity = DELEGATE_NUM_ARG
+	};
+
+	typedef Return ResultType;
+	typedef Return result_type; // for boost
+
+	template<size_t i>
+	struct Arg
+	{
+		typedef typename std::tuple_element<i, std::tuple<DELEGATE_TEMPLATE_ARG(DELEGATE_NUM_ARG)>>::type type;
+		typedef type Type;
+	};
+
+	template<size_t i>
+	struct arg : Arg<i>
+	{};
+
+	typedef Return (FunctionType)(DELEGATE_TEMPLATE_ARG(DELEGATE_NUM_ARG));
+};
+
+template<typename FunctionClass, typename Return DELEGATE_TEMPLATE_COMMA DELEGATE_TEMPLATE_PARAM(DELEGATE_NUM_ARG)>
+struct ERDelegateFunctionTraits<Return (FunctionClass::*)(DELEGATE_TEMPLATE_ARG(DELEGATE_NUM_ARG))>
+	: ERDelegateFunctionTraits<Return (*)(DELEGATE_TEMPLATE_ARG(DELEGATE_NUM_ARG))>
+{};
+
+template<typename FunctionClass, typename Return DELEGATE_TEMPLATE_COMMA DELEGATE_TEMPLATE_PARAM(DELEGATE_NUM_ARG)>
+struct ERDelegateFunctionTraits<Return (FunctionClass::*)(DELEGATE_TEMPLATE_ARG(DELEGATE_NUM_ARG)) const>
+	: ERDelegateFunctionTraits<Return (FunctionClass::*)(DELEGATE_TEMPLATE_ARG(DELEGATE_NUM_ARG))>
+{};

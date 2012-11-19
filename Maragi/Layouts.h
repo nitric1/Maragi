@@ -65,7 +65,7 @@ namespace Maragi
 		{
 			union
 			{
-				uint32_t ratio; // ratio 0 represents invalid
+				uint32_t ratio; // ratio 0 represents "fit to control"
 				float realSize;
 			};
 			enum { RATIO, REAL } mode;
@@ -364,6 +364,22 @@ namespace Maragi
 						heights[i] = rowsSize_[i].realSize;
 						remainHeight -= rowsSize_[i].realSize;
 					}
+					else if(rowsSize_[i].ratio == 0)
+					{
+						float maxHeight = 0.0f;
+						for(j = 0; j < cols; ++ j)
+						{
+							ControlPtr<> lchild = slot_[i][j].child.get().lock();
+							if(lchild)
+							{
+								float height = lchild->computeSize().height;
+								if(height > maxHeight)
+									maxHeight = height;
+							}
+						}
+						heights[i] = maxHeight;
+						remainHeight -= maxHeight;
+					}
 					else
 						totalHeightRatio += rowsSize_[i].ratio;
 				}
@@ -374,6 +390,22 @@ namespace Maragi
 					{
 						widths[i] = colsSize_[i].realSize;
 						remainWidth -= colsSize_[i].realSize;
+					}
+					else if(colsSize_[i].ratio == 0)
+					{
+						float maxWidth = 0.0f;
+						for(j = 0; j < rows; ++ j)
+						{
+							ControlPtr<> lchild = slot_[j][i].child.get().lock();
+							if(lchild)
+							{
+								float width = lchild->computeSize().width;
+								if(width > maxWidth)
+									maxWidth = width;
+							}
+						}
+						widths[i] = maxWidth;
+						remainWidth -= maxWidth;
 					}
 					else
 						totalWidthRatio += colsSize_[i].ratio;

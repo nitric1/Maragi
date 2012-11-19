@@ -31,6 +31,9 @@ namespace Maragi
 		bool checkPrerequisites();
 		void parseCommandLine(const std::wstring &);
 
+	private:
+		void onButtonClick(const UI::ControlEventArg &);
+
 		friend class Singleton<MainController>;
 	};
 }

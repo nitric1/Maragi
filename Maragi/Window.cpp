@@ -230,6 +230,11 @@ namespace Maragi
 				lshell->redraw();
 		}
 
+		void Control::focus()
+		{
+			// TODO: implement
+		}
+
 		void Control::onResizeInternal(const Objects::RectangleF &)
 		{
 		}

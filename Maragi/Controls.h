@@ -21,8 +21,20 @@ namespace Maragi
 				BOTTOM = 0x00000008
 			};
 
+			enum
+			{
+				HORZ_MASK = 0x00000003,
+				VERT_MASK = 0x0000000C
+			};
+
 		private:
 			std::wstring text_;
+			Objects::ColorF color_;
+			uint32_t align_;
+
+			ComPtr<ID2D1SolidColorBrush> brush;
+			ComPtr<IDWriteTextFormat> format;
+			ComPtr<IDWriteRenderingParams> renderParams;
 
 		protected:
 			Label(const ControlID &);
@@ -30,7 +42,9 @@ namespace Maragi
 
 		public:
 			static ControlPtr<Label> create(
-				const std::wstring &
+				const std::wstring &,
+				const Objects::ColorF & = Objects::ColorF(Objects::ColorF::Black),
+				uint32_t = LEFT | VCENTER
 				);
 
 		public:
@@ -41,6 +55,8 @@ namespace Maragi
 
 		public:
 			Property::RW<Label, std::wstring> text;
+			Property::RW<Label, Objects::ColorF> color;
+			Property::RW<Label, uint32_t> align;
 
 		private:
 			class Impl;
