@@ -31,7 +31,6 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/once.hpp>
 #include <boost/thread/tss.hpp>
-#include <boost/type_traits/function_traits.hpp>
 
 using std::max; using std::min;
 

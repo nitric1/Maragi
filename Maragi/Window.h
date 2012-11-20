@@ -223,6 +223,7 @@ namespace Maragi
 			virtual void walkReverse(const std::function<void (const ControlWeakPtr<> &)> &); // called from leaf to root
 			virtual void redraw();
 			virtual void focus();
+			virtual void blur();
 
 		public: // internal event handlers
 			virtual void onResizeInternal(const Objects::RectangleF &);
@@ -235,6 +236,10 @@ namespace Maragi
 			ControlEvent onMouseButtonDown;
 			ControlEvent onMouseButtonDoubleClick;
 			ControlEvent onMouseButtonUp;
+			ControlEvent onMouseWheel;
+
+			ControlEvent onFocus;
+			ControlEvent onBlur;
 
 		public:
 			virtual const ShellWeakPtr<> &shell() const;

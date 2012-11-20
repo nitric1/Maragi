@@ -370,6 +370,27 @@ namespace Maragi
 				}
 				return 0;
 
+			case WM_MOUSEWHEEL:
+				{
+					Objects::PointF pt(static_cast<float>(GET_X_LPARAM(lParam)), static_cast<float>(GET_Y_LPARAM(lParam)));
+					std::vector<ControlWeakPtr<>> hovereds;
+					if(captureds.empty())
+						hovereds = client_->findReverseTreeByPoint(pt);
+					else
+						hovereds = captureds;
+					if(!hovereds.empty())
+					{
+						ev.shellClientPoint = pt;
+						ev.wheelAmount = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / WHEEL_DELTA;
+						fireEvent(hovereds, &Control::onMouseWheel, ev);
+						prevHovereds = std::move(hovereds);
+					}
+				}
+				return 0;
+
+			case WM_MOUSEHWHEEL:
+				return 0;
+
 			case WM_LBUTTONDOWN:
 			case WM_LBUTTONUP:
 			case WM_LBUTTONDBLCLK:
