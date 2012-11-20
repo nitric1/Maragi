@@ -13,45 +13,13 @@ namespace Maragi
 	{
 		const ControlID ControlID::undefined(0);
 
-		class Slot::Impl
-		{
-		private:
-			Slot *self;
-
-		public:
-			explicit Impl(Slot *iself)
-				: self(iself)
-			{}
-
-			ControlWeakPtr<> getParent()
-			{
-				return self->parent_;
-			}
-
-			void setParent(const ControlWeakPtr<> &parent)
-			{
-				self->parent_ = parent;
-			}
-
-			ControlWeakPtr<> getChild()
-			{
-				return self->child_;
-			}
-		};
-
 		Slot::Slot()
 		{
-			impl = std::shared_ptr<Impl>(new Impl(this));
-			parent.init(impl.get(), &Impl::getParent, &Impl::setParent);
-			child.init(impl.get(), &Impl::getChild);
 		}
 
 		Slot::Slot(const ControlWeakPtr<> &iparent)
 			: parent_(iparent)
 		{
-			impl = std::shared_ptr<Impl>(new Impl(this));
-			parent.init(impl.get(), &Impl::getParent, &Impl::setParent);
-			child.init(impl.get(), &Impl::getChild);
 		}
 
 		Slot::~Slot()
@@ -100,79 +68,25 @@ namespace Maragi
 			return nullptr;
 		}
 
-		class Control::Impl
+		const ControlWeakPtr<> &Slot::parent() const
 		{
-		private:
-			Control *self;
+			return parent_;
+		}
 
-		public:
-			explicit Impl(Control *iself)
-				: self(iself)
-			{
-			}
+		void Slot::parent(const ControlWeakPtr<> &iparent)
+		{
+			parent_ = iparent;
+		}
 
-			ShellWeakPtr<> getShell()
-			{
-				/*ControlWeakPtr<> ctl = self->sharedFromThis();
-				ControlPtr<> lctl;
-				while(true)
-				{
-					lctl = ctl.lock();
-					if(!lctl || !lctl->parent_)
-						break;
-					ctl = lctl->parent_->parent;
-				}
-				ControlPtr<ShellLayout> llayout = lctl;
-				if(llayout)
-					return llayout->shell;
-				return nullptr;*/
-				return self->shell_;
-			}
-
-			Slot *getParent()
-			{
-				return self->parent_;
-			}
-
-			ControlID getId()
-			{
-				return self->id_;
-			}
-
-			Objects::RectangleF getRect()
-			{
-				return self->rect_;
-			}
-
-			void setRect(const Objects::RectangleF &rect)
-			{
-				self->rect_ = rect;
-				self->onResizeInternal(rect);
-			}
-
-			Resources::ResourcePtr<Resources::Cursor> getCursor()
-			{
-				return self->cursor_;
-			}
-
-			void setCursor(const Resources::ResourcePtr<Resources::Cursor> &cursor)
-			{
-				self->cursor_ = cursor;
-				if(cursor)
-					SetCursor(*cursor);
-			}
-		};
+		const ControlWeakPtr<> &Slot::child() const
+		{
+			return child_;
+		}
 
 		Control::Control(const ControlID &iid)
 			: parent_(nullptr)
 			, id_(iid)
 		{
-			impl = std::shared_ptr<Impl>(new Impl(this));
-			shell.init(impl.get(), &Impl::getShell);
-			parent.init(impl.get(), &Impl::getParent);
-			id.init(impl.get(), &Impl::getId);
-			rect.init(impl.get(), &Impl::getRect, &Impl::setRect);
-			cursor.init(impl.get(), &Impl::getCursor, &Impl::setCursor);
 		}
 
 		Control::~Control()
@@ -225,7 +139,7 @@ namespace Maragi
 
 		void Control::redraw()
 		{
-			ShellPtr<> lshell = shell.get().lock();
+			ShellPtr<> lshell = shell_.lock();
 			if(lshell)
 				lshell->redraw();
 		}
@@ -249,48 +163,56 @@ namespace Maragi
 			return false;
 		}
 
-		class Shell::Impl
+		const ShellWeakPtr<> &Control::shell() const
 		{
-		private:
-			Shell *self;
+			return shell_;
+		}
 
-		public:
-			explicit Impl(Shell *iself)
-				: self(iself)
-			{}
+		Slot *Control::parent() const
+		{
+			return parent_;
+		}
 
-			ShellWeakPtr<> getParent()
-			{
-				return self->parent_;
-			}
+		const ControlID &Control::id() const
+		{
+			return id_;
+		}
 
-			HWND getHwnd()
-			{
-				return self->hwnd_;
-			}
+		const Objects::RectangleF &Control::rect() const
+		{
+			return rect_;
+		}
 
-			Objects::SizeI getClientSize()
-			{
-				RECT rc;
-				GetClientRect(self->hwnd_, &rc);
-				return Objects::SizeI(rc.right - rc.left, rc.bottom - rc.top);
-			}
-		};
+		void Control::rect(const Objects::RectangleF &irect)
+		{
+			rect_ = irect;
+			onResizeInternal(irect);
+		}
+
+		void Control::shell(const ShellWeakPtr<> &ishell)
+		{
+			shell_ = ishell;
+		}
+
+		const Resources::ResourcePtr<Resources::Cursor> &Control::cursor() const
+		{
+			return cursor_;
+		}
+
+		void Control::cursor(const Resources::ResourcePtr<Resources::Cursor> &icursor)
+		{
+			cursor_ = icursor;
+			if(icursor)
+				SetCursor(*icursor);
+		}
 
 		Shell::Shell() // no parent
 		{
-			impl = std::shared_ptr<Impl>(new Impl(this));
-			parent.init(impl.get(), &Impl::getParent);
-			hwnd.init(impl.get(), &Impl::getHwnd);
-			clientSize.init(impl.get(), &Impl::getClientSize);
 		}
 
 		Shell::Shell(const ShellWeakPtr<> &iparent) // with parent
+			: parent_(iparent)
 		{
-			impl = std::shared_ptr<Impl>(new Impl(this));
-			parent.init(impl.get(), &Impl::getParent);
-			hwnd.init(impl.get(), &Impl::getHwnd);
-			clientSize.init(impl.get(), &Impl::getClientSize);
 		}
 
 		Shell::~Shell()
@@ -305,7 +227,7 @@ namespace Maragi
 				if(lctl)
 				{
 					if(arg.shellClientPoint != Objects::PointF::invalid)
-						arg.controlPoint = translatePointIn(arg.shellClientPoint, lctl->rect);
+						arg.controlPoint = translatePointIn(arg.shellClientPoint, lctl->rect());
 					(lctl.get()->*ev)(arg);
 					if(!arg.isPropagatable())
 						break;
@@ -320,6 +242,29 @@ namespace Maragi
 
 		void Shell::redraw()
 		{
+		}
+
+		const ShellWeakPtr<> &Shell::parent() const
+		{
+			return parent_;
+		}
+
+		HWND Shell::hwnd() const
+		{
+			return hwnd_;
+		}
+
+		Objects::SizeF Shell::clientSize() const
+		{
+			// TODO: DPI
+			RECT rc;
+			GetClientRect(hwnd_, &rc);
+			return Objects::SizeF(static_cast<float>(rc.right - rc.left), static_cast<float>(rc.bottom - rc.top));
+		}
+
+		void Shell::hwnd(HWND ihwnd)
+		{
+			hwnd_ = ihwnd;
 		}
 	}
 }

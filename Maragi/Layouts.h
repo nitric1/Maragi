@@ -22,7 +22,6 @@ namespace Maragi
 		class ShellLayout : public Layout
 		{
 		private:
-			//ShellWeakPtr<> shell_;
 			Slot slot_;
 
 			ComPtr<ID2D1SolidColorBrush> brush;
@@ -51,14 +50,7 @@ namespace Maragi
 			virtual void onResizeInternal(const Objects::RectangleF &);
 
 		public:
-			//Property::R<ShellLayout, ShellWeakPtr<>> shell;
-			Property::R<ShellLayout, Slot *> slot;
-
-		private:
-			class Impl;
-			friend class Impl;
-
-			std::shared_ptr<Impl> impl;
+			virtual Slot *slot();
 		};
 
 		struct GridSize
@@ -130,7 +122,7 @@ namespace Maragi
 				for(size_t i = 0; i < rows; ++ i)
 				{
 					for(size_t j = 0; j < cols; ++ j)
-						layout->slot_[i][j].parent = layout;
+						layout->slot_[i][j].parent(layout);
 				}
 				return layout;
 			}
@@ -142,7 +134,7 @@ namespace Maragi
 				{
 					for(size_t j = 0; j < cols; ++ j)
 					{
-						ControlPtr<> lchild = slot_[i][j].child.get().lock();
+						ControlPtr<> lchild = slot_[i][j].child().lock();
 						if(lchild)
 							lchild->createDrawingResources(ctx);
 					}
@@ -155,7 +147,7 @@ namespace Maragi
 				{
 					for(size_t j = 0; j < cols; ++ j)
 					{
-						ControlPtr<> lchild = slot_[i][j].child.get().lock();
+						ControlPtr<> lchild = slot_[i][j].child().lock();
 						if(lchild)
 							lchild->discardDrawingResources(ctx);
 					}
@@ -168,7 +160,7 @@ namespace Maragi
 				{
 					for(size_t j = 0; j < cols; ++ j)
 					{
-						ControlPtr<> lchild = slot_[i][j].child.get().lock();
+						ControlPtr<> lchild = slot_[i][j].child().lock();
 						if(lchild)
 							lchild->draw(ctx);
 					}
@@ -183,7 +175,7 @@ namespace Maragi
 				{
 					for(size_t j = 0; j < cols; ++ j)
 					{
-						ControlPtr<> lchild = slot_[i][j].child.get().lock();
+						ControlPtr<> lchild = slot_[i][j].child().lock();
 						if(lchild)
 						{
 							GridSize = lchild->computeSize();
@@ -211,7 +203,7 @@ namespace Maragi
 							Objects::SizeF(widths[j], heights[i])
 							).isIn(pt))
 						{
-							ControlPtr<> lchild = slot_[i][j].child.get().lock();
+							ControlPtr<> lchild = slot_[i][j].child().lock();
 							if(lchild)
 								return lchild->findByPoint(pt);
 							else
@@ -224,7 +216,7 @@ namespace Maragi
 
 			virtual std::vector<ControlWeakPtr<>> findTreeByPoint(const Objects::PointF &pt)
 			{
-				if(!rect.get().isIn(pt))
+				if(!rect().isIn(pt))
 					return std::vector<ControlWeakPtr<>>();
 
 				for(size_t i = 0; i < rows; ++ i)
@@ -236,7 +228,7 @@ namespace Maragi
 							Objects::SizeF(widths[j], heights[i])
 							).isIn(pt))
 						{
-							ControlPtr<> lchild = slot_[i][j].child.get().lock();
+							ControlPtr<> lchild = slot_[i][j].child().lock();
 							if(lchild)
 							{
 								std::vector<ControlWeakPtr<>> ve = lchild->findTreeByPoint(pt);
@@ -253,7 +245,7 @@ namespace Maragi
 
 			virtual std::vector<ControlWeakPtr<>> findReverseTreeByPoint(const Objects::PointF &pt)
 			{
-				if(!rect.get().isIn(pt))
+				if(!rect().isIn(pt))
 					return std::vector<ControlWeakPtr<>>();
 
 				for(size_t i = 0; i < rows; ++ i)
@@ -265,7 +257,7 @@ namespace Maragi
 							Objects::SizeF(widths[j], heights[i])
 							).isIn(pt))
 						{
-							ControlPtr<> lchild = slot_[i][j].child.get().lock();
+							ControlPtr<> lchild = slot_[i][j].child().lock();
 							if(lchild)
 							{
 								std::vector<ControlWeakPtr<>> ve = lchild->findReverseTreeByPoint(pt);
@@ -287,7 +279,7 @@ namespace Maragi
 				{
 					for(size_t j = 0; j < cols; ++ j)
 					{
-						ControlPtr<> lchild = slot_[i][j].child.get().lock();
+						ControlPtr<> lchild = slot_[i][j].child().lock();
 						if(lchild)
 							lchild->walk(fn);
 					}
@@ -300,7 +292,7 @@ namespace Maragi
 				{
 					for(size_t j = 0; j < cols; ++ j)
 					{
-						ControlPtr<> lchild = slot_[i][j].child.get().lock();
+						ControlPtr<> lchild = slot_[i][j].child().lock();
 						if(lchild)
 							lchild->walkReverse(fn);
 					}
@@ -308,7 +300,7 @@ namespace Maragi
 				fn(sharedFromThis());
 			}
 
-			Slot *operator ()(size_t row, size_t col)
+			virtual Slot *slot(size_t row, size_t col)
 			{
 				if(row >= rows)
 					throw(std::out_of_range("row is bigger than allocated rows"));
@@ -317,30 +309,31 @@ namespace Maragi
 				return &slot_[row][col];
 			}
 
-			const GridSize &getRowSize(size_t row) const
+			virtual const GridSize &rowSize(size_t row) const
 			{
 				return rowsSize_[row];
 			}
 
-			void setRowSize(size_t row, const GridSize &GridSize)
+			virtual void rowSize(size_t row, const GridSize &GridSize)
 			{
-				if(GridSize.mode == RATIO && GridSize.ratio == 0)
+				if(GridSize.mode == GridSize::RATIO && GridSize.ratio == 0)
 					throw(std::logic_error("GridSize.ratio must not be zero."));
 				rowsSize_[row] = GridSize;
 			}
 
-			const GridSize &getColumnSize(size_t col) const
+			virtual const GridSize &columnSize(size_t col) const
 			{
 				return colsSize_[col];
 			}
 
-			void setColumnSize(size_t col, const GridSize &GridSize)
+			virtual void columnSize(size_t col, const GridSize &GridSize)
 			{
-				if(GridSize.mode == RATIO && GridSize.ratio == 0)
-					thcol(std::logic_error("GridSize.ratio must not be zero."));
+				if(GridSize.mode == GridSize::RATIO && GridSize.ratio == 0)
+					throw(std::logic_error("GridSize.ratio must not be zero."));
 				colsSize_[col] = GridSize;
 			}
 
+		private:
 			/*
 			Actual grid size is decided by follow process:
 			1. set grid sizes which has REAL mode
@@ -350,6 +343,7 @@ namespace Maragi
 			void calculateSizes(const Objects::RectangleF &rect)
 			{
 				float remainWidth = rect.width(), remainHeight = rect.height();
+				float ratio0TotalWidth = 0.0f, ratio0TotalHeight = 0.0f;
 				uint32_t totalWidthRatio = 0, totalHeightRatio = 0;
 				Objects::SizeF computeSizeCache[rows][cols] = { Objects::SizeF::invalid, };
 				size_t i, j;
@@ -364,22 +358,6 @@ namespace Maragi
 						heights[i] = rowsSize_[i].realSize;
 						remainHeight -= rowsSize_[i].realSize;
 					}
-					else if(rowsSize_[i].ratio == 0)
-					{
-						float maxHeight = 0.0f;
-						for(j = 0; j < cols; ++ j)
-						{
-							ControlPtr<> lchild = slot_[i][j].child.get().lock();
-							if(lchild)
-							{
-								float height = lchild->computeSize().height;
-								if(height > maxHeight)
-									maxHeight = height;
-							}
-						}
-						heights[i] = maxHeight;
-						remainHeight -= maxHeight;
-					}
 					else
 						totalHeightRatio += rowsSize_[i].ratio;
 				}
@@ -391,28 +369,38 @@ namespace Maragi
 						widths[i] = colsSize_[i].realSize;
 						remainWidth -= colsSize_[i].realSize;
 					}
-					else if(colsSize_[i].ratio == 0)
-					{
-						float maxWidth = 0.0f;
-						for(j = 0; j < rows; ++ j)
-						{
-							ControlPtr<> lchild = slot_[j][i].child.get().lock();
-							if(lchild)
-							{
-								float width = lchild->computeSize().width;
-								if(width > maxWidth)
-									maxWidth = width;
-							}
-						}
-						widths[i] = maxWidth;
-						remainWidth -= maxWidth;
-					}
 					else
 						totalWidthRatio += colsSize_[i].ratio;
 				}
 
 				if(totalHeightRatio == 0)
 				{
+					for(i = 0; i < rows; ++ i)
+					{
+						if(rowsSize_[i].mode == GridSize::RATIO && rowsSize_[i].ratio == 0)
+						{
+							float maxHeight = 0.0f;
+							for(j = 0; j < cols; ++ j)
+							{
+								ControlPtr<> lchild = slot_[i][j].child().lock();
+								if(lchild)
+								{
+									computeSizeCache[i][j] = lchild->rect().size();
+									if(maxHeight < computeSizeCache[i][j].height)
+										maxHeight = computeSizeCache[i][j].height;
+								}
+							}
+
+							heights[i] = maxHeight;
+							ratio0TotalHeight += maxHeight;
+						}
+					}
+
+					for(i = 0; i < rows; ++ i)
+					{
+						if(rowsSize_[i].mode == GridSize::RATIO && rowsSize_[i].ratio == 0)
+							heights[i] = heights[i] * remainHeight / ratio0TotalHeight;
+					}
 				}
 				else
 				{
@@ -423,10 +411,10 @@ namespace Maragi
 							float maxHeight = 0.0f;
 							for(j = 0; j < cols; ++ j)
 							{
-								ControlPtr<> lchild = slot_[i][j].child.get().lock();
+								ControlPtr<> lchild = slot_[i][j].child().lock();
 								if(lchild)
 								{
-									computeSizeCache[i][j] = lchild->rect.get().size();
+									computeSizeCache[i][j] = lchild->rect().size();
 									if(maxHeight < computeSizeCache[i][j].height)
 										maxHeight = computeSizeCache[i][j].height;
 								}
@@ -446,6 +434,34 @@ namespace Maragi
 
 				if(totalWidthRatio == 0)
 				{
+					for(i = 0; i < cols; ++ i)
+					{
+						if(colsSize_[i].mode == GridSize::RATIO && colsSize_[i].ratio == 0)
+						{
+							float maxWidth = 0.0f;
+							for(j = 0; j < rows; ++ j)
+							{
+								if(computeSizeCache[i][j] == Objects::SizeF::invalid)
+								{
+									ControlPtr<> lchild = slot_[i][j].child().lock();
+									if(lchild)
+										computeSizeCache[i][j] = lchild->rect().size();
+								}
+
+								if(maxWidth < computeSizeCache[i][j].width)
+									maxWidth = computeSizeCache[i][j].width;
+							}
+
+							widths[i] = maxWidth;
+							ratio0TotalWidth += maxWidth;
+						}
+					}
+
+					for(i = 0; i < cols; ++ i)
+					{
+						if(colsSize_[i].mode == GridSize::RATIO && colsSize_[i].ratio == 0)
+							widths[i] = widths[i] * remainWidth / ratio0TotalWidth;
+					}
 				}
 				else
 				{
@@ -458,9 +474,9 @@ namespace Maragi
 							{
 								if(computeSizeCache[i][j] == Objects::SizeF::invalid)
 								{
-									ControlPtr<> lchild = slot_[i][j].child.get().lock();
+									ControlPtr<> lchild = slot_[i][j].child().lock();
 									if(lchild)
-										computeSizeCache[i][j] = lchild->rect.get().size();
+										computeSizeCache[i][j] = lchild->rect().size();
 								}
 
 								if(maxWidth < computeSizeCache[i][j].width)
@@ -485,7 +501,7 @@ namespace Maragi
 					widthSubtotal[i] = widthSubtotal[i - 1] + widths[i - 1];
 			}
 
-		public:
+		protected:
 			virtual void onResizeInternal(const Objects::RectangleF &rect)
 			{
 				calculateSizes(rect);
@@ -494,13 +510,13 @@ namespace Maragi
 				{
 					for(size_t j = 0; j < cols; ++ j)
 					{
-						ControlPtr<> lchild = slot_[i][j].child.get().lock();
+						ControlPtr<> lchild = slot_[i][j].child().lock();
 						if(lchild)
 						{
-							lchild->rect = Objects::RectangleF(
+							lchild->rect(Objects::RectangleF(
 								Objects::PointF(widthSubtotal[j], heightSubtotal[i]),
 								Objects::SizeF(widths[j], heights[i])
-								);
+								));
 						}
 					}
 				}

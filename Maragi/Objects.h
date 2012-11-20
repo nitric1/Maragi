@@ -90,6 +90,7 @@ namespace Maragi
 				{
 					width = static_cast<T>(rhs.width);
 					height = static_cast<T>(rhs.height);
+					return *this;
 				}
 
 				bool operator ==(const Size &rhs) const

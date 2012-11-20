@@ -21,13 +21,13 @@ namespace Maragi
 			ControlPtr<ShellLayout> client_; // FrameWindow handles only one child.
 			Resources::ResourcePtr<Resources::Icon> iconLarge_, iconSmall_;
 			Objects::ColorF bgColor_;
-			Objects::SizeI minClientSize_, maxClientSize_;
+			Objects::SizeF minClientSize_, maxClientSize_;
 			Drawing::Context context_;
 
 			std::wstring className;
 			std::wstring initTitle;
 			Objects::PointI initPosition;
-			Objects::SizeI initClientSize;
+			Objects::SizeF initClientSize;
 			bool inDestroy;
 			int32_t capturedButtons;
 			std::vector<ControlWeakPtr<>> captureds, prevHovereds;
@@ -44,38 +44,42 @@ namespace Maragi
 				const Resources::ResourcePtr<Resources::Icon> &,
 				const Resources::ResourcePtr<Resources::Icon> &,
 				const Objects::ColorF & = Objects::ColorF(Objects::ColorF::White),
-				const Objects::SizeI & = Objects::SizeI::invalid,
+				const Objects::SizeF & = Objects::SizeF::invalid,
 				const Objects::PointI & = Objects::PointI::invalid,
-				const Objects::SizeI & = Objects::SizeI::invalid,
-				const Objects::SizeI & = Objects::SizeI::invalid
+				const Objects::SizeF & = Objects::SizeF::invalid,
+				const Objects::SizeF & = Objects::SizeF::invalid
 				); // TODO: menu
 
 		public:
 			virtual bool show();
 			virtual bool show(int32_t);
-			virtual Objects::SizeI adjustWindowSize(const Objects::SizeI &);
+			virtual Objects::SizeI adjustWindowSize(const Objects::SizeF &);
 			virtual Objects::PointF screenToClient(const Objects::PointI &) const;
 			virtual Objects::PointI clientToScreen(const Objects::PointF &) const;
 			virtual ControlWeakPtr<> hoveredControl(const Objects::PointF &) const;
 			virtual void redraw();
 
 		public:
-			Property::R<FrameWindow, ControlPtr<ShellLayout>> client;
-			Property::RW<FrameWindow, Resources::ResourcePtr<Resources::Icon>> iconLarge, iconSmall;
-			Property::RW<FrameWindow, Objects::ColorF> bgColor;
-			Property::RW<FrameWindow, Objects::SizeI> clientSize;
-			Property::RW<FrameWindow, Objects::SizeI> windowSize;
-			Property::RW<FrameWindow, Objects::PointI> position;
-			Property::RW<FrameWindow, Objects::SizeI> minClientSize, maxClientSize;
+			virtual const ControlPtr<ShellLayout> &client() const;
+			virtual const Resources::ResourcePtr<Resources::Icon> &iconLarge() const;
+			virtual void iconLarge(const Resources::ResourcePtr<Resources::Icon> &);
+			virtual const Resources::ResourcePtr<Resources::Icon> &iconSmall() const;
+			virtual void iconSmall(const Resources::ResourcePtr<Resources::Icon> &);
+			virtual const Objects::ColorF &bgColor() const;
+			virtual void bgColor(const Objects::ColorF &);
+			virtual Objects::SizeF clientSize() const;
+			virtual void clientSize(const Objects::SizeF &);
+			virtual Objects::SizeI windowSize() const;
+			virtual void windowSize(const Objects::SizeI &);
+			virtual Objects::PointI position() const;
+			virtual void position(const Objects::PointI &);
+			virtual const Objects::SizeF &minClientSize() const;
+			virtual void minClientSize(const Objects::SizeF &);
+			virtual const Objects::SizeF &maxClientSize() const;
+			virtual void maxClientSize(const Objects::SizeF &);
 
 		private:
 			virtual longptr_t procMessage(HWND, unsigned, uintptr_t, longptr_t);
-
-		private:
-			class Impl;
-			friend class Impl;
-
-			std::shared_ptr<Impl> impl;
 		};
 	}
 }

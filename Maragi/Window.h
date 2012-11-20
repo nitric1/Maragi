@@ -15,175 +15,6 @@ namespace Maragi
 {
 	namespace UI
 	{
-		namespace Property
-		{
-			template<typename Host, typename T>
-			class Base
-			{
-			};
-
-			template<typename Host, typename T>
-			class R : public Base<Host, T>
-			{
-			private:
-				std::function<T ()> getter;
-
-			protected:
-				void init(std::function<T ()> igetter)
-				{
-					getter = igetter;
-				}
-
-				template<typename Class>
-				void init(Class *inst, T (Class::*igetter)())
-				{
-					getter = std::bind(std::mem_fun(igetter), inst);
-				}
-
-			public:
-				T get() const
-				{
-					return getter();
-				}
-
-				template<typename Other>
-				bool operator ==(const Other &rhs) const
-				{
-					return getter() == rhs;
-				}
-
-				template<typename Other>
-				bool operator !=(const Other &rhs) const
-				{
-					return getter() != rhs;
-				}
-
-				T operator ->() const
-				{
-					return getter();
-				}
-
-				template<typename Other>
-				operator Other()
-				{
-					return getter();
-				}
-
-				template<typename Other>
-				operator Other() const
-				{
-					return getter();
-				}
-
-				friend Host;
-			};
-
-			template<typename Host, typename T>
-			class RW : public R<Host, T>
-			{
-			private:
-				std::function<void (const T &)> setter;
-
-			protected:
-				void init(std::function<T ()> igetter, std::function<void (const T &)> isetter)
-				{
-					R<Host, T>::init(igetter);
-					setter = isetter;
-				}
-
-				template<typename Class>
-				void init(Class *inst, T (Class::*igetter)(), void (Class::*isetter)(T))
-				{
-					R<Host, T>::init(inst, igetter);
-					setter = std::bind(std::mem_fun(isetter), inst, std::placeholders::_1);
-				}
-
-				template<typename Class>
-				void init(Class *inst, T (Class::*igetter)(), void (Class::*isetter)(const T &))
-				{
-					R<Host, T>::init(inst, igetter);
-					setter = std::bind(std::mem_fun(isetter), inst, std::placeholders::_1);
-				}
-
-			public:
-				template<typename Other>
-				RW &operator =(const Other &val)
-				{
-					setter(val);
-					return *this;
-				}
-
-				friend Host;
-			};
-		}
-
-		namespace PropertyValue
-		{
-			template<typename Host, typename T>
-			class Base
-			{
-			protected:
-				T val;
-
-			protected:
-				Base()
-					: val()
-				{}
-			};
-
-			// TODO: wrapper
-			template<typename Host, typename T>
-			class R : public Base<Host, T>
-			{
-			protected:
-				R()
-					: Base()
-				{}
-
-			protected:
-				void init(const T &ival)
-				{
-					val = ival;
-				}
-
-				void init(T &&ival)
-				{
-					val = std::forward<T>(ival);
-				}
-
-			public:
-				const T &get() const
-				{
-					return val;
-				}
-
-				template<typename Other>
-				bool operator ==(const Other &rhs) const
-				{
-					return val == rhs;
-				}
-
-				template<typename Other>
-				bool operator !=(const Other &rhs) const
-				{
-					return val != rhs;
-				}
-
-				operator const T &() const
-				{
-					return val;
-				}
-
-				template<typename Other>
-				operator const Other &() const
-				{
-					return val;
-				}
-
-				friend Host;
-			};
-		}
-
 		/*namespace Message
 		{
 			enum
@@ -233,14 +64,9 @@ namespace Maragi
 			virtual ControlWeakPtr<> detach();
 
 		public:
-			Property::RW<Slot, ControlWeakPtr<>> parent; // TODO: should be fixed
-			Property::R<Slot, ControlWeakPtr<>> child;
-
-		private:
-			class Impl;
-			friend class Impl;
-
-			std::shared_ptr<Impl> impl;
+			virtual const ControlWeakPtr<> &parent() const;
+			virtual void parent(const ControlWeakPtr<> &); // TODO: should be fixed
+			virtual const ControlWeakPtr<> &child() const;
 
 			friend class Control;
 		};
@@ -363,26 +189,12 @@ namespace Maragi
 			friend class Shell;
 		};
 
-		/*template<typename Func>
-		ERDelegateWrapper<void (const ControlEventArg &)> delegateControlEvent(Func fn)
-		{
-			return delegate<void (const ControlEventArg &)>(fn);
-		}
-
-		template<typename Class, typename Func>
-		ERDelegateWrapper<void (const ControlEventArg &)> delegateControlEvent(Class *p, Func fn)
-		{
-			return delegate<void (const ControlEventArg &)>(p, fn);
-		}*/
-
 		typedef Event<ControlEventArg> ControlEvent;
 
 		class Control : public std::enable_shared_from_this<Control>
 		{
-		protected:
-			ShellWeakPtr<> shell_;
-
 		private:
+			ShellWeakPtr<> shell_;
 			Slot *parent_;
 			ControlID id_;
 			Objects::RectangleF rect_;
@@ -425,19 +237,16 @@ namespace Maragi
 			ControlEvent onMouseButtonUp;
 
 		public:
-			Property::R<Control, ShellWeakPtr<>> shell;
-			Property::R<Control, Slot *> parent;
-			Property::R<Control, ControlID> id;
-			Property::RW<Control, Objects::RectangleF> rect;
+			virtual const ShellWeakPtr<> &shell() const;
+			virtual Slot *parent() const;
+			virtual const ControlID &id() const;
+			virtual const Objects::RectangleF &rect() const;
+			virtual void rect(const Objects::RectangleF &);
 
 		protected:
-			Property::RW<Control, Resources::ResourcePtr<Resources::Cursor>> cursor;
-
-		private:
-			class Impl;
-			friend class Impl;
-
-			std::shared_ptr<Impl> impl;
+			virtual void shell(const ShellWeakPtr<> &);
+			virtual const Resources::ResourcePtr<Resources::Cursor> &cursor() const;
+			virtual void cursor(const Resources::ResourcePtr<Resources::Cursor> &);
 
 			friend class Slot;
 			friend class Shell;
@@ -452,18 +261,6 @@ namespace Maragi
 			longptr_t lParam;
 		};
 
-		template<typename Func>
-		std::shared_ptr<ERDelegate<bool (WindowEventArg)>> delegateWindowEvent(Func fn)
-		{
-			return delegate<bool (WindowEventArg)>(fn);
-		}
-
-		template<typename Class, typename Func>
-		std::shared_ptr<ERDelegate<bool (WindowEventArg)>> delegateWindowEvent(Class *p, Func fn)
-		{
-			return delegate<bool (WindowEventArg)>(p, fn);
-		}
-
 		class Shell : public std::enable_shared_from_this<Shell>
 		{
 		private:
@@ -471,8 +268,6 @@ namespace Maragi
 
 		private:
 			ShellWeakPtr<> parent_;
-
-		protected:
 			HWND hwnd_;
 
 		protected:
@@ -500,15 +295,12 @@ namespace Maragi
 			}
 
 		public:
-			Property::R<Shell, ShellWeakPtr<>> parent;
-			Property::R<Shell, HWND> hwnd;
-			Property::R<Shell, Objects::SizeI> clientSize;
+			virtual const ShellWeakPtr<> &parent() const;
+			virtual HWND hwnd() const;
+			virtual Objects::SizeF clientSize() const;
 
-		private:
-			class Impl;
-			friend class Impl;
-
-			std::shared_ptr<Impl> impl;
+		protected:
+			virtual void hwnd(HWND);
 
 			friend struct ShellPtrDeleter;
 			friend class ShellManager;

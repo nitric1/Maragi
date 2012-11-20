@@ -8,91 +8,10 @@ namespace Maragi
 {
 	namespace UI
 	{
-		class Label::Impl
-		{
-		private:
-			Label *self;
-
-		public:
-			explicit Impl(Label *iself)
-				: self(iself)
-			{}
-
-			std::wstring getText()
-			{
-				return self->text_;
-			}
-
-			void setText(const std::wstring &text)
-			{
-				self->text_ = text;
-				self->redraw();
-			}
-
-			Objects::ColorF getColor()
-			{
-				return self->color_;
-			}
-
-			void setColor(const Objects::ColorF &color)
-			{
-				self->color_ = color;
-				self->brush.release();
-				self->redraw();
-			}
-
-			uint32_t getAlign()
-			{
-				return self->align_;
-			}
-
-			void setAlign(uint32_t align)
-			{
-				self->align_ = align;
-
-				switch(align & HORZ_MASK)
-				{
-				case LEFT:
-					self->format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
-					break;
-
-				case CENTER:
-					self->format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-					break;
-
-				case RIGHT:
-					self->format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
-					break;
-				}
-
-				switch(align & VERT_MASK)
-				{
-				case TOP:
-					self->format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
-					break;
-
-				case VCENTER:
-					self->format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-					break;
-
-				case BOTTOM:
-					self->format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR);
-					break;
-				}
-
-				self->redraw();
-			}
-		};
-
 		Label::Label(const ControlID &id)
 			: Control(id)
 			, color_(Objects::ColorF::Black)
 		{
-			impl = std::shared_ptr<Impl>(new Impl(this));
-			text.init(impl.get(), &Impl::getText, &Impl::setText);
-			color.init(impl.get(), &Impl::getColor, &Impl::setColor);
-			align.init(impl.get(), &Impl::getAlign, &Impl::setAlign);
-
 			format = Drawing::FontFactory::instance().createFont(12.0f);
 
 			const auto &dwfac = Drawing::D2DFactory::instance().getDWriteFactory();
@@ -120,7 +39,7 @@ namespace Maragi
 			ControlPtr<Label> lbl(new Label(ControlManager::instance().getNextID()));
 			lbl->text_ = text;
 			lbl->color_ = color;
-			lbl->align = align;
+			lbl->align(align);
 			return lbl;
 		}
 
@@ -150,7 +69,7 @@ namespace Maragi
 				text_.c_str(),
 				static_cast<unsigned>(text_.size()),
 				format,
-				rect.get(),
+				rect(),
 				brush,
 				D2D1_DRAW_TEXT_OPTIONS_NONE,
 				DWRITE_MEASURING_MODE_GDI_CLASSIC
@@ -164,34 +83,75 @@ namespace Maragi
 			return Objects::SizeF(64.0f, 64.0f);
 		}
 
-		class Button::Impl
+		const std::wstring &Label::text() const
 		{
-		private:
-			Button *self;
+			return text_;
+		}
 
-		public:
-			explicit Impl(Button *iself)
-				: self(iself)
-			{}
+		void Label::text(const std::wstring &text)
+		{
+			text_ = text;
+			redraw();
+		}
 
-			std::wstring getText()
+		const Objects::ColorF &Label::color() const
+		{
+			return color_;
+		}
+
+		void Label::color(const Objects::ColorF &color)
+		{
+			color_ = color;
+			brush.release();
+			redraw();
+		}
+
+		uint32_t Label::align() const
+		{
+			return align_;
+		}
+
+		void Label::align(uint32_t align)
+		{
+			align_ = align;
+
+			switch(align & HORZ_MASK)
 			{
-				return self->text_;
+			case LEFT:
+				format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+				break;
+
+			case CENTER:
+				format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+				break;
+
+			case RIGHT:
+				format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+				break;
 			}
 
-			void setText(const std::wstring &text)
+			switch(align & VERT_MASK)
 			{
-				self->text_ = text;
+			case TOP:
+				format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+				break;
+
+			case VCENTER:
+				format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+				break;
+
+			case BOTTOM:
+				format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR);
+				break;
 			}
-		};
+
+			redraw();
+		}
 
 		Button::Button(const ControlID &id)
 			: Control(id)
 			, clicked(false)
 		{
-			impl = std::shared_ptr<Impl>(new Impl(this));
-			text.init(impl.get(), &Impl::getText, &Impl::setText);
-
 			onMouseButtonDown += delegate(this, &Button::onMouseButtonDownImpl);
 			onMouseButtonDoubleClick += delegate(this, &Button::onMouseButtonDownImpl);
 			onMouseButtonUp += delegate(this, &Button::onMouseButtonUpImpl);
@@ -224,7 +184,7 @@ namespace Maragi
 
 		void Button::draw(Drawing::Context &ctx)
 		{
-			Objects::RectangleF rect = this->rect.get();
+			Objects::RectangleF rect = this->rect();
 			if(clicked)
 				ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushDown);
 			else
@@ -254,6 +214,17 @@ namespace Maragi
 				redraw();
 				onClick(arg);
 			}
+		}
+
+		const std::wstring &Button::text() const
+		{
+			return text_;
+		}
+
+		void Button::text(const std::wstring &text)
+		{
+			text_ = text;
+			redraw();
 		}
 	}
 }

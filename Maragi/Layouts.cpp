@@ -13,29 +13,10 @@ namespace Maragi
 		{
 		}
 
-		class ShellLayout::Impl
-		{
-		private:
-			ShellLayout *self;
-
-		public:
-			explicit Impl(ShellLayout *iself)
-				: self(iself)
-			{}
-
-			Slot *getSlot()
-			{
-				return &self->slot_;
-			}
-		};
-
 		ShellLayout::ShellLayout(const ShellWeakPtr<> &ishell, const ControlID &id)
 			: Layout(id)
 		{
-			shell_ = ishell;
-
-			impl = std::shared_ptr<Impl>(new Impl(this));
-			slot.init(impl.get(), &Impl::getSlot);
+			shell(ishell);
 		}
 
 		ShellLayout::~ShellLayout()
@@ -47,34 +28,34 @@ namespace Maragi
 			)
 		{
 			ControlPtr<ShellLayout> layout(new ShellLayout(shell, ControlManager::instance().getNextID()));
-			layout->slot_.parent = layout;
+			layout->slot_.parent(layout);
 			return layout;
 		}
 
 		void ShellLayout::createDrawingResources(Drawing::Context &ctx)
 		{
-			ControlPtr<> lchild = slot_.child.get().lock();
+			ControlPtr<> lchild = slot_.child().lock();
 			if(lchild)
 				lchild->createDrawingResources(ctx);
 		}
 
 		void ShellLayout::discardDrawingResources(Drawing::Context &ctx)
 		{
-			ControlPtr<> lchild = slot_.child.get().lock();
+			ControlPtr<> lchild = slot_.child().lock();
 			if(lchild)
 				lchild->discardDrawingResources(ctx);
 		}
 
 		void ShellLayout::draw(Drawing::Context &ctx)
 		{
-			ControlPtr<> lchild = slot_.child.get().lock();
+			ControlPtr<> lchild = slot_.child().lock();
 			if(lchild)
 				lchild->draw(ctx);
 		}
 
 		Objects::SizeF ShellLayout::computeSize()
 		{
-			ControlPtr<> lchild = slot_.child.get().lock();
+			ControlPtr<> lchild = slot_.child().lock();
 			if(lchild)
 				return lchild->computeSize();
 			return Objects::SizeF();
@@ -82,7 +63,7 @@ namespace Maragi
 
 		ControlWeakPtr<> ShellLayout::findByPoint(const Objects::PointF &pt)
 		{
-			ControlPtr<> lchild = slot_.child.get().lock();
+			ControlPtr<> lchild = slot_.child().lock();
 			if(lchild)
 				return lchild->findByPoint(pt);
 			return nullptr;
@@ -90,10 +71,10 @@ namespace Maragi
 
 		std::vector<ControlWeakPtr<>> ShellLayout::findTreeByPoint(const Objects::PointF &pt)
 		{
-			if(!rect.get().isIn(pt))
+			if(!rect().isIn(pt))
 				return std::vector<ControlWeakPtr<>>();
 
-			ControlPtr<> lchild = slot_.child.get().lock();
+			ControlPtr<> lchild = slot_.child().lock();
 			if(lchild)
 			{
 				std::vector<ControlWeakPtr<>> ve = lchild->findTreeByPoint(pt);
@@ -105,10 +86,10 @@ namespace Maragi
 
 		std::vector<ControlWeakPtr<>> ShellLayout::findReverseTreeByPoint(const Objects::PointF &pt)
 		{
-			if(!rect.get().isIn(pt))
+			if(!rect().isIn(pt))
 				return std::vector<ControlWeakPtr<>>();
 
-			ControlPtr<> lchild = slot_.child.get().lock();
+			ControlPtr<> lchild = slot_.child().lock();
 			if(lchild)
 			{
 				std::vector<ControlWeakPtr<>> ve = lchild->findReverseTreeByPoint(pt);
@@ -121,14 +102,14 @@ namespace Maragi
 		void ShellLayout::walk(const std::function<void (const ControlWeakPtr<> &)> &fn)
 		{
 			fn(sharedFromThis());
-			ControlPtr<> lchild = slot_.child.get().lock();
+			ControlPtr<> lchild = slot_.child().lock();
 			if(lchild)
 				lchild->walk(fn);
 		}
 
 		void ShellLayout::walkReverse(const std::function<void (const ControlWeakPtr<> &)> &fn)
 		{
-			ControlPtr<> lchild = slot_.child.get().lock();
+			ControlPtr<> lchild = slot_.child().lock();
 			if(lchild)
 				lchild->walkReverse(fn);
 			fn(sharedFromThis());
@@ -136,8 +117,13 @@ namespace Maragi
 
 		void ShellLayout::onResizeInternal(const Objects::RectangleF &rect)
 		{
-			ControlPtr<> lchild = slot_.child.get().lock();
-			lchild->rect = rect;
+			ControlPtr<> lchild = slot_.child().lock();
+			lchild->rect(rect);
+		}
+
+		Slot *ShellLayout::slot()
+		{
+			return &slot_;
 		}
 	}
 }

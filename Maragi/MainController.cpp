@@ -57,23 +57,27 @@ namespace Maragi
 				UI::Resources::Icon::fromSharedResource(IDI_APPLICATION, UI::Objects::SizeI(32, 32)),
 				UI::Resources::Icon::fromSharedResource(IDI_APPLICATION, UI::Objects::SizeI(16, 16)),
 				UI::Objects::ColorF::Black,
-				UI::Objects::SizeI(640, 480),
+				UI::Objects::SizeF(640.0f, 480.0f),
 				UI::Objects::PointI::invalid,
-				UI::Objects::SizeI(400, 300),
-				UI::Objects::SizeI::invalid
+				UI::Objects::SizeF(400.0f, 300.0f),
+				UI::Objects::SizeF::invalid
 				);
+
 			using UI::GridSize;
 			GridSize rows[] = { GridSize(20.0f), GridSize(1) }, cols[] = { GridSize(120.0f), GridSize(1) };
 			UI::ControlPtr<UI::GridLayout<2, 2>> layout = UI::GridLayout<2, 2>::create(
 				std::vector<GridSize>(std::begin(rows), std::end(rows)),
 				std::vector<GridSize>(std::begin(cols), std::end(cols))
 				);
-			frm->client->slot->attach(layout);
+			frm->client()->slot()->attach(layout);
+
 			UI::ControlPtr<UI::Label> label = UI::Label::create(L"Label Text", UI::Objects::ColorF(UI::Objects::ColorF::White));
-			(*layout)(0, 0)->attach(label);
+			layout->slot(0, 0)->attach(label);
+
 			UI::ControlPtr<UI::Button> button = UI::Button::create(L"Button Text");
-			(*layout)(0, 1)->attach(button);
 			button->onClick += delegate(this, &MainController::onButtonClick);
+			layout->slot(0, 1)->attach(button);
+
 			return frm->show(showCommand);
 		}
 		catch(std::exception &e)

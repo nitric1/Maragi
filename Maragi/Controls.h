@@ -54,15 +54,12 @@ namespace Maragi
 			virtual Objects::SizeF computeSize();
 
 		public:
-			Property::RW<Label, std::wstring> text;
-			Property::RW<Label, Objects::ColorF> color;
-			Property::RW<Label, uint32_t> align;
-
-		private:
-			class Impl;
-			friend class Impl;
-
-			std::shared_ptr<Impl> impl;
+			virtual const std::wstring &text() const;
+			virtual void text(const std::wstring &);
+			virtual const Objects::ColorF &color() const;
+			virtual void color(const Objects::ColorF &);
+			virtual uint32_t align() const;
+			virtual void align(uint32_t);
 		};
 
 		class Button : public Control
@@ -97,13 +94,8 @@ namespace Maragi
 			ControlEvent onClick;
 
 		public:
-			Property::RW<Button, std::wstring> text;
-
-		private:
-			class Impl;
-			friend class Impl;
-
-			std::shared_ptr<Impl> impl;
+			virtual const std::wstring &text() const;
+			virtual void text(const std::wstring &);
 		};
 	}
 }
