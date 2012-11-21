@@ -149,6 +149,11 @@ namespace Maragi
 			// TODO: implement
 		}
 
+		void Control::blur()
+		{
+			// TODO: implement
+		}
+
 		void Control::onResizeInternal(const Objects::RectangleF &)
 		{
 		}

@@ -71,12 +71,25 @@ namespace Maragi
 				);
 			frm->client()->slot()->attach(layout);
 
-			UI::ControlPtr<UI::Label> label = UI::Label::create(L"Label Text", UI::Objects::ColorF(UI::Objects::ColorF::White));
+			UI::ControlPtr<UI::Label> label;
+			UI::ControlPtr<UI::Button> button;
+			UI::ControlPtr<UI::Edit> edit;
+
+			label = UI::Label::create(L"Label Text", UI::Objects::ColorF(UI::Objects::ColorF::White));
 			layout->slot(0, 0)->attach(label);
 
-			UI::ControlPtr<UI::Button> button = UI::Button::create(L"Button Text");
-			button->onClick += delegate(this, &MainController::onButtonClick);
+			button = UI::Button::create(L"Button Text");
+			button->onClick += delegate([&edit](const UI::ControlEventArg &)
+			{
+				if(edit->text().empty())
+					edit->text(L"Hello World");
+				else
+					edit->text(L"");
+			});
 			layout->slot(0, 1)->attach(button);
+
+			edit = UI::Edit::create(L"Placeholder Now");
+			layout->slot(1, 1)->attach(edit);
 
 			return frm->show(showCommand);
 		}

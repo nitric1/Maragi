@@ -63,6 +63,7 @@ namespace Maragi
 
 			private:
 				Context(const Context &); // = delete;
+				Context &operator =(const Context &); // = delete;
 			};
 
 			class FontFactory : public Singleton<FontFactory>
