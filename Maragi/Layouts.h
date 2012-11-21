@@ -522,5 +522,42 @@ namespace Maragi
 				}
 			}
 		};
+
+		class PaddingLayout : public Layout
+		{
+		private:
+			Slot slot_;
+			float padLeft_, padTop_, padRight_, padBottom_;
+
+		protected:
+			PaddingLayout(const ControlID &);
+			virtual ~PaddingLayout();
+
+		public:
+			static ControlPtr<PaddingLayout> create(float); // all
+			static ControlPtr<PaddingLayout> create(float, float); // lr, tb
+			static ControlPtr<PaddingLayout> create(float, float, float, float); // l, t, r, b
+
+		public:
+			virtual void createDrawingResources(Drawing::Context &);
+			virtual void discardDrawingResources(Drawing::Context &);
+			virtual void draw(Drawing::Context &);
+			virtual Objects::SizeF computeSize();
+			virtual ControlWeakPtr<> findByPoint(const Objects::PointF &);
+			virtual std::vector<ControlWeakPtr<>> findTreeByPoint(const Objects::PointF &);
+			virtual std::vector<ControlWeakPtr<>> findReverseTreeByPoint(const Objects::PointF &);
+			virtual void walk(const std::function<void (const ControlWeakPtr<> &)> &);
+			virtual void walkReverse(const std::function<void (const ControlWeakPtr<> &)> &);
+
+		public:
+			virtual void onResizeInternal(const Objects::RectangleF &);
+
+		public:
+			virtual std::tuple<float, float, float, float> padding() const;
+			virtual void padding(float);
+			virtual void padding(float, float);
+			virtual void padding(float, float, float, float);
+			virtual Slot *slot();
+		};
 	}
 }

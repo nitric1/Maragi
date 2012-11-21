@@ -53,10 +53,9 @@ namespace Maragi
 		public:
 			virtual bool show();
 			virtual bool show(int32_t);
-			virtual Objects::SizeI adjustWindowSize(const Objects::SizeF &);
+			virtual Objects::SizeI adjustWindowSize(const Objects::SizeF &) const;
 			virtual Objects::PointF screenToClient(const Objects::PointI &) const;
 			virtual Objects::PointI clientToScreen(const Objects::PointF &) const;
-			virtual ControlWeakPtr<> hoveredControl(const Objects::PointF &) const;
 			virtual void redraw();
 
 		public:

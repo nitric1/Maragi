@@ -151,10 +151,23 @@ namespace Maragi
 		Button::Button(const ControlID &id)
 			: Control(id)
 			, clicked(false)
+			, hovered(false)
 		{
 			onMouseButtonDown += delegate(this, &Button::onMouseButtonDownImpl);
 			onMouseButtonDoubleClick += delegate(this, &Button::onMouseButtonDownImpl);
 			onMouseButtonUp += delegate(this, &Button::onMouseButtonUpImpl);
+
+			onMouseOver += delegate([this](const ControlEventArg &arg)
+			{
+				hovered = true;
+				redraw();
+			});
+
+			onMouseOut += delegate([this](const ControlEventArg &arg)
+			{
+				hovered = false;
+				redraw();
+			});
 		}
 
 		Button::~Button()
@@ -174,12 +187,14 @@ namespace Maragi
 			// TODO: neat rendering
 			ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGray), &brushUp);
 			ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkGray), &brushDown);
+			ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Silver), &brushHovered);
 		}
 
 		void Button::discardDrawingResources(Drawing::Context &ctx)
 		{
 			brushUp.release();
 			brushDown.release();
+			brushHovered.release();
 		}
 
 		void Button::draw(Drawing::Context &ctx)
@@ -187,6 +202,8 @@ namespace Maragi
 			Objects::RectangleF rect = this->rect();
 			if(clicked)
 				ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushDown);
+			else if(hovered)
+				ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushHovered);
 			else
 				ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushUp);
 		}

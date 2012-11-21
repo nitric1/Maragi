@@ -67,8 +67,8 @@ namespace Maragi
 		private:
 			std::wstring text_;
 
-			ComPtr<ID2D1SolidColorBrush> brushUp, brushDown;
-			bool clicked;
+			ComPtr<ID2D1SolidColorBrush> brushUp, brushDown, brushHovered;
+			bool hovered, clicked;
 			Objects::PointF pt;
 
 		protected:

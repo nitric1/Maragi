@@ -138,7 +138,7 @@ namespace Maragi
 			return true;
 		}
 
-		Objects::SizeI FrameWindow::adjustWindowSize(const Objects::SizeF &size)
+		Objects::SizeI FrameWindow::adjustWindowSize(const Objects::SizeF &size) const
 		{
 			RECT rc = { 0, 0, static_cast<int>(ceil(size.width)), static_cast<int>(ceil(size.height)) };
 			// TODO: menu
@@ -163,11 +163,6 @@ namespace Maragi
 			POINT wpt = { static_cast<long>(pt.x), static_cast<long>(pt.y) };
 			ClientToScreen(hwnd(), &wpt);
 			return Objects::PointI(wpt.x, wpt.y);
-		}
-
-		ControlWeakPtr<> FrameWindow::hoveredControl(const Objects::PointF &pt) const
-		{
-			return client_->findByPoint(pt);
 		}
 
 		void FrameWindow::redraw()
@@ -334,6 +329,9 @@ namespace Maragi
 				ValidateRect(hwnd, nullptr);
 				return 0;
 
+			case WM_ERASEBKGND:
+				return 1;
+
 			case WM_SETCURSOR:
 				if(LOWORD(lParam) == HTCLIENT)
 				{
@@ -366,6 +364,12 @@ namespace Maragi
 
 						fireEvent(hovereds, &Control::onMouseMove, ev);
 						prevHovereds = std::move(hovereds);
+
+						TRACKMOUSEEVENT tme = {0, };
+						tme.cbSize = sizeof(tme);
+						tme.dwFlags = TME_LEAVE;
+						tme.hwndTrack = hwnd;
+						TrackMouseEvent(&tme);
 					}
 				}
 				return 0;
@@ -389,6 +393,16 @@ namespace Maragi
 				return 0;
 
 			case WM_MOUSEHWHEEL:
+				return 0;
+
+			case WM_MOUSELEAVE:
+				{
+					if(!prevHovereds.empty())
+					{
+						fireEvent(prevHovereds, &Control::onMouseOut, ev);
+						prevHovereds.clear();
+					}
+				}
 				return 0;
 
 			case WM_LBUTTONDOWN:
