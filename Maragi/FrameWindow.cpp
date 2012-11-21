@@ -140,13 +140,13 @@ namespace Maragi
 
 		Objects::SizeI FrameWindow::adjustWindowSize(const Objects::SizeF &size)
 		{
-			RECT rc = { 0, 0, static_cast<int>(size.width), static_cast<int>(size.height) };
+			RECT rc = { 0, 0, static_cast<int>(ceil(size.width)), static_cast<int>(ceil(size.height)) };
 			// TODO: menu
 			AdjustWindowRectEx(&rc, windowStyle, FALSE, windowStyleEx);
 			// TODO: consider DPI
 			//float dpiX, dpiY;
 			//Drawing::D2DFactory::instance().getD2DFactory()->GetDesktopDpi(&dpiX, &dpiY);
-			return Objects::SizeI(static_cast<int>(rc.right - rc.left), static_cast<int>(rc.bottom - rc.top));
+			return Objects::SizeI(rc.right - rc.left, rc.bottom - rc.top);
 		}
 
 		Objects::PointF FrameWindow::screenToClient(const Objects::PointI &pt) const
