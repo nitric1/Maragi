@@ -51,12 +51,22 @@ namespace Maragi
 				bool endDraw();
 
 			public:
+				ID2D1HwndRenderTarget *get() const
+				{
+					return rt;
+				}
+
 				operator bool() const
 				{
 					return rt.get() != nullptr;
 				}
 
 				ID2D1HwndRenderTarget *operator ->() const
+				{
+					return rt;
+				}
+
+				operator ID2D1HwndRenderTarget *() const
 				{
 					return rt;
 				}

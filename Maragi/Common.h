@@ -14,6 +14,7 @@
 #include <exception>
 #include <functional>
 #include <map>
+#include <new>
 #include <numeric>
 #include <random>
 #include <set>

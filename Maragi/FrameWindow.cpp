@@ -272,7 +272,6 @@ namespace Maragi
 		longptr_t FrameWindow::procMessage(HWND hwnd, unsigned message, uintptr_t wParam, longptr_t lParam)
 		{
 			ControlEventArg ev;
-			ev.time = boost::posix_time::microsec_clock::local_time();
 			ev.rawMessage = message;
 			ev.wParam = wParam;
 			ev.lParam = lParam;
@@ -493,6 +492,9 @@ namespace Maragi
 							fireEvent(hovereds, &Control::onMouseButtonUp, ev);
 							break;
 						}
+
+						if(message == WM_LBUTTONDOWN)
+							focus(hovereds[0]);
 					}
 				}
 				return 0;

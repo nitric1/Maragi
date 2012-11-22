@@ -18,4 +18,7 @@ namespace Maragi
 	std::string encodeURI(const std::string &);
 	std::string encodeURIParam(const std::string &);
 	std::string decodeURI(const std::string &);
+
+	float round(float);
+	double round(double);
 }

@@ -160,7 +160,8 @@ namespace Maragi
 			uint32_t repeated;
 
 			ControlEventArg()
-				: rawMessage(0)
+				: time(boost::posix_time::microsec_clock::local_time())
+				, rawMessage(0)
 				, wParam(0), lParam(0)
 				, buttonNum(0)
 				, controlPoint(Objects::PointF::invalid), shellClientPoint(Objects::PointF::invalid) // , screenPoint(Objects::PointF::invalid)
@@ -238,6 +239,9 @@ namespace Maragi
 			ControlEvent onMouseButtonUp;
 			ControlEvent onMouseWheel;
 
+			ControlEvent onKeyDown;
+			ControlEvent onKeyUp;
+
 			ControlEvent onFocus;
 			ControlEvent onBlur;
 
@@ -247,11 +251,13 @@ namespace Maragi
 			virtual const ControlID &id() const;
 			virtual const Objects::RectangleF &rect() const;
 			virtual void rect(const Objects::RectangleF &);
+			virtual bool hasFocus();
 
 		protected:
 			virtual void shell(const ShellWeakPtr<> &);
 			virtual const Resources::ResourcePtr<Resources::Cursor> &cursor() const;
 			virtual void cursor(const Resources::ResourcePtr<Resources::Cursor> &);
+			virtual bool focusable() const;
 
 			friend class Slot;
 			friend class Shell;
@@ -273,6 +279,7 @@ namespace Maragi
 
 		private:
 			ShellWeakPtr<> parent_;
+			ControlWeakPtr<> focus_;
 			HWND hwnd_;
 
 		protected:
@@ -303,6 +310,9 @@ namespace Maragi
 			virtual const ShellWeakPtr<> &parent() const;
 			virtual HWND hwnd() const;
 			virtual Objects::SizeF clientSize() const;
+			virtual const ControlWeakPtr<> &focus() const;
+			virtual void focus(const ControlWeakPtr<> &);
+			virtual void blur();
 
 		protected:
 			virtual void hwnd(HWND);

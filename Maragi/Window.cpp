@@ -146,12 +146,16 @@ namespace Maragi
 
 		void Control::focus()
 		{
-			// TODO: implement
+			ShellPtr<> lshell = shell_.lock();
+			if(lshell)
+				lshell->focus(sharedFromThis());
 		}
 
 		void Control::blur()
 		{
-			// TODO: implement
+			ShellPtr<> lshell = shell_.lock();
+			if(lshell && lshell->focus().lock() == sharedFromThis())
+				lshell->blur();
 		}
 
 		void Control::onResizeInternal(const Objects::RectangleF &)
@@ -194,6 +198,14 @@ namespace Maragi
 			onResizeInternal(irect);
 		}
 
+		bool Control::hasFocus()
+		{
+			ShellPtr<> lshell = shell_.lock();
+			if(lshell)
+				return lshell->focus().lock() == sharedFromThis();
+			return false;
+		}
+
 		void Control::shell(const ShellWeakPtr<> &ishell)
 		{
 			shell_ = ishell;
@@ -209,6 +221,11 @@ namespace Maragi
 			cursor_ = icursor;
 			if(icursor)
 				SetCursor(*icursor);
+		}
+
+		bool Control::focusable() const
+		{
+			return true;
 		}
 
 		Shell::Shell() // no parent
@@ -261,10 +278,34 @@ namespace Maragi
 
 		Objects::SizeF Shell::clientSize() const
 		{
-			// TODO: DPI
+			// TODO: consider DPI
 			RECT rc;
 			GetClientRect(hwnd_, &rc);
 			return Objects::SizeF(static_cast<float>(rc.right - rc.left), static_cast<float>(rc.bottom - rc.top));
+		}
+
+		const ControlWeakPtr<> &Shell::focus() const
+		{
+			return focus_;
+		}
+
+		void Shell::focus(const ControlWeakPtr<> &ifocus)
+		{
+			ControlPtr<> lfocus = focus_.lock(), lifocus = ifocus.lock();
+			if(lifocus && lifocus->focusable() && lfocus != lifocus)
+			{
+				if(lfocus)
+					fireEvent(std::vector<ControlWeakPtr<>>(1, focus_), &Control::onBlur, ControlEventArg());
+				focus_ = ifocus;
+				fireEvent(std::vector<ControlWeakPtr<>>(1, ifocus), &Control::onFocus, ControlEventArg());
+			}
+		}
+
+		void Shell::blur()
+		{
+			if(focus_.lock())
+				fireEvent(std::vector<ControlWeakPtr<>>(1, focus_), &Control::onBlur, ControlEventArg());
+			focus_ = nullptr;
 		}
 
 		void Shell::hwnd(HWND ihwnd)

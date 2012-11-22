@@ -60,6 +60,7 @@ namespace Maragi
 			virtual void color(const Objects::ColorF &);
 			virtual uint32_t align() const;
 			virtual void align(uint32_t);
+			virtual bool focusable() const;
 		};
 
 		class Button : public Control
@@ -98,16 +99,145 @@ namespace Maragi
 			virtual void text(const std::wstring &);
 		};
 
+		class DECLSPEC_UUID("809B62F5-ABC3-4FF2-B9F8-7CDC8F78D790") EditDrawingEffect
+			: public ComBase<ComBaseListSelf<EditDrawingEffect, ComBaseList<IUnknown>>>
+		{
+		private:
+			Objects::ColorF color_;
+
+		public:
+			EditDrawingEffect(const Objects::ColorF &);
+			virtual ~EditDrawingEffect();
+
+		public:
+			virtual const Objects::ColorF &color() const;
+			virtual void color(const Objects::ColorF &);
+		};
+
+		class DECLSPEC_UUID("C01E969C-1CCA-41CB-B019-3E0E231C6232") EditRenderer
+			: public ComBase<ComBaseListSelf<EditRenderer, ComBaseList<IDWriteTextRenderer>>>
+		{
+		private:
+			ComPtr<ID2D1SolidColorBrush> brush;
+			Drawing::Context *renderTarget;
+			const EditDrawingEffect *defaultDrawingEffect;
+
+		public:
+			EditRenderer();
+			virtual ~EditRenderer();
+
+		public:
+			HRESULT drawLayout(
+				Drawing::Context &,
+				const EditDrawingEffect &,
+				IDWriteTextLayout *,
+				const Objects::RectangleF &
+				);
+
+		public:
+			IFACEMETHOD(DrawGlyphRun)(
+				void *,
+				float,
+				float,
+				DWRITE_MEASURING_MODE,
+				const DWRITE_GLYPH_RUN *,
+				const DWRITE_GLYPH_RUN_DESCRIPTION *,
+				IUnknown *
+				);
+
+			IFACEMETHOD(DrawUnderline)(
+				void *,
+				float,
+				float,
+				const DWRITE_UNDERLINE *,
+				IUnknown *
+				);
+
+			IFACEMETHOD(DrawStrikethrough)(
+				void *,
+				float,
+				float,
+				const DWRITE_STRIKETHROUGH *,
+				IUnknown *
+				);
+
+			IFACEMETHOD(DrawInlineObject)(
+				void *,
+				float,
+				float,
+				IDWriteInlineObject *,
+				BOOL,
+				BOOL,
+				IUnknown *
+				);
+
+			IFACEMETHOD(GetCurrentTransform)(
+				void *,
+				DWRITE_MATRIX *
+				);
+
+			IFACEMETHOD(GetPixelsPerDip)(
+				void *,
+				float *
+				);
+
+			IFACEMETHOD(IsPixelSnappingDisabled)(
+				void *,
+				BOOL *
+				);
+		};
+
+		class EditLayout
+		{
+		private:
+			std::wstring text_;
+			std::vector<ComPtr<IDWriteTextFormat>> textFormats_;
+			std::vector<ComPtr<IDWriteFont>> fonts;
+			std::vector<ComPtr<IDWriteFontFace>> fontFaces;
+
+		public:
+			EditLayout();
+			~EditLayout();
+
+		public:
+			void draw(void *, IDWriteTextRenderer *, const Objects::PointF &);
+
+		private:
+
+		public:
+			const std::wstring &text() const;
+			void text(const std::wstring &);
+			const std::vector<ComPtr<IDWriteTextFormat>> &textFormats() const;
+			void textFormats(const std::vector<ComPtr<IDWriteTextFormat>> &);
+			void textFormats(std::vector<ComPtr<IDWriteTextFormat>> &&);
+		};
+
 		class Edit : public Control
 		{
 		private:
+			enum SelectMode
+			{
+				SelectModeAbsoluteLeading,
+				SelectModeAbsoluteTrailing
+			};
+
+		private:
 			std::wstring text_, placeholder_;
-			size_t selStart_, selEnd_;
+			uint32_t selStart_, selEnd_;
 			Objects::ColorF colorText_, colorPlaceholder_, colorBackground_;
 
-			ComPtr<ID2D1SolidColorBrush> brushText, brushPlaceholder, brushBackground;
+			ComPtr<ID2D1SolidColorBrush> brushText, brushPlaceholder, brushBackground, brushSelection;
 			ComPtr<IDWriteTextFormat> formatText, formatPlaceholder;
+			ComPtr<IDWriteTextLayout> layout;
+			ComPtr<EditRenderer> renderer;
+			ComPtr<EditDrawingEffect> selectionEffect;
 			ComPtr<IDWriteRenderingParams> renderParams;
+			bool focused;
+
+			std::vector<Objects::RectangleF> selectionRects;
+
+			D2D1::Matrix3x2F clientTransform, paddingTransform, scrollTransform;
+			bool focused, dragging, trailing;
 
 		protected:
 			Edit(const ControlID &);
@@ -120,8 +250,8 @@ namespace Maragi
 				const Objects::ColorF & = Objects::ColorF(Objects::ColorF::DarkGray),
 				const Objects::ColorF & = Objects::ColorF(Objects::ColorF::White),
 				const std::wstring & = std::wstring(),
-				size_t = 0,
-				size_t = 0
+				uint32_t = 0,
+				uint32_t = 0
 				);
 
 		public:
@@ -130,6 +260,16 @@ namespace Maragi
 			virtual void draw(Drawing::Context &);
 			virtual Objects::SizeF computeSize();
 
+		public:
+			virtual void onResizeInternal(const Objects::RectangleF &);
+
+		private:
+			void textRefresh();
+			bool updateCaret();
+			void updateSelection();
+			void selectByPoint(const Objects::PointF &, bool);
+			void select(SelectMode, uint32_t, bool);
+
 		private:
 			void onMouseMoveImpl(const ControlEventArg &);
 			void onMouseButtonDownImpl(const ControlEventArg &);
@@ -137,19 +277,53 @@ namespace Maragi
 			void onCharImpl(const ControlEventArg &);
 			void onImeEndCompositionImpl(const ControlEventArg &);
 			void onImeCompositionImpl(const ControlEventArg &);
+			void onFocusImpl(const ControlEventArg &);
+			void onBlurImpl(const ControlEventArg &);
 
 		public:
-			// Event<const std::wstring &> onTextChange;
-			// Event<const std::pair<size_t, size_t> &> onSelectionChange;
+			ControlEvent onTextChange;
+			ControlEvent onSelectionChange;
 
 		public:
 			virtual const std::wstring &text() const;
 			virtual void text(const std::wstring &);
 			virtual const std::wstring &placeholder() const;
 			virtual void placeholder(const std::wstring &);
-			virtual std::pair<size_t, size_t> selection() const;
-			virtual void selection(size_t);
-			virtual void selection(size_t, size_t);
+			virtual std::pair<uint32_t, uint32_t> selection() const;
+			virtual void selection(uint32_t, bool);
+			virtual void selection(uint32_t, uint32_t, bool);
+		};
+
+		class Scrollbar : public Control
+		{
+		private:
+			double scrollMin_, scrollMax_, pageSize_; // [scrollMin, scrollMax - pageSize]
+
+		protected:
+			Scrollbar(const ControlID &);
+			virtual ~Scrollbar();
+
+		public:
+			virtual std::pair<double, double> range() const;
+			virtual void range(double, double);
+			virtual double pageSize() const;
+			virtual void pageSize(double);
+		};
+
+		class Scrollbar : public Control
+		{
+		private:
+			double scrollMin_, scrollMax_, pageSize_; // [scrollMin, scrollMax - pageSize]
+
+		protected:
+			Scrollbar(const ControlID &);
+			virtual ~Scrollbar();
+
+		public:
+			virtual std::pair<double, double> range() const;
+			virtual void range(double, double);
+			virtual double pageSize() const;
+			virtual void pageSize(double);
 		};
 	}
 }

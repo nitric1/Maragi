@@ -304,4 +304,14 @@ namespace Maragi
 		}
 		return buf;
 	}
+
+	float round(float n)
+	{
+		return floor(n + 0.5f);
+	}
+
+	double round(double n)
+	{
+		return floor(n + 0.5);
+	}
 }

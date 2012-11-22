@@ -155,6 +155,16 @@ namespace Maragi
 					: left(center.x - width / 2.0f), top(center.y - height / 2.0f), right(center.x + width / 2.0f), bottom(center.y + height / 2.0f)
 				{}
 
+				Point<T> leftTop() const
+				{
+					return Point<T>(left, top);
+				}
+
+				Point<T> rightBottom() const
+				{
+					return Point<T>(right, bottom);
+				}
+
 				T width() const
 				{
 					return right - left;
@@ -216,7 +226,39 @@ namespace Maragi
 			typedef Rectangle<int32_t> RectangleI;
 			typedef Rectangle<float> RectangleF;
 
-			typedef D2D1::ColorF ColorF;
+			class ColorF : public D2D1::ColorF
+			{
+			public:
+				ColorF(uint32_t rgb, float a = 1.0f)
+					: D2D1::ColorF(rgb, a)
+				{}
+
+				ColorF(Enum knownColor, float a = 1.0f)
+					: D2D1::ColorF(knownColor, a)
+				{}
+
+				ColorF(float r, float g, float b, float a = 1.0f)
+					: D2D1::ColorF(r, g, b, a)
+				{}
+
+				ColorF(COLORREF bgr, float a = 1.0f)
+					: D2D1::ColorF(GetRValue(bgr) << 16 | GetGValue(bgr) << 8 | GetBValue(bgr), a)
+				{}
+
+			public:
+				const ColorF operator ~() const
+				{
+					return ColorF(1.0f - r, 1.0f - g, 1.0f - b, a);
+				}
+
+				ColorF &invert()
+				{
+					r = 1.0f - r;
+					g = 1.0f - g;
+					b = 1.0f - b;
+					return *this;
+				}
+			};
 		}
 	}
 }

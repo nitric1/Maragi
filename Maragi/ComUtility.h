@@ -17,6 +17,87 @@ namespace Maragi
 			friend class Singleton<ComInitializer>;
 		};
 
+		template<typename Chain>
+		class ComBase : public Chain
+		{
+		private:
+			unsigned long refCount;
+
+		public:
+			ComBase() throw()
+				: refCount(1)
+			{}
+
+			virtual ~ComBase()
+			{}
+
+			IFACEMETHOD(QueryInterface)(const IID &iid, void **obj)
+			{
+				*obj = nullptr;
+				Chain::queryInterfaceImpl(iid, obj);
+				if(*obj == nullptr)
+					return E_NOINTERFACE;
+				AddRef();
+				return S_OK;
+			}
+
+			IFACEMETHOD_(unsigned long, AddRef)()
+			{
+				return InterlockedIncrement(&refCount);
+			}
+
+			IFACEMETHOD_(unsigned long, Release)()
+			{
+				unsigned long count = InterlockedDecrement(&refCount);
+				if(count == 0)
+					delete this;
+				return count;
+			}
+
+		private:
+			ComBase(const ComBase &); // = delete;
+			ComBase &operator =(const ComBase &); // = delete;
+		};
+
+		struct ComBaseListNil
+		{};
+
+		template<typename T, typename Chain>
+		class ComBaseListSelf : public Chain
+		{
+		public:
+			void queryInterfaceImpl(const IID &iid, void **obj) throw()
+			{
+				if(iid != __uuidof(T))
+					return Chain::queryInterfaceImpl(iid, obj);
+				*obj = static_cast<T *>(this);
+			}
+		};
+
+		template<typename T, typename Chain = ComBaseListNil>
+		class ComBaseList : public T, public Chain
+		{
+		public:
+			void queryInterfaceImpl(const IID &iid, void **obj) throw()
+			{
+				if(iid != __uuidof(T))
+					return Chain::queryInterfaceImpl(iid, obj);
+				*obj = static_cast<T *>(this);
+			}
+		};
+
+		template<typename T>
+		class ComBaseList<T, ComBaseListNil> : public T
+		{
+		public:
+			void queryInterfaceImpl(const IID &iid, void **obj) throw()
+			{
+				if(iid != __uuidof(T))
+					return;
+				*obj = static_cast<T *>(this);
+			}
+		};
+
 		template<typename T>
 		class ComPtr
 		{
