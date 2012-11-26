@@ -79,19 +79,6 @@ namespace Maragi
 			class FontFactory : public Singleton<FontFactory>
 			{
 			private:
-				/*std::map<
-					std::tuple<
-						int32_t,
-						DWRITE_FONT_WEIGHT,
-						DWRITE_FONT_STYLE,
-						DWRITE_FONT_STRETCH,
-						DWRITE_TEXT_ALIGNMENT,
-						DWRITE_PARAGRAPH_ALIGNMENT
-					>,
-					ComPtr<IDWriteTextFormat>
-				> fonts;*/
-
-			private:
 				FontFactory();
 				~FontFactory();
 
