@@ -1,8 +1,13 @@
-// $Id: Common.h 81 2012-11-20 16:04:42Z wdlee91 $
-
 #pragma once
 
 #define NOMINMAX
+#define _VARIADIC_MAX 10
+
+#define WINVER 0x0600 // Windows Vista
+#define _WIN32_WINDOWS 0x0600
+#define _WIN32_WINNT 0x0600
+#define _WIN32_IE 0x0800
+#define NTDDI_VERSION 0x06000100
 
 // All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ library & boost library inclusion
@@ -44,7 +49,6 @@ using std::max; using std::min;
 // Windows API inclusion; <windows.h> should be first.
 
 #define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
 
 #include <windows.h>
 
