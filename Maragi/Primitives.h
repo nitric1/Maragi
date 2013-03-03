@@ -1,89 +1,87 @@
-// $Id: Primitives.h 66 2012-11-08 06:13:41Z wdlee91 $
-
 #pragma once
 
 namespace Maragi
 {
-	namespace UI
-	{
-		struct ControlID
-		{
-			static const ControlID undefined;
+    namespace UI
+    {
+        struct ControlID
+        {
+            static const ControlID undefined;
 
-			uintptr_t id;
+            uintptr_t id;
 
-			ControlID()
-				: id(0)
-			{
-			}
+            ControlID()
+                : id(0)
+            {
+            }
 
-			explicit ControlID(uintptr_t iid)
-				: id(iid)
-			{
-			}
+            explicit ControlID(uintptr_t iid)
+                : id(iid)
+            {
+            }
 
-			ControlID(const ControlID &that)
-				: id(that.id)
-			{
-			}
+            ControlID(const ControlID &that)
+                : id(that.id)
+            {
+            }
 
-			operator bool() const
-			{
-				return id != 0;
-			}
+            operator bool() const
+            {
+                return id != 0;
+            }
 
-			bool operator !() const
-			{
-				return id == 0;
-			}
+            bool operator !() const
+            {
+                return id == 0;
+            }
 
-			bool operator <(const ControlID &rhs) const
-			{
-				return id < rhs.id;
-			}
+            bool operator <(const ControlID &rhs) const
+            {
+                return id < rhs.id;
+            }
 
-			bool operator >(const ControlID &rhs) const
-			{
-				return id > rhs.id;
-			}
+            bool operator >(const ControlID &rhs) const
+            {
+                return id > rhs.id;
+            }
 
-			bool operator <=(const ControlID &rhs) const
-			{
-				return id <= rhs.id;
-			}
+            bool operator <=(const ControlID &rhs) const
+            {
+                return id <= rhs.id;
+            }
 
-			bool operator >=(const ControlID &rhs) const
-			{
-				return id >= rhs.id;
-			}
+            bool operator >=(const ControlID &rhs) const
+            {
+                return id >= rhs.id;
+            }
 
-			ControlID &operator =(const ControlID &rhs)
-			{
-				id = rhs.id;
-				return *this;
-			}
+            ControlID &operator =(const ControlID &rhs)
+            {
+                id = rhs.id;
+                return *this;
+            }
 
-			ControlID &operator =(uintptr_t iid)
-			{
-				id = iid;
-				return *this;
-			}
-		};
+            ControlID &operator =(uintptr_t iid)
+            {
+                id = iid;
+                return *this;
+            }
+        };
 
-		class UIException : public std::runtime_error
-		{
-		public:
-			UIException()
-				: std::runtime_error("UIException")
-			{}
+        class UIException : public std::runtime_error
+        {
+        public:
+            UIException()
+                : std::runtime_error("UIException")
+            {}
 
-			explicit UIException(const std::string &str)
-				: std::runtime_error(str)
-			{}
+            explicit UIException(const std::string &str)
+                : std::runtime_error(str)
+            {}
 
-			explicit UIException(const char *str)
-				: std::runtime_error(str)
-			{}
-		};
-	}
+            explicit UIException(const char *str)
+                : std::runtime_error(str)
+            {}
+        };
+    }
 }

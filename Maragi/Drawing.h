@@ -1,5 +1,3 @@
-// $Id: Drawing.h 83 2012-11-21 06:12:41Z wdlee91 $
-
 #pragma once
 
 #include "ComUtility.h"
@@ -8,92 +6,92 @@
 
 namespace Maragi
 {
-	namespace UI
-	{
-		namespace Drawing
-		{
-			class D2DFactory : public Singleton<D2DFactory>
-			{
-			private:
-				ComPtr<ID2D1Factory> d2dfac;
-				ComPtr<IDWriteFactory> dwfac;
+    namespace UI
+    {
+        namespace Drawing
+        {
+            class D2DFactory : public Singleton<D2DFactory>
+            {
+            private:
+                ComPtr<ID2D1Factory> d2dfac;
+                ComPtr<IDWriteFactory> dwfac;
 
-			private:
-				D2DFactory();
-				~D2DFactory();
+            private:
+                D2DFactory();
+                ~D2DFactory();
 
-			public:
-				const ComPtr<ID2D1Factory> &getD2DFactory() const
-				{
-					return d2dfac;
-				}
+            public:
+                const ComPtr<ID2D1Factory> &getD2DFactory() const
+                {
+                    return d2dfac;
+                }
 
-				const ComPtr<IDWriteFactory> &getDWriteFactory() const
-				{
-					return dwfac;
-				}
+                const ComPtr<IDWriteFactory> &getDWriteFactory() const
+                {
+                    return dwfac;
+                }
 
-				friend class Singleton<D2DFactory>;
-			};
+                friend class Singleton<D2DFactory>;
+            };
 
-			class Context
-			{
-			private:
-				ComPtr<ID2D1HwndRenderTarget> rt;
+            class Context
+            {
+            private:
+                ComPtr<ID2D1HwndRenderTarget> rt;
 
-			public:
-				Context();
+            public:
+                Context();
 
-			public:
-				void create(HWND, const Objects::SizeI &);
-				void resize(const Objects::SizeI &);
-				void beginDraw();
-				bool endDraw();
+            public:
+                void create(HWND, const Objects::SizeI &);
+                void resize(const Objects::SizeI &);
+                void beginDraw();
+                bool endDraw();
 
-			public:
-				ID2D1HwndRenderTarget *get() const
-				{
-					return rt;
-				}
+            public:
+                ID2D1HwndRenderTarget *get() const
+                {
+                    return rt;
+                }
 
-				operator bool() const
-				{
-					return rt.get() != nullptr;
-				}
+                operator bool() const
+                {
+                    return rt.get() != nullptr;
+                }
 
-				ID2D1HwndRenderTarget *operator ->() const
-				{
-					return rt;
-				}
+                ID2D1HwndRenderTarget *operator ->() const
+                {
+                    return rt;
+                }
 
-				operator ID2D1HwndRenderTarget *() const
-				{
-					return rt;
-				}
+                operator ID2D1HwndRenderTarget *() const
+                {
+                    return rt;
+                }
 
-			private:
-				Context(const Context &); // = delete;
-				Context &operator =(const Context &); // = delete;
-			};
+            private:
+                Context(const Context &); // = delete;
+                Context &operator =(const Context &); // = delete;
+            };
 
-			class FontFactory : public Singleton<FontFactory>
-			{
-			private:
-				FontFactory();
-				~FontFactory();
+            class FontFactory : public Singleton<FontFactory>
+            {
+            private:
+                FontFactory();
+                ~FontFactory();
 
-			public:
-				ComPtr<IDWriteTextFormat> createFont(
-					float,
-					DWRITE_FONT_WEIGHT = DWRITE_FONT_WEIGHT_REGULAR,
-					DWRITE_TEXT_ALIGNMENT = DWRITE_TEXT_ALIGNMENT_LEADING,
-					DWRITE_PARAGRAPH_ALIGNMENT = DWRITE_PARAGRAPH_ALIGNMENT_NEAR,
-					DWRITE_FONT_STYLE = DWRITE_FONT_STYLE_NORMAL,
-					DWRITE_FONT_STRETCH = DWRITE_FONT_STRETCH_NORMAL
-					);
+            public:
+                ComPtr<IDWriteTextFormat> createFont(
+                    float,
+                    DWRITE_FONT_WEIGHT = DWRITE_FONT_WEIGHT_REGULAR,
+                    DWRITE_TEXT_ALIGNMENT = DWRITE_TEXT_ALIGNMENT_LEADING,
+                    DWRITE_PARAGRAPH_ALIGNMENT = DWRITE_PARAGRAPH_ALIGNMENT_NEAR,
+                    DWRITE_FONT_STYLE = DWRITE_FONT_STYLE_NORMAL,
+                    DWRITE_FONT_STRETCH = DWRITE_FONT_STRETCH_NORMAL
+                    );
 
-				friend class Singleton<FontFactory>;
-			};
-		}
-	}
+                friend class Singleton<FontFactory>;
+            };
+        }
+    }
 }
