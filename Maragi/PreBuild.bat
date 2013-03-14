@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-rem $Id$
+rem $Id: PreBuild.bat 42 2012-08-04 18:23:44Z wdlee91 $
 
 if "%1" == "" goto end
 

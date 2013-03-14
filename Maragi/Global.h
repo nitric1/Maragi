@@ -1,4 +1,4 @@
-// $Id$
+// $Id: Global.h 61 2012-11-06 09:08:38Z wdlee91 $
 
 #pragma once
 

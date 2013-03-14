@@ -1,4 +1,4 @@
-// $Id$
+// $Id: ShortcutKey.h 49 2012-10-29 21:30:56Z wdlee91 $
 
 #pragma once
 

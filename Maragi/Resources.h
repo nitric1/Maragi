@@ -1,4 +1,4 @@
-// $Id$
+// $Id: Resources.h 76 2012-11-14 12:46:42Z wdlee91 $
 
 #pragma once
 

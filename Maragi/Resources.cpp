@@ -1,4 +1,4 @@
-// $Id$
+// $Id: Resources.cpp 69 2012-11-10 15:58:18Z wdlee91 $
 
 #include "Common.h"
 

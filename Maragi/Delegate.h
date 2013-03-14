@@ -1,4 +1,4 @@
-// $Id$
+// $Id: Delegate.h 79 2012-11-19 20:08:06Z wdlee91 $
 
 #pragma once
 

@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FrameWindow.h 84 2012-11-21 12:06:31Z wdlee91 $
 
 #pragma once
 

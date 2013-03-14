@@ -1,4 +1,4 @@
-// $Id$
+// $Id: Dialog.h 60 2012-11-06 06:12:09Z wdlee91 $
 
 #pragma once
 

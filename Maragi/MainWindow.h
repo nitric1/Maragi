@@ -1,4 +1,4 @@
-// $Id$
+// $Id: MainWindow.h 48 2012-10-23 15:21:09Z wdlee91 $
 
 #pragma once
 

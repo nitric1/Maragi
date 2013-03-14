@@ -1,4 +1,4 @@
-// $Id$
+// $Id: Constants.cpp 42 2012-08-04 18:23:44Z wdlee91 $
 
 #include "Common.h"
 

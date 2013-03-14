@@ -1,4 +1,4 @@
-// $Id$
+// $Id: UIGlobal.h 73 2012-11-13 09:11:48Z wdlee91 $
 
 #pragma once
 

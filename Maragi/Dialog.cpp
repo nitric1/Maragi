@@ -1,4 +1,4 @@
-// $Id$
+// $Id: Dialog.cpp 80 2012-11-20 09:10:33Z wdlee91 $
 
 #include "Common.h"
 
