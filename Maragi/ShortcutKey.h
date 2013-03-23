@@ -16,10 +16,10 @@ namespace Maragi
                 Ctrl = 1,
                 Alt = 2,
                 Shift = 4,
-                Ctrl_Alt = 3,
-                Ctrl_Shift = 5,
-                Alt_Shift = 6,
-                Ctrl_Alt_Shift = 7,
+                Ctrl_Alt = Ctrl | Alt,
+                Ctrl_Shift = Ctrl | Shift,
+                Alt_Shift = Alt | Shift,
+                Ctrl_Alt_Shift = Ctrl | Alt | Shift,
             };
 
             struct Key

@@ -2,6 +2,7 @@
 
 #define NOMINMAX
 #define _VARIADIC_MAX 10
+#define _SCL_SECURE_NO_WARNINGS
 
 #define WINVER 0x0600 // Windows Vista
 #define _WIN32_WINDOWS 0x0600

@@ -9,7 +9,7 @@ namespace Maragi
             template<typename T>
             struct Point
             {
-                static Point invalid;
+                static const Point invalid;
 
                 T x, y;
 
@@ -55,9 +55,9 @@ namespace Maragi
             };
 
             template<typename T>
-            Point<T> Point<T>::invalid(
-                std::numeric_limits<T>::min() == T(0) /* if T is unsigned */ ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
-                std::numeric_limits<T>::min() == T(0) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
+            const Point<T> Point<T>::invalid(
+                std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
+                std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
                 );
 
             typedef Point<int32_t> PointI;
@@ -66,7 +66,7 @@ namespace Maragi
             template<typename T>
             struct Size
             {
-                static Size invalid;
+                static const Size invalid;
 
                 T width, height;
 
@@ -113,9 +113,9 @@ namespace Maragi
             };
 
             template<typename T>
-            Size<T> Size<T>::invalid(
-                std::numeric_limits<T>::min() == T(0) /* if T is unsigned */ ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
-                std::numeric_limits<T>::min() == T(0) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
+            const Size<T> Size<T>::invalid(
+                std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
+                std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
                 );
 
             typedef Size<int32_t> SizeI;
@@ -124,7 +124,7 @@ namespace Maragi
             template<typename T>
             struct Rectangle
             {
-                static Rectangle invalid;
+                static const Rectangle invalid;
 
                 T left, top, right, bottom;
 
@@ -214,11 +214,11 @@ namespace Maragi
             };
 
             template<typename T>
-            Rectangle<T> Rectangle<T>::invalid(
-                std::numeric_limits<T>::min() == T(0) /* if T is unsigned */ ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
-                std::numeric_limits<T>::min() == T(0) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
-                std::numeric_limits<T>::min() == T(0) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
-                std::numeric_limits<T>::min() == T(0) ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
+            const Rectangle<T> Rectangle<T>::invalid(
+                std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
+                std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
+                std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
+                std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
                 );
 
             typedef Rectangle<int32_t> RectangleI;

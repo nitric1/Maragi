@@ -25,15 +25,26 @@ namespace Maragi
         ShortcutKey::Modifier ShortcutKey::getModifier(bool ctrl, bool alt, bool shift)
         {
             return static_cast<Modifier>(
-                static_cast<int>(ctrl)
-                | (static_cast<int>(alt) << 1)
-                | (static_cast<int>(shift) << 2)
-            );
+                (ctrl ? Ctrl : 0)
+                | (alt ? Alt : 0)
+                | (shift ? Shift : 0));
+        }
+
+        namespace
+        {
+            bool isNormalKey(uint32_t key)
+            {
+                // TODO: check key is normal (can make character)
+                return false;
+            }
         }
 
         bool ShortcutKey::verifyKey(Modifier modifier, uint32_t key)
         {
-            // TODO: Verify (reject None+normal key, Shift+normal key)
+            if(modifier == None && isNormalKey(key))
+                return false;
+            else if(modifier == Shift && isNormalKey(key))
+                return false;
             return true;
         }
 
