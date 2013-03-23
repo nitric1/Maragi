@@ -1,4 +1,4 @@
-#include "Common.h"
+﻿#include "Common.h"
 
 #include "Global.h"
 #include "Layouts.h"

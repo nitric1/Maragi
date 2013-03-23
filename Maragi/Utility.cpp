@@ -1,4 +1,4 @@
-#include "Common.h"
+ï»¿#include "Common.h"
 
 #include "Utility.h"
 
@@ -8,7 +8,7 @@ namespace Maragi
 {
     std::wstring &trim(std::wstring &str)
     {
-        static auto fn = [](wchar_t ch) -> wchar_t { return ch != L' ' && ch != L'¡¡' && ch != L'\t' && ch != L'\n' && ch != L'\r'; };
+        static auto fn = [](wchar_t ch) -> wchar_t { return ch != L' ' && ch != L'ã€€' && ch != L'\t' && ch != L'\n' && ch != L'\r'; };
         str.erase(str.begin(), find_if(str.begin(), str.end(), fn));
         str.erase(find_if(str.rbegin(), str.rend(), fn).base(), str.end());
         return str;

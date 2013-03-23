@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #define MARAGI_TITLE L"Maragi"
 #define MARAGI_VERSION L"0.0.1"

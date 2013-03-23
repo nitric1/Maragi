@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "URI.h"
 #include "TwitterClientError.h"

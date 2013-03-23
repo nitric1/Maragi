@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Drawing.h"
 #include "Layouts.h"
