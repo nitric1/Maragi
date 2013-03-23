@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "FrameWindow.h"
 #include "Singleton.h"

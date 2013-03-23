@@ -1,4 +1,4 @@
-#include "Common.h"
+﻿#include "Common.h"
 
 #include "Controls.h"
 #include "Utility.h"

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #define NOMINMAX
 #define _VARIADIC_MAX 10

@@ -1,4 +1,4 @@
-#include "Common.h"
+﻿#include "Common.h"
 
 #include "Configure.h"
 #include "ShortcutKey.h"
