@@ -1,6 +1,7 @@
 ﻿#include "Common.h"
 
 #include "UIUtility.h"
+#include "UIConstants.h"
 #include "Window.h"
 
 namespace Maragi
@@ -120,7 +121,7 @@ namespace Maragi
         std::wstring ShellManager::getNextClassName()
         {
             ++ nextID;
-            return (boost::wformat(L"Maragi::UIClass%1%") % nextID).str();
+            return (boost::wformat(Constants::SHELL_CLASSNAME_TEMPLATE) % nextID).str();
         }
 
         void ShellManager::add(HWND hwnd, const ShellWeakPtr<> &shell)

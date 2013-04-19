@@ -181,6 +181,7 @@
     <ClCompile Include="ShortcutKey.cpp" />
     <ClCompile Include="Tokens.cpp" />
     <ClCompile Include="TwitterClient.cpp" />
+    <ClCompile Include="UIConstants.cpp" />
     <ClCompile Include="UIGlobal.cpp" />
     <ClCompile Include="URI.cpp" />
     <ClCompile Include="UIUtility.cpp" />
@@ -298,6 +299,7 @@
     <ClInclude Include="TwitterClient.h" />
     <ClInclude Include="TwitterClientError.h" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="UIConstants.h" />
     <ClInclude Include="UIForwards.h" />
     <ClInclude Include="UIGlobal.h" />
     <ClInclude Include="URI.h" />
