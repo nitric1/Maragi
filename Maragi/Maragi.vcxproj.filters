@@ -108,6 +108,9 @@
     <ClCompile Include="UIGlobal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="UIConstants.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainController.h">
@@ -456,6 +459,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UIGlobal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,8 +9,8 @@
 
 namespace Maragi
 {
-	namespace AppTokens
-	{
-		extern const char * const CONSUMER_KEY, * const CONSUMER_SECRET;
-	}
+    namespace AppTokens
+    {
+        extern const char * const CONSUMER_KEY, * const CONSUMER_SECRET;
+    }
 }
