@@ -126,6 +126,8 @@ namespace Maragi
             {
                 static const Rectangle invalid;
 
+                // X-axis: [left, right)
+                // Y-axis: [top, bottom)
                 T left, top, right, bottom;
 
                 Rectangle()
@@ -220,6 +222,78 @@ namespace Maragi
                 std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
                 std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
                 );
+
+            template<typename T>
+            class Polyline
+            {
+            public:
+                static const Polyline invalid;
+
+            private:
+                std::vector<Point<T>> points_;
+
+            public:
+                Polyline()
+                {}
+
+                template<typename Other>
+                Polyline(const Polyline<Other> &that)
+                    : points_(that.points_)
+                {}
+
+                Polyline(Polyline &&that)
+                    : points_(std::move(that.points_))
+                {}
+
+                explicit Polyline(const std::vector<Point<T>> &points)
+                    : points_(points)
+                {}
+
+                explicit Polyline(std::vector<Point<T>> &&points)
+                    : points_(std::move(points))
+                {}
+
+            public:
+            };
+
+            template<typename T>
+            const Polyline<T> Polyline<T>::invalid;
+
+            template<typename T>
+            class Region
+            {
+            public:
+                static const Region invalid;
+
+            private:
+                std::vector<Point<T>> points_;
+
+            public:
+                Region()
+                {}
+
+                template<typename Other>
+                Region(const Region<Other> &that)
+                    : points_(that.points_)
+                {}
+
+                Region(Region &&that)
+                    : points_(std::move(that.points_))
+                {}
+
+                explicit Region(const std::vector<Point<T>> &points)
+                    : points_(points)
+                {}
+
+                explicit Region(std::vector<Point<T>> &&points)
+                    : points_(std::move(points))
+                {}
+
+            public:
+            };
+
+            template<typename T>
+            const Region<T> Region<T>::invalid;
 
             typedef Rectangle<int32_t> RectangleI;
             typedef Rectangle<float> RectangleF;

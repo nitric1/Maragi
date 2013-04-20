@@ -125,64 +125,16 @@ namespace Maragi
             virtual ~EditRenderer();
 
         public:
-            HRESULT drawLayout(
-                Drawing::Context &,
-                const EditDrawingEffect &,
-                IDWriteTextLayout *,
-                const Objects::RectangleF &
-                );
+            HRESULT drawLayout(Drawing::Context &, const EditDrawingEffect &, IDWriteTextLayout *, const Objects::RectangleF &);
 
         public:
-            IFACEMETHOD(DrawGlyphRun)(
-                void *,
-                float,
-                float,
-                DWRITE_MEASURING_MODE,
-                const DWRITE_GLYPH_RUN *,
-                const DWRITE_GLYPH_RUN_DESCRIPTION *,
-                IUnknown *
-                );
-
-            IFACEMETHOD(DrawUnderline)(
-                void *,
-                float,
-                float,
-                const DWRITE_UNDERLINE *,
-                IUnknown *
-                );
-
-            IFACEMETHOD(DrawStrikethrough)(
-                void *,
-                float,
-                float,
-                const DWRITE_STRIKETHROUGH *,
-                IUnknown *
-                );
-
-            IFACEMETHOD(DrawInlineObject)(
-                void *,
-                float,
-                float,
-                IDWriteInlineObject *,
-                BOOL,
-                BOOL,
-                IUnknown *
-                );
-
-            IFACEMETHOD(GetCurrentTransform)(
-                void *,
-                DWRITE_MATRIX *
-                );
-
-            IFACEMETHOD(GetPixelsPerDip)(
-                void *,
-                float *
-                );
-
-            IFACEMETHOD(IsPixelSnappingDisabled)(
-                void *,
-                BOOL *
-                );
+            virtual HRESULT __stdcall DrawGlyphRun(void *, float, float, DWRITE_MEASURING_MODE, const DWRITE_GLYPH_RUN *, const DWRITE_GLYPH_RUN_DESCRIPTION *, IUnknown *);
+            virtual HRESULT __stdcall DrawUnderline(void *, float, float, const DWRITE_UNDERLINE *, IUnknown *);
+            virtual HRESULT __stdcall DrawStrikethrough(void *, float, float, const DWRITE_STRIKETHROUGH *, IUnknown *);
+            virtual HRESULT __stdcall DrawInlineObject(void *, float, float, IDWriteInlineObject *, BOOL, BOOL, IUnknown *);
+            virtual HRESULT __stdcall GetCurrentTransform(void *, DWRITE_MATRIX *);
+            virtual HRESULT __stdcall GetPixelsPerDip(void *, float *);
+            virtual HRESULT __stdcall IsPixelSnappingDisabled(void *, BOOL *);
         };
 
         class EditLayout
@@ -192,6 +144,7 @@ namespace Maragi
             std::vector<ComPtr<IDWriteTextFormat>> textFormats_;
             std::vector<ComPtr<IDWriteFont>> fonts;
             std::vector<ComPtr<IDWriteFontFace>> fontFaces;
+            DWRITE_READING_DIRECTION readingDirection_;
 
         public:
             EditLayout();
@@ -208,6 +161,8 @@ namespace Maragi
             const std::vector<ComPtr<IDWriteTextFormat>> &textFormats() const;
             void textFormats(const std::vector<ComPtr<IDWriteTextFormat>> &);
             void textFormats(std::vector<ComPtr<IDWriteTextFormat>> &&);
+            DWRITE_READING_DIRECTION readingDirection() const;
+            void readingDirection(DWRITE_READING_DIRECTION);
 
         private:
             void analyze();
@@ -222,10 +177,17 @@ namespace Maragi
                 SelectModeAbsoluteTrailing
             };
 
+        public:
+            enum ReadingDirection
+            {
+                ReadingDirectionSystemDefault, ReadingDirectionLtr, ReadingDirectionRtl
+            };
+
         private:
             std::wstring text_, placeholder_;
             uint32_t selStart_, selEnd_;
             Objects::ColorF colorText_, colorPlaceholder_, colorBackground_;
+            ReadingDirection readingDirection_;
 
             ComPtr<ID2D1SolidColorBrush> brushText, brushPlaceholder, brushBackground, brushSelection;
             ComPtr<IDWriteTextFormat> formatText, formatPlaceholder;
