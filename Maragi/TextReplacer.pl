@@ -51,6 +51,7 @@ my ($from, $to);
 foreach my $line (@map)
 {
     chomp($line);
+    $line =~ s/\r//;
     if($line =~ /^(.+)=(.*)$/)
     {
         $from = quotemeta($1);

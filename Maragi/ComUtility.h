@@ -19,7 +19,7 @@ namespace Maragi
         class ComBase : public Chain
         {
         private:
-            unsigned long refCount;
+            ulong32_t refCount;
 
         public:
             ComBase() throw()
@@ -29,7 +29,7 @@ namespace Maragi
             virtual ~ComBase()
             {}
 
-            IFACEMETHOD(QueryInterface)(const IID &iid, void **obj)
+            virtual HRESULT __stdcall QueryInterface(const IID &iid, void **obj)
             {
                 *obj = nullptr;
                 Chain::queryInterfaceImpl(iid, obj);
@@ -39,14 +39,14 @@ namespace Maragi
                 return S_OK;
             }
 
-            IFACEMETHOD_(unsigned long, AddRef)()
+            virtual ulong32_t __stdcall AddRef()
             {
                 return InterlockedIncrement(&refCount);
             }
 
-            IFACEMETHOD_(unsigned long, Release)()
+            virtual ulong32_t __stdcall Release()
             {
-                unsigned long count = InterlockedDecrement(&refCount);
+                ulong32_t count = InterlockedDecrement(&refCount);
                 if(count == 0)
                     delete this;
                 return count;
@@ -60,6 +60,7 @@ namespace Maragi
         struct ComBaseListNil
         {};
 
+        // If T is an inheritor class, use this class instead of ComBaseList.
         template<typename T, typename Chain>
         class ComBaseListSelf : public Chain
         {

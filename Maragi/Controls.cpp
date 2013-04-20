@@ -22,8 +22,7 @@ namespace Maragi
                 renderParamsTemp->GetClearTypeLevel(),
                 renderParamsTemp->GetPixelGeometry(),
                 DWRITE_RENDERING_MODE_CLEARTYPE_GDI_CLASSIC,
-                &renderParams
-                );
+                &renderParams);
         }
 
         Label::~Label()
@@ -71,8 +70,7 @@ namespace Maragi
                 rect(),
                 brush,
                 D2D1_DRAW_TEXT_OPTIONS_NONE,
-                DWRITE_MEASURING_MODE_GDI_CLASSIC
-                );
+                DWRITE_MEASURING_MODE_GDI_CLASSIC);
             ctx->SetTextRenderingParams(oldRenderParams);
         }
 
@@ -161,17 +159,19 @@ namespace Maragi
             onMouseButtonDoubleClick += delegate(this, &Button::onMouseButtonDownImpl);
             onMouseButtonUp += delegate(this, &Button::onMouseButtonUpImpl);
 
-            onMouseOver += delegate([this](const ControlEventArg &arg)
-            {
-                hovered = true;
-                redraw();
-            });
+            onMouseOver += delegate(
+                [this](const ControlEventArg &arg)
+                {
+                    hovered = true;
+                    redraw();
+                });
 
-            onMouseOut += delegate([this](const ControlEventArg &arg)
-            {
-                hovered = false;
-                redraw();
-            });
+            onMouseOut += delegate(
+                [this](const ControlEventArg &arg)
+                {
+                    hovered = false;
+                    redraw();
+                });
         }
 
         Button::~Button()
@@ -421,6 +421,91 @@ namespace Maragi
             return S_OK;
         }
 
+        namespace
+        {
+            class TextAnalyzer : public ComBase<ComBaseList<IDWriteTextAnalysisSource, ComBaseList<IDWriteTextAnalysisSink, ComBaseList<IUnknown>>>>
+            {
+            public:
+                struct Run
+                {
+                    size_t textStart;
+                    size_t textLength;
+                    size_t glyphStart;
+                    size_t glyphCount;
+                    DWRITE_SCRIPT_ANALYSIS scriptAnalysis;
+                    uint8_t bidiLevel; // TODO: type
+                    bool isNumberSubstituted;
+                    bool isSideways;
+                };
+
+            public:
+                TextAnalyzer(const std::wstring &text, IDWriteNumberSubstitution *numberSubstitution, DWRITE_READING_DIRECTION readingDirection)
+                    : text_(text)
+                    , numberSubstitution_(numberSubstitution)
+                    , readingDirection_(readingDirection)
+                {}
+
+            public:
+                void analyze(IDWriteTextAnalyzer *analyzer);
+
+            public:
+                const std::vector<Run> &runs() const
+                {
+                    return runs_;
+                }
+                const std::vector<DWRITE_LINE_BREAKPOINT> &breakpoints() const
+                {
+                    return breakpoints_;
+                }
+
+            public:
+                virtual HRESULT __stdcall GetTextAtPosition(uint32_t, const wchar_t **, uint32_t *);
+                virtual HRESULT __stdcall GetTextBeforePosition(uint32_t, const wchar_t **, uint32_t *);
+
+            private:
+                std::wstring text_;
+                IDWriteNumberSubstitution *numberSubstitution_;
+                DWRITE_READING_DIRECTION readingDirection_;
+                std::vector<Run> runs_;
+                std::vector<DWRITE_LINE_BREAKPOINT> breakpoints_;
+            };
+
+            void TextAnalyzer::analyze(IDWriteTextAnalyzer *analyzer)
+            {
+                runs_.resize(1);
+            }
+
+            HRESULT __stdcall TextAnalyzer::GetTextAtPosition(uint32_t pos, const wchar_t **str, uint32_t *len)
+            {
+                if(pos >= text_.size())
+                {
+                    *str = nullptr;
+                    *len = 0;
+                }
+                else
+                {
+                    *str = &text_[pos];
+                    *len = text_.size() - pos;
+                }
+                return S_OK;
+            }
+
+            HRESULT __stdcall TextAnalyzer::GetTextBeforePosition(uint32_t pos, const wchar_t **str, uint32_t *len)
+            {
+                if(pos == 0 || pos > text_.size())
+                {
+                    *str = nullptr;
+                    *len = 0;
+                }
+                else
+                {
+                    *str = text_.c_str();
+                    *len = pos;
+                }
+                return S_OK;
+            }
+        }
+
         EditLayout::EditLayout()
         {}
 
@@ -457,6 +542,21 @@ namespace Maragi
         {
             textFormats_ = std::move(itextFormats);
             // TODO: reanalyze
+        }
+
+        DWRITE_READING_DIRECTION EditLayout::readingDirection() const
+        {
+            return readingDirection_;
+        }
+
+        void EditLayout::readingDirection(DWRITE_READING_DIRECTION readingDirection)
+        {
+            readingDirection_ = readingDirection;
+        }
+
+
+        void EditLayout::analyze()
+        {
         }
 
         Edit::Edit(const ControlID &id)
@@ -615,8 +715,11 @@ namespace Maragi
             paddingTransform = D2D1::Matrix3x2F::Translation(1.0f, 1.0f); // TODO: padding implementation by design
             scrollTransform = D2D1::Matrix3x2F::Identity(); // TODO: scroll
 
-            layout->SetMaxWidth(rect.width());
-            layout->SetMaxHeight(rect.height());
+            if(layout)
+            {
+                layout->SetMaxWidth(rect.width());
+                layout->SetMaxHeight(rect.height());
+            }
             updateSelection();
             updateCaret();
         }
