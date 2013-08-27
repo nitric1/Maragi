@@ -76,7 +76,6 @@ namespace Gurigi
 
     public:
         Event() {}
-        ~Event() {}
 
     private:
         Event(const Event &); // = delete;
@@ -123,13 +122,65 @@ namespace Gurigi
         {
             return sig.connect(rhs);
         }
+    };
+
+    template<>
+    class Event<void>
+    {
+    private:
+        boost::signals2::signal<void ()> sig;
+
+    public:
+        Event() {}
+
+    private:
+        Event(const Event &); // = delete;
+
+    public:
+        template<typename Func>
+        boost::signals2::connection connect(Func fn, bool prior = false)
+        {
+            if(prior)
+                return sig.connect(0, fn);
+            return sig.connect(fn);
+        }
 
         template<typename FunctionType>
-        boost::signals2::connection connect(const std::shared_ptr<ERDelegate<FunctionType>> &rhs)
+        boost::signals2::connection connect(const ERDelegateWrapper<FunctionType> &dg, bool prior = false)
         {
-            return sig.connect(ERDelegateWrapper<FunctionType>(rhs));
+            if(prior)
+                return sig.connect(0, dg);
+            return sig.connect(dg);
+        }
+
+        template<typename FunctionType>
+        boost::signals2::connection connect(const std::shared_ptr<ERDelegate<FunctionType>> &dg, bool prior = false)
+        {
+            if(prior)
+                return sig.connect(0, ERDelegateWrapper<FunctionType>(dg));
+            return sig.connect(ERDelegateWrapper<FunctionType>(dg));
+        }
+
+        void operator ()()
+        {
+            sig();
+        }
+
+    public:
+        template<typename Func>
+        boost::signals2::connection operator +=(Func rhs)
+        {
+            return sig.connect(rhs);
+        }
+
+        template<typename FunctionType>
+        boost::signals2::connection operator +=(const ERDelegateWrapper<FunctionType> &rhs)
+        {
+            return sig.connect(rhs);
         }
     };
+
+    typedef Event<void> CommonEvent;
 
     struct ControlEventArg
     {
@@ -269,11 +320,10 @@ namespace Gurigi
         longptr_t lParam;
     };
 
+    typedef Event<WindowEventArg> WindowEvent;
+
     class Shell : public std::enable_shared_from_this<Shell>
     {
-    private:
-        std::multimap<std::wstring, std::shared_ptr<ERDelegate<bool (WindowEventArg &)>>> eventMap;
-
     private:
         ShellWeakPtr<> parent_;
         ControlWeakPtr<> focus_;
@@ -302,6 +352,10 @@ namespace Gurigi
         {
             return 0;
         }
+
+    public:
+        void sendMessage(uint32_t message, uintptr_t wParam, longptr_t lParam);
+        void postMessage(uint32_t message, uintptr_t wParam, longptr_t lParam);
 
     public:
         virtual const ShellWeakPtr<> &parent() const;

@@ -261,6 +261,16 @@ namespace Gurigi
     {
     }
 
+    void Shell::sendMessage(uint32_t message, uintptr_t wParam, longptr_t lParam)
+    {
+        SendMessageW(hwnd(), message, wParam, lParam);
+    }
+
+    void Shell::postMessage(uint32_t message, uintptr_t wParam, longptr_t lParam)
+    {
+        PostMessageW(hwnd(), message, wParam, lParam);
+    }
+
     const ShellWeakPtr<> &Shell::parent() const
     {
         return parent_;

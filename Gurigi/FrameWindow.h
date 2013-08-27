@@ -54,6 +54,9 @@ namespace Gurigi
         virtual Objects::PointI clientToScreen(const Objects::PointF &) const;
         virtual void redraw();
 
+    public: // external event handlers
+        CommonEvent onTaskInvoked;
+
     public:
         virtual const ControlPtr<ShellLayout> &client() const;
         virtual const Resources::ResourcePtr<Resources::Icon> &iconLarge() const;

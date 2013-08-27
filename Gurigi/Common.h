@@ -16,6 +16,7 @@
 #include <cassert>
 
 #include <algorithm>
+#include <deque>
 #include <map>
 #include <memory>
 #include <mutex>
