@@ -1,5 +1,7 @@
 ﻿#include "Common.h"
 
+#include "Batang/Utility.h"
+
 #include "Utility.h"
 #include "Configure.h"
 
@@ -39,8 +41,8 @@ namespace Maragi
             name.assign(str.begin(), str.begin() + pos);
             value.assign(str.begin() + pos + 1, str.end());
 
-            trim(name);
-            trim(value);
+            Batang::trim(name);
+            Batang::trim(value);
 
             set(name, value, false);
         }

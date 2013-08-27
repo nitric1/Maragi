@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Maragi
+namespace Batang
 {
     template<typename T>
     class Singleton // thread-safe global
@@ -20,20 +20,20 @@ namespace Maragi
         ~Singleton() {}
 
     private:
-        static std::unique_ptr<T, Deleter> ptr;
+        static std::shared_ptr<T> ptr;
         static boost::once_flag onceFlag;
 
     public:
         static T &instance()
         {
-            boost::call_once(onceFlag, [] { ptr.reset(new T); });
+            boost::call_once(onceFlag, [] { ptr.reset(new T, Deleter()); });
             return *ptr.get();
         }
         static T &inst() { return instance(); }
     };
 
     template<typename T>
-    std::unique_ptr<T, typename Singleton<T>::Deleter> Singleton<T>::ptr;
+    std::shared_ptr<T> Singleton<T>::ptr;
     template<typename T>
     boost::once_flag Singleton<T>::onceFlag = BOOST_ONCE_INIT;
 

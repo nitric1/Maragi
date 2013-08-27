@@ -2,7 +2,7 @@
 
 #include "ERDelegate.h"
 
-namespace Maragi
+namespace Batang
 {
     template<typename Func>
     inline ERDelegateWrapper<typename ERDelegateFunctionTraits<Func>::FunctionType> delegate(Func fn)

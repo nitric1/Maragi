@@ -4,7 +4,7 @@
 #include "MainController.h"
 #include "Tokens.h"
 #include "TwitterClient.h"
-#include "Singleton.h"
+#include "Batang/Singleton.h"
 #include "Window.h"
 
 #pragma warning(push)
@@ -77,7 +77,7 @@ namespace Maragi
             layout->slot(0, 0)->attach(label);
 
             button = UI::Button::create(L"Button Text");
-            button->onClick += delegate([&edit](const UI::ControlEventArg &)
+            button->onClick += Batang::delegate([&edit](const UI::ControlEventArg &)
             {
                 if(edit->text().empty())
                 {
@@ -110,15 +110,12 @@ namespace Maragi
     {
     }
 
-    int MainController::filterOSException(unsigned icode, EXCEPTION_POINTERS *iep)
+    int MainController::filterOSException(unsigned code, EXCEPTION_POINTERS *ep)
     {
-        exceptionCode = icode;
-        memcpy(&exceptionPointers, iep, sizeof(exceptionPointers));
-
-        return showOSException() ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH;
+        return showOSException(code, ep) ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH;
     }
 
-    bool MainController::showOSException()
+    bool MainController::showOSException(unsigned code, EXCEPTION_POINTERS *ep)
     {
         // TODO: Implementaion exception showing
         return false;
@@ -148,16 +145,11 @@ namespace Maragi
             // TODO: Maragi.exe --help
         }
     }
-
-    void MainController::onButtonClick(const UI::ControlEventArg &arg)
-    {
-        MessageBoxW(nullptr, L"Button Clicked", L"Maragi", MB_OK);
-    }
 }
 
 int __stdcall wWinMain(HINSTANCE instance, HINSTANCE, wchar_t *commandLine, int showCommand)
 {
-    return Maragi::MainController::instance().run(commandLine, showCommand) ? 0 : 1;
+    return Maragi::MainController::instance().runFromThisThread(commandLine, showCommand) ? 0 : 1;
 }
 
 #pragma warning(pop)

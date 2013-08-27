@@ -1,18 +1,18 @@
 ﻿#pragma once
 
-#include "Singleton.h"
+#include "Batang/Singleton.h"
 
 namespace Maragi
 {
     namespace UI
     {
-        class ComInitializer : public Singleton<ComInitializer>
+        class ComInitializer : public Batang::Singleton<ComInitializer>
         {
         private:
             ComInitializer();
             ~ComInitializer();
 
-            friend class Singleton<ComInitializer>;
+            friend class Batang::Singleton<ComInitializer>;
         };
 
         template<typename Chain>

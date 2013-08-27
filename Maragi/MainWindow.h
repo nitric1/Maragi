@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include "FrameWindow.h"
-#include "Singleton.h"
+#include "Batang/Singleton.h"
 
 namespace Maragi
 {
-    class MainWindow : public UI::FrameWindow, public Singleton<MainWindow>
+    class MainWindow : public UI::FrameWindow, public Batang::Singleton<MainWindow>
     {
     private:
         MainWindow();
@@ -13,6 +13,6 @@ namespace Maragi
 
     public:
 
-        friend class Singleton<MainWindow>;
+        friend class Batang::Singleton<MainWindow>;
     };
 }

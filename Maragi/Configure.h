@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "Singleton.h"
+#include "Batang/Singleton.h"
 
 namespace Maragi
 {
-    class Configure : public Singleton<Configure>
+    class Configure : public Batang::Singleton<Configure>
     {
     private:
         std::map<std::wstring, std::wstring> confMap;
@@ -30,6 +30,6 @@ namespace Maragi
         void setBinary(const std::wstring &, const std::vector<uint8_t> &);
         void remove(const std::wstring &);
 
-        friend class Singleton<Configure>;
+        friend class Batang::Singleton<Configure>;
     };
 }

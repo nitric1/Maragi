@@ -1,7 +1,8 @@
 ﻿#include "Common.h"
 
+#include "Batang/Utility.h"
+
 #include "Controls.h"
-#include "Utility.h"
 
 namespace Maragi
 {
@@ -155,18 +156,18 @@ namespace Maragi
             , clicked(false)
             , hovered(false)
         {
-            onMouseButtonDown += delegate(this, &Button::onMouseButtonDownImpl);
-            onMouseButtonDoubleClick += delegate(this, &Button::onMouseButtonDownImpl);
-            onMouseButtonUp += delegate(this, &Button::onMouseButtonUpImpl);
+            onMouseButtonDown += Batang::delegate(this, &Button::onMouseButtonDownImpl);
+            onMouseButtonDoubleClick += Batang::delegate(this, &Button::onMouseButtonDownImpl);
+            onMouseButtonUp += Batang::delegate(this, &Button::onMouseButtonUpImpl);
 
-            onMouseOver += delegate(
+            onMouseOver += Batang::delegate(
                 [this](const ControlEventArg &arg)
                 {
                     hovered = true;
                     redraw();
                 });
 
-            onMouseOut += delegate(
+            onMouseOut += Batang::delegate(
                 [this](const ControlEventArg &arg)
                 {
                     hovered = false;
@@ -587,13 +588,13 @@ namespace Maragi
                 &renderParams
                 );
 
-            onMouseMove += delegate(this, &Edit::onMouseMoveImpl);
-            onMouseButtonDown += delegate(this, &Edit::onMouseButtonDownImpl);
-            onMouseButtonUp += delegate(this, &Edit::onMouseButtonUpImpl);
-            onFocus += delegate(this, &Edit::onFocusImpl);
-            onBlur += delegate(this, &Edit::onBlurImpl);
+            onMouseMove += Batang::delegate(this, &Edit::onMouseMoveImpl);
+            onMouseButtonDown += Batang::delegate(this, &Edit::onMouseButtonDownImpl);
+            onMouseButtonUp += Batang::delegate(this, &Edit::onMouseButtonUpImpl);
+            onFocus += Batang::delegate(this, &Edit::onFocusImpl);
+            onBlur += Batang::delegate(this, &Edit::onBlurImpl);
 
-            selectionEffect = new EditDrawingEffect(GetSysColor(COLOR_HIGHLIGHTTEXT));
+            selectionEffect = ComPtr<EditDrawingEffect>(new EditDrawingEffect(GetSysColor(COLOR_HIGHLIGHTTEXT)));
         }
 
         Edit::~Edit()
@@ -776,8 +777,8 @@ namespace Maragi
 
                 D2D1_POINT_2F caretPos = transform.TransformPoint(caretRect.leftTop());
 
-                CreateCaret(lshell->hwnd(), nullptr, static_cast<int>(round(caretRect.width())), static_cast<int>(round(caretRect.height())));
-                SetCaretPos(static_cast<int>(round(caretPos.x)), static_cast<int>(round(caretPos.y)));
+                CreateCaret(lshell->hwnd(), nullptr, static_cast<int>(Batang::round(caretRect.width())), static_cast<int>(Batang::round(caretRect.height())));
+                SetCaretPos(static_cast<int>(Batang::round(caretPos.x)), static_cast<int>(Batang::round(caretPos.y)));
 
                 if(focused)
                     ShowCaret(lshell->hwnd());

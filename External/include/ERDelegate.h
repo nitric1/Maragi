@@ -13,11 +13,9 @@ template<typename Fn>
 struct ERDelegateFunctionTraits : ERDelegateFunctionTraits<decltype(&Fn::operator ())>
 {};
 
-/*
-#if !defined(_MSC_VER)
 #include <boost/bind.hpp>
 
-template<template Return, template ...Args>
+template<typename Return, typename ...Args>
 class ERDelegate<Return (Args...)>
 {
 public:
@@ -26,109 +24,41 @@ public:
     }
 
 public:
-    virtual Return invoke(Args...) = 0;
+    virtual Return invoke(Args ...) = 0;
+    virtual Return operator ()(Args ...) = 0;
     virtual operator bool() = 0;
 };
 
-template<template Return, template ...Args>
+template<typename Return, typename ...Args>
 class ERDelegateImpl<Return (Args...)> : public ERDelegate<Return (Args...)>
 {
 private:
-    // http://boost.2283326.n4.nabble.com/bind-Possible-to-use-variadic-templates-with-bind-td2557818.html
-    template<int ...>
-    class IntTuple
+    template<typename FunctionClass, typename InstanceClass>
+    static std::function<Return (Args...)> makeClassFunc(
+        Return (FunctionClass::*ifn)(Args...), InstanceClass *ic)
     {
-    };
-
-    template<int I, typename IntTuple, typename ...Types>
-    class MakeIndexesImpl;
-
-    template<int I, int ...Indexes, typename T, typename ...Types>
-    class MakeIndexesImpl<I, IntTuple<Indexes...>, T, Types...>
-    {
-    public:
-        typedef typename MakeIndexesImpl<I + 1, IntTuple<Indexes..., I>, Types...>::type type;
-    };
-
-    template<int I, int ...Indexes>
-    class MakeIndexesImpl<I, IntTuple<Indexes...>>
-    {
-    public:
-        typedef IntTuple<Indexes...> type;
-    };
-
-    template<typename ...Types>
-    class MakeIndexes : public MakeIndexesImpl<0, IntTuple<>, Types...>
-    {
-    };
-
-private:
-    template<typename FunctionClass, typename InstanceClass, int ...Indexes>
-    static std::function<Return (Args...)> makeClassFuncImpl(
-        Return (FunctionClass::*ifn)(Args...), InstanceClass *ic,
-        IntTuple<Indexes...>
-    )
-    {
-        return boost::bind(ifn, ic, boost::arg<Indexes + 1>()...);
-    }
-
-    template<typename FunctionClass, typename InstanceClass, int ...Indexes>
-    static std::function<Return (Args...)> makeClassFuncImpl(
-        Return (FunctionClass::*ifn)(Args...) const, const InstanceClass *ic,
-        IntTuple<Indexes...>
-    )
-    {
-        return boost::bind(ifn, ic, boost::arg<Indexes + 1>()...);
-    }
-
-    template<typename FunctionClass, typename InstanceClass, int ...Indexes>
-    static std::function<Return (Args...)> makeClassFuncImpl(
-        Return (FunctionClass::*ifn)(Args...) volatile, volatile InstanceClass *ic,
-        IntTuple<Indexes...>
-    )
-    {
-        return boost::bind(ifn, ic, boost::arg<Indexes + 1>()...);
-    }
-
-    template<typename FunctionClass, typename InstanceClass, int ...Indexes>
-    static std::function<Return (Args...)> makeClassFuncImpl(
-        Return (FunctionClass::*ifn)(Args...) const volatile, const volatile InstanceClass *ic,
-        IntTuple<Indexes...>
-    )
-    {
-        return boost::bind(ifn, ic, boost::arg<Indexes + 1>()...);
+        return [ifn, ic](Args ...args) { return (ic->*ifn)(args...); };
     }
 
     template<typename FunctionClass, typename InstanceClass>
     static std::function<Return (Args...)> makeClassFunc(
-        Return (FunctionClass::*ifn)(Args...), InstanceClass *ic
-    )
+        Return (FunctionClass::*ifn)(Args...) const, const InstanceClass *ic)
     {
-        return makeClassFuncImpl(ifn, ic, typename MakeIndexes<Args...>::type());
+        return [ifn, ic](Args ...args) { return (ic->*ifn)(args...); };
     }
 
     template<typename FunctionClass, typename InstanceClass>
     static std::function<Return (Args...)> makeClassFunc(
-        Return (FunctionClass::*ifn)(Args...) const, const InstanceClass *ic
-    )
+        Return (FunctionClass::*ifn)(Args...) volatile, volatile InstanceClass *ic)
     {
-        return makeClassFuncImpl(ifn, ic, typename MakeIndexes<Args...>::type());
+        return [ifn, ic](Args ...args) { return (ic->*ifn)(args...); };
     }
 
     template<typename FunctionClass, typename InstanceClass>
     static std::function<Return (Args...)> makeClassFunc(
-        Return (FunctionClass::*ifn)(Args...) volatile, volatile InstanceClass *ic
-    )
+        Return (FunctionClass::*ifn)(Args...) const volatile, const volatile InstanceClass *ic)
     {
-        return makeClassFuncImpl(ifn, ic, typename MakeIndexes<Args...>::type());
-    }
-
-    template<typename FunctionClass, typename InstanceClass>
-    static std::function<Return (Args...)> makeClassFunc(
-        Return (FunctionClass::*ifn)(Args...) const volatile, const volatile InstanceClass *ic
-    )
-    {
-        return makeClassFuncImpl(ifn, ic, typename MakeIndexes<Args...>::type());
+        return [ifn, ic](Args ...args) { return (ic->*ifn)(args...); };
     }
 
 private:
@@ -249,9 +179,14 @@ public:
     }
 
 public:
-    virtual Return invoke(DELEGATE_FUNCTION_PARAM(DELEGATE_NUM_ARG))
+    virtual Return invoke(Args ...args)
     {
-        return fn(DELEGATE_FUNCTION_ARG(DELEGATE_NUM_ARG));
+        return fn(args...);
+    }
+
+    virtual Return operator ()(Args ...args)
+    {
+        return fn(args...);
     }
 
     virtual operator bool()
@@ -260,82 +195,140 @@ public:
     }
 };
 
-#else*/
+template<typename Return, typename ...Args>
+class ERDelegateWrapper<Return (Args...)> : public ERDelegate<Return (Args...)>
+{
+private:
+    std::shared_ptr<ERDelegate<Return (Args...)>> dg;
 
-#define DELEGATE_COMMA_ ,
+public:
+    ERDelegateWrapper()
+    {}
 
-#define DELEGATE_REPEAT_0(b, s)
-#define DELEGATE_REPEAT_1(b, s) b(1)
-#define DELEGATE_REPEAT_2(b, s) DELEGATE_REPEAT_1(b, s) s##_ b(2)
-#define DELEGATE_REPEAT_3(b, s) DELEGATE_REPEAT_2(b, s) s##_ b(3)
-#define DELEGATE_REPEAT_4(b, s) DELEGATE_REPEAT_3(b, s) s##_ b(4)
-#define DELEGATE_REPEAT_5(b, s) DELEGATE_REPEAT_4(b, s) s##_ b(5)
-#define DELEGATE_REPEAT_6(b, s) DELEGATE_REPEAT_5(b, s) s##_ b(6)
-#define DELEGATE_REPEAT_7(b, s) DELEGATE_REPEAT_6(b, s) s##_ b(7)
-#define DELEGATE_REPEAT_8(b, s) DELEGATE_REPEAT_7(b, s) s##_ b(8)
-#define DELEGATE_REPEAT_9(b, s) DELEGATE_REPEAT_8(b, s) s##_ b(9)
-#define DELEGATE_REPEAT(n, b, s) DELEGATE_REPEAT_##n(b, s)
+    ERDelegateWrapper(std::nullptr_t)
+    {}
 
-#define DELEGATE_TEMPLATE_PARAM_ELEMENT(n) typename Arg##n
-#define DELEGATE_TEMPLATE_PARAM(n) DELEGATE_REPEAT(n, DELEGATE_TEMPLATE_PARAM_ELEMENT, DELEGATE_COMMA)
+    ERDelegateWrapper(const std::shared_ptr<ERDelegate<Return (Args...)>> &idg)
+        : dg(idg)
+    {}
 
-#define DELEGATE_TEMPLATE_ARG_ELEMENT(n) Arg##n
-#define DELEGATE_TEMPLATE_ARG(n) DELEGATE_REPEAT(n, DELEGATE_TEMPLATE_ARG_ELEMENT, DELEGATE_COMMA)
+    ERDelegateWrapper(std::shared_ptr<ERDelegate<Return (Args...)>> &&idg)
+        : dg(std::move(idg))
+    {}
 
-#define DELEGATE_FUNCTION_PARAM_ELEMENT(n) Arg##n arg##n
-#define DELEGATE_FUNCTION_PARAM(n) DELEGATE_REPEAT(n, DELEGATE_FUNCTION_PARAM_ELEMENT, DELEGATE_COMMA)
+    ERDelegateWrapper(const ERDelegateWrapper &that)
+        : dg(that.dg)
+    {}
 
-#define DELEGATE_FUNCTION_PARAM_NONAME_ELEMENT(n) Arg##n
-#define DELEGATE_FUNCTION_PARAM_NONAME(n) DELEGATE_REPEAT(n, DELEGATE_FUNCTION_PARAM_NONAME_ELEMENT, DELEGATE_COMMA)
+    ERDelegateWrapper(ERDelegateWrapper &&that)
+        : dg(std::move(that.dg))
+    {}
 
-#define DELEGATE_FUNCTION_ARG_ELEMENT(n) arg##n
-#define DELEGATE_FUNCTION_ARG(n) DELEGATE_REPEAT(n, DELEGATE_FUNCTION_ARG_ELEMENT, DELEGATE_COMMA)
+public:
+    ERDelegateWrapper &operator =(std::nullptr_t)
+    {
+        dg = nullptr;
+        return *this;
+    }
 
-#define DELEGATE_TEMPLATE_COMMA
+    ERDelegateWrapper &operator =(const std::shared_ptr<ERDelegate<Return (Args...)>> &rhs)
+    {
+        dg = rhs;
+        return *this;
+    }
 
-#define DELEGATE_NUM_ARG 0
-#include "ERDelegateStub.h"
-#undef DELEGATE_NUM_ARG
+    ERDelegateWrapper &operator =(std::shared_ptr<ERDelegate<Return (Args...)>> &&rhs)
+    {
+        dg = std::move(rhs);
+        return *this;
+    }
 
-#undef DELEGATE_TEMPLATE_COMMA
-#define DELEGATE_TEMPLATE_COMMA ,
+    ERDelegateWrapper &operator =(const ERDelegateWrapper &rhs)
+    {
+        dg = rhs.dg;
+        return *this;
+    }
 
-#define DELEGATE_NUM_ARG 1
-#include "ERDelegateStub.h"
-#undef DELEGATE_NUM_ARG
+    ERDelegateWrapper &operator =(ERDelegateWrapper &&rhs)
+    {
+        dg = std::move(rhs.dg);
+        return *this;
+    }
 
-#define DELEGATE_NUM_ARG 2
-#include "ERDelegateStub.h"
-#undef DELEGATE_NUM_ARG
+public:
+    virtual Return invoke(Args ...args)
+    {
+        if(!dg)
+            throw(std::bad_function_call());
+        return dg->invoke(args...);
+    }
 
-#define DELEGATE_NUM_ARG 3
-#include "ERDelegateStub.h"
-#undef DELEGATE_NUM_ARG
+    virtual Return operator ()(Args ...args)
+    {
+        if(!dg)
+            throw(std::bad_function_call());
+        return (*dg)(args...);
+    }
 
-#define DELEGATE_NUM_ARG 4
-#include "ERDelegateStub.h"
-#undef DELEGATE_NUM_ARG
+    virtual operator bool()
+    {
+        return dg && *dg;
+    }
 
-#define DELEGATE_NUM_ARG 5
-#include "ERDelegateStub.h"
-#undef DELEGATE_NUM_ARG
+    const std::shared_ptr<ERDelegate<Return (Args...)>> &get()
+    {
+        return dg;
+    }
 
-#define DELEGATE_NUM_ARG 6
-#include "ERDelegateStub.h"
-#undef DELEGATE_NUM_ARG
+    operator std::shared_ptr<ERDelegate<Return (Args...)>>()
+    {
+        return dg;
+    }
+};
 
-#define DELEGATE_NUM_ARG 7
-#include "ERDelegateStub.h"
-#undef DELEGATE_NUM_ARG
+template<typename Return, typename ...Args>
+struct ERDelegateFunctionTraits<Return (*)(Args...)>
+{
+    enum
+    {
+        arity = sizeof...(Args)
+    };
 
-#define DELEGATE_NUM_ARG 8
-#include "ERDelegateStub.h"
-#undef DELEGATE_NUM_ARG
+    typedef Return ResultType;
+    typedef Return result_type; // for boost
 
-#define DELEGATE_NUM_ARG 9
-#include "ERDelegateStub.h"
-#undef DELEGATE_NUM_ARG
+    template<size_t I>
+    struct Arg
+    {
+        typedef typename std::tuple_element<I, std::tuple<Args...>>::type type;
+        typedef type Type;
+    };
 
-#undef DELEGATE_TEMPLATE_COMMA
+    template<size_t I>
+    struct arg : Arg<I>
+    {};
 
-// #endif
+    typedef Return (FunctionType)(Args...);
+};
+
+template<typename FunctionClass, typename Return, typename ...Args>
+struct ERDelegateFunctionTraits<Return (FunctionClass::*)(Args...)>
+    : ERDelegateFunctionTraits<Return (*)(Args...)>
+{
+    typedef FunctionClass ClassType;
+};
+
+template<typename FunctionClass, typename Return, typename ...Args>
+struct ERDelegateFunctionTraits<Return (FunctionClass::*)(Args...) const>
+    : ERDelegateFunctionTraits<Return (FunctionClass::*)(Args...)>
+{};
+
+template<typename FunctionClass, typename Return, typename ...Args>
+struct ERDelegateFunctionTraits<Return (FunctionClass::*)(Args...) volatile>
+    : ERDelegateFunctionTraits<Return (FunctionClass::*)(Args...)>
+{};
+
+template<typename FunctionClass, typename Return, typename ...Args>
+struct ERDelegateFunctionTraits<Return (FunctionClass::*)(Args...) const volatile>
+    : ERDelegateFunctionTraits<Return (FunctionClass::*)(Args...)>
+{};
