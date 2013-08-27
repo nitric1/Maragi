@@ -1,11 +1,12 @@
 ﻿#include "Common.h"
 
+#include "Batang/Singleton.h"
 #include "Batang/Utility.h"
+
+#include "Gurigi/Dialog.h"
 
 #include "Configure.h"
 #include "Constants.h"
-#include "Dialog.h"
-#include "Batang/Singleton.h"
 #include "Tokens.h"
 #include "TwitterClient.h"
 
@@ -328,7 +329,7 @@ namespace Maragi
         }
 
         // TODO: Separate the dialog into whole complete class and file.
-        class ConfirmDialog : public UI::Dialog, public Batang::Singleton<ConfirmDialog>
+        class ConfirmDialog : public Gurigi::Dialog, public Batang::Singleton<ConfirmDialog>
         {
         private:
             ConfirmDialog() : Dialog(nullptr) {}

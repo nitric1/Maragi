@@ -1,11 +1,12 @@
 ﻿#include "Common.h"
 
-#include "Controls.h"
+#include "Gurigi/Controls.h"
+#include "Gurigi/Window.h"
+
 #include "MainController.h"
 #include "Tokens.h"
 #include "TwitterClient.h"
 #include "Batang/Singleton.h"
-#include "Window.h"
 
 #pragma warning(push)
 #pragma warning(disable:4702)
@@ -49,35 +50,35 @@ namespace Maragi
             // mainWin->setShowStatus(showCommand);
             // return mainWin->show();
 
-            UI::ShellPtr<UI::FrameWindow> frm = UI::FrameWindow::create(
+            Gurigi::ShellPtr<Gurigi::FrameWindow> frm = Gurigi::FrameWindow::create(
                 nullptr,
                 L"Maragi",
-                UI::Resources::Icon::fromSharedResource(IDI_APPLICATION, UI::Objects::SizeI(32, 32)),
-                UI::Resources::Icon::fromSharedResource(IDI_APPLICATION, UI::Objects::SizeI(16, 16)),
-                UI::Objects::ColorF::Black,
-                UI::Objects::SizeF(640.0f, 480.0f),
-                UI::Objects::PointI::invalid,
-                UI::Objects::SizeF(400.0f, 300.0f),
-                UI::Objects::SizeF::invalid
+                Gurigi::Resources::Icon::fromSharedResource(IDI_APPLICATION, Gurigi::Objects::SizeI(32, 32)),
+                Gurigi::Resources::Icon::fromSharedResource(IDI_APPLICATION, Gurigi::Objects::SizeI(16, 16)),
+                Gurigi::Objects::ColorF::Black,
+                Gurigi::Objects::SizeF(640.0f, 480.0f),
+                Gurigi::Objects::PointI::invalid,
+                Gurigi::Objects::SizeF(400.0f, 300.0f),
+                Gurigi::Objects::SizeF::invalid
                 );
 
-            using UI::GridSize;
+            using Gurigi::GridSize;
             GridSize rows[] = { GridSize(20.0f), GridSize(1) }, cols[] = { GridSize(120.0f), GridSize(1) };
-            UI::ControlPtr<UI::GridLayout<2, 2>> layout = UI::GridLayout<2, 2>::create(
+            Gurigi::ControlPtr<Gurigi::GridLayout<2, 2>> layout = Gurigi::GridLayout<2, 2>::create(
                 std::vector<GridSize>(std::begin(rows), std::end(rows)),
                 std::vector<GridSize>(std::begin(cols), std::end(cols))
                 );
             frm->client()->slot()->attach(layout);
 
-            UI::ControlPtr<UI::Label> label;
-            UI::ControlPtr<UI::Button> button;
-            UI::ControlPtr<UI::Edit> edit;
+            Gurigi::ControlPtr<Gurigi::Label> label;
+            Gurigi::ControlPtr<Gurigi::Button> button;
+            Gurigi::ControlPtr<Gurigi::Edit> edit;
 
-            label = UI::Label::create(L"Label Text", UI::Objects::ColorF(UI::Objects::ColorF::White));
+            label = Gurigi::Label::create(L"Label Text", Gurigi::Objects::ColorF(Gurigi::Objects::ColorF::White));
             layout->slot(0, 0)->attach(label);
 
-            button = UI::Button::create(L"Button Text");
-            button->onClick += Batang::delegate([&edit](const UI::ControlEventArg &)
+            button = Gurigi::Button::create(L"Button Text");
+            button->onClick += Batang::delegate([&edit](const Gurigi::ControlEventArg &)
             {
                 if(edit->text().empty())
                 {
@@ -91,7 +92,7 @@ namespace Maragi
             });
             layout->slot(0, 1)->attach(button);
 
-            edit = UI::Edit::create(L"Placeholder Now");
+            edit = Gurigi::Edit::create(L"Placeholder Now");
             layout->slot(1, 1)->attach(edit);
 
             return frm->show(showCommand);

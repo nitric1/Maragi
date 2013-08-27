@@ -2,9 +2,6 @@
 
 #include "Primitives.h"
 
-namespace Maragi
+namespace Gurigi
 {
-    namespace UI
-    {
-    }
 }
