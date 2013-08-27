@@ -3,12 +3,9 @@
 #include "Global.h"
 #include "Objects.h"
 
-namespace Maragi
+namespace Gurigi
 {
-    namespace UI
+    namespace Objects
     {
-        namespace Objects
-        {
-        }
     }
 }

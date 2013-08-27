@@ -2,7 +2,7 @@
 
 #include "Global.h"
 
-namespace Maragi
+namespace Batang
 {
     Environment::Environment()
     {
@@ -17,7 +17,7 @@ namespace Maragi
 
     void GlobalInitializerManager::add(const std::shared_ptr<Initializer> &init)
     {
-        boost::mutex::scoped_lock sl(lock);
+        std::lock_guard<std::mutex> lg(lock);
         if(inits.find(init->getName()) != std::end(inits))
             return;
         inits.insert(std::make_pair(init->getName(), init));

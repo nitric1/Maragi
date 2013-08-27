@@ -2,7 +2,7 @@
 
 #include "Batang/Singleton.h"
 
-namespace Maragi
+namespace Batang
 {
     class Environment : public Batang::Singleton<Environment>
     {
@@ -80,7 +80,7 @@ namespace Maragi
     {
     private:
         std::map<std::string, std::shared_ptr<Initializer>> inits;
-        boost::mutex lock;
+        std::mutex lock;
 
     private:
         GlobalInitializerManager()

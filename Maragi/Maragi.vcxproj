@@ -157,7 +157,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ComUtility.cpp" />
     <ClCompile Include="Configure.cpp" />
     <ClCompile Include="Constants.cpp" />
     <ClCompile Include="Common.cpp">
@@ -168,26 +167,12 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Common.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Common.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="Controls.cpp" />
-    <ClCompile Include="Dialog.cpp" />
-    <ClCompile Include="Drawing.cpp" />
-    <ClCompile Include="FrameWindow.cpp" />
-    <ClCompile Include="Global.cpp" />
-    <ClCompile Include="Layouts.cpp" />
     <ClCompile Include="MainController.cpp" />
     <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="Objects.cpp" />
-    <ClCompile Include="Primitives.cpp" />
-    <ClCompile Include="Resources.cpp" />
-    <ClCompile Include="ShortcutKey.cpp" />
     <ClCompile Include="Tokens.cpp" />
     <ClCompile Include="TwitterClient.cpp" />
-    <ClCompile Include="UIConstants.cpp" />
-    <ClCompile Include="UIGlobal.cpp" />
     <ClCompile Include="URI.cpp" />
-    <ClCompile Include="UIUtility.cpp" />
     <ClCompile Include="Utility.cpp" />
-    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\External\include\curl\curl.h" />
@@ -274,33 +259,17 @@
     <ClInclude Include="..\External\include\openssl\x509_vfy.h" />
     <ClInclude Include="..\External\include\zconf.h" />
     <ClInclude Include="..\External\include\zlib.h" />
-    <ClInclude Include="ComUtility.h" />
     <ClInclude Include="Configure.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Common.h" />
-    <ClInclude Include="Controls.h" />
-    <ClInclude Include="Dialog.h" />
-    <ClInclude Include="Drawing.h" />
-    <ClInclude Include="FrameWindow.h" />
-    <ClInclude Include="Global.h" />
-    <ClInclude Include="Layouts.h" />
     <ClInclude Include="MainController.h" />
     <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="Objects.h" />
-    <ClInclude Include="Primitives.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="Resources.h" />
-    <ClInclude Include="ShortcutKey.h" />
     <ClInclude Include="Tokens.h" />
     <ClInclude Include="TwitterClient.h" />
     <ClInclude Include="TwitterClientError.h" />
-    <ClInclude Include="UIConstants.h" />
-    <ClInclude Include="UIForwards.h" />
-    <ClInclude Include="UIGlobal.h" />
     <ClInclude Include="URI.h" />
-    <ClInclude Include="UIUtility.h" />
     <ClInclude Include="Utility.h" />
-    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TextReplacer.pl" />
