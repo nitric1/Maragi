@@ -1,12 +1,12 @@
 ﻿#pragma once
 
-#include "Delegate.h"
+#include "Batang/Delegate.h"
 #include "Drawing.h"
 #include "Global.h"
 #include "Objects.h"
 #include "Primitives.h"
 #include "Resources.h"
-#include "Singleton.h"
+#include "Batang/Singleton.h"
 #include "UIUtility.h"
 
 namespace Maragi

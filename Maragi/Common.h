@@ -20,6 +20,7 @@
 #include <exception>
 #include <functional>
 #include <map>
+#include <mutex>
 #include <new>
 #include <numeric>
 #include <random>
@@ -27,6 +28,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -38,6 +40,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/once.hpp>
 #include <boost/thread/tss.hpp>
+#include <boost/type_traits/function_traits.hpp>
 
 using std::max; using std::min;
 
@@ -71,4 +74,4 @@ using std::max; using std::min;
 // Other common inclusion
 
 #include "resource.h"
-#include "Types.h"
+#include "Batang/Types.h"

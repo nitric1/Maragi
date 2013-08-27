@@ -1,11 +1,13 @@
 ﻿#pragma once
 
+#include "Batang/Thread.h"
+
 #include "URI.h"
 #include "TwitterClientError.h"
 
 namespace Maragi
 {
-    class TwitterClient
+    class TwitterClient : public Batang::Thread<TwitterClient>
     {
     private:
         struct CurlWriteCallbackData

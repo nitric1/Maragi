@@ -1,7 +1,18 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Maragi", "Maragi\Maragi.vcxproj", "{C785E965-297F-45B2-82C7-60D8FA69EB60}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BCA16472-2EAD-4A5F-99ED-C4E98A17999D} = {BCA16472-2EAD-4A5F-99ED-C4E98A17999D}
+		{D6DFB37D-3E02-4242-A81C-DD3A426A17B3} = {D6DFB37D-3E02-4242-A81C-DD3A426A17B3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Batang", "Batang\Batang.vcxproj", "{BCA16472-2EAD-4A5F-99ED-C4E98A17999D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gurigi", "Gurigi\Gurigi.vcxproj", "{D6DFB37D-3E02-4242-A81C-DD3A426A17B3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BCA16472-2EAD-4A5F-99ED-C4E98A17999D} = {BCA16472-2EAD-4A5F-99ED-C4E98A17999D}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +30,20 @@ Global
 		{C785E965-297F-45B2-82C7-60D8FA69EB60}.Release|Win32.Build.0 = Release|Win32
 		{C785E965-297F-45B2-82C7-60D8FA69EB60}.Release|x64.ActiveCfg = Release|x64
 		{C785E965-297F-45B2-82C7-60D8FA69EB60}.Release|x64.Build.0 = Release|x64
+		{BCA16472-2EAD-4A5F-99ED-C4E98A17999D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BCA16472-2EAD-4A5F-99ED-C4E98A17999D}.Debug|Win32.Build.0 = Debug|Win32
+		{BCA16472-2EAD-4A5F-99ED-C4E98A17999D}.Debug|x64.ActiveCfg = Debug|x64
+		{BCA16472-2EAD-4A5F-99ED-C4E98A17999D}.Debug|x64.Build.0 = Debug|x64
+		{BCA16472-2EAD-4A5F-99ED-C4E98A17999D}.Release|Win32.ActiveCfg = Release|Win32
+		{BCA16472-2EAD-4A5F-99ED-C4E98A17999D}.Release|Win32.Build.0 = Release|Win32
+		{BCA16472-2EAD-4A5F-99ED-C4E98A17999D}.Release|x64.ActiveCfg = Release|Win32
+		{D6DFB37D-3E02-4242-A81C-DD3A426A17B3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D6DFB37D-3E02-4242-A81C-DD3A426A17B3}.Debug|Win32.Build.0 = Debug|Win32
+		{D6DFB37D-3E02-4242-A81C-DD3A426A17B3}.Debug|x64.ActiveCfg = Debug|x64
+		{D6DFB37D-3E02-4242-A81C-DD3A426A17B3}.Debug|x64.Build.0 = Debug|x64
+		{D6DFB37D-3E02-4242-A81C-DD3A426A17B3}.Release|Win32.ActiveCfg = Release|Win32
+		{D6DFB37D-3E02-4242-A81C-DD3A426A17B3}.Release|Win32.Build.0 = Release|Win32
+		{D6DFB37D-3E02-4242-A81C-DD3A426A17B3}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

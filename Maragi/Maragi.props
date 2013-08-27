@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)External\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(SolutionDir);$(SolutionDir)External\include;$(IncludePath)</IncludePath>
     <SourcePath>$(SolutionDir)External\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup>

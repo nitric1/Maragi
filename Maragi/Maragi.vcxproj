@@ -28,27 +28,27 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120_CTP_Nov2012</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120_CTP_Nov2012</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120_CTP_Nov2012</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120_CTP_Nov2012</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -88,10 +88,10 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeaderFile>Defaults.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>Common.h</PrecompiledHeaderFile>
       <DisableSpecificWarnings>4503</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -114,7 +114,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -122,7 +122,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <PrecompiledHeaderFile>Defaults.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>Common.h</PrecompiledHeaderFile>
       <DisableSpecificWarnings>4503</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -157,15 +157,16 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="CommandLineParser.cpp" />
     <ClCompile Include="ComUtility.cpp" />
     <ClCompile Include="Configure.cpp" />
     <ClCompile Include="Constants.cpp" />
     <ClCompile Include="Common.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Common.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Common.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="Controls.cpp" />
     <ClCompile Include="Dialog.cpp" />
@@ -198,8 +199,6 @@
     <ClInclude Include="..\External\include\curl\multi.h" />
     <ClInclude Include="..\External\include\curl\stdcheaders.h" />
     <ClInclude Include="..\External\include\curl\typecheck-gcc.h" />
-    <ClInclude Include="..\External\include\ERDelegate.h" />
-    <ClInclude Include="..\External\include\ERDelegateStub.h" />
     <ClInclude Include="..\External\include\json\json-forwards.h" />
     <ClInclude Include="..\External\include\json\json.h" />
     <ClInclude Include="..\External\include\openssl\aes.h" />
@@ -275,13 +274,11 @@
     <ClInclude Include="..\External\include\openssl\x509_vfy.h" />
     <ClInclude Include="..\External\include\zconf.h" />
     <ClInclude Include="..\External\include\zlib.h" />
-    <ClInclude Include="CommandLineParser.h" />
     <ClInclude Include="ComUtility.h" />
     <ClInclude Include="Configure.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Controls.h" />
-    <ClInclude Include="Delegate.h" />
     <ClInclude Include="Dialog.h" />
     <ClInclude Include="Drawing.h" />
     <ClInclude Include="FrameWindow.h" />
@@ -294,11 +291,9 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Resources.h" />
     <ClInclude Include="ShortcutKey.h" />
-    <ClInclude Include="Singleton.h" />
     <ClInclude Include="Tokens.h" />
     <ClInclude Include="TwitterClient.h" />
     <ClInclude Include="TwitterClientError.h" />
-    <ClInclude Include="Types.h" />
     <ClInclude Include="UIConstants.h" />
     <ClInclude Include="UIForwards.h" />
     <ClInclude Include="UIGlobal.h" />
@@ -314,6 +309,14 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Maragi.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Batang\Batang.vcxproj">
+      <Project>{bca16472-2ead-4a5f-99ed-c4e98a17999d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Gurigi\Gurigi.vcxproj">
+      <Project>{d6dfb37d-3e02-4242-a81c-dd3a426a17b3}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

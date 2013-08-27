@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Singleton.h"
+#include "Batang/Singleton.h"
 #include "Primitives.h"
 #include "UIForwards.h"
 
@@ -353,7 +353,7 @@ namespace Maragi
             friend class ShellWeakPtr;
         };
 
-        class ControlManager : public Singleton<ControlManager>
+        class ControlManager : public Batang::Singleton<ControlManager>
         {
         private:
             std::map<ControlID, ControlWeakPtr<>> controls;
@@ -371,10 +371,10 @@ namespace Maragi
             ControlWeakPtr<> find(ControlID);
             void remove(ControlID);
 
-            friend class Singleton<ControlManager>;
+            friend class Batang::Singleton<ControlManager>;
         };
 
-        class ShellManager : public Singleton<ShellManager>
+        class ShellManager : public Batang::Singleton<ShellManager>
         {
         private:
             std::map<HWND, ShellWeakPtr<>> shells;
@@ -396,7 +396,7 @@ namespace Maragi
             ShellWeakPtr<> find(HWND);
             void remove(HWND);
 
-            friend class Singleton<ShellManager>;
+            friend class Batang::Singleton<ShellManager>;
         };
     }
 }

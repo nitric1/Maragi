@@ -1,13 +1,13 @@
 ﻿#include "Common.h"
 
-#include "TwitterClient.h"
+#include "Batang/Utility.h"
 
 #include "Configure.h"
 #include "Constants.h"
 #include "Dialog.h"
-#include "Singleton.h"
+#include "Batang/Singleton.h"
 #include "Tokens.h"
-#include "Utility.h"
+#include "TwitterClient.h"
 
 namespace Maragi
 {
@@ -60,7 +60,7 @@ namespace Maragi
         cbd.client = this;
 
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1l);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, encodeUTF8(Constants::USER_AGENT).c_str());
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, Batang::encodeUTF8(Constants::USER_AGENT).c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &curlWriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, static_cast<void *>(&cbd));
 
@@ -134,7 +134,7 @@ namespace Maragi
             return URI(uri);
         }
 
-        class CryptProvider : public Singleton<CryptProvider>
+        class CryptProvider : public Batang::Singleton<CryptProvider>
         {
         private:
             HCRYPTPROV cp;
@@ -213,7 +213,7 @@ namespace Maragi
             opad.insert(opad.end(), result.begin(), result.end());
             SHA1(&*opad.begin(), opad.size(), &*result.begin());
 
-            return base64Encode(result);
+            return Batang::base64Encode(result);
         }
 
         std::string makePostField(const std::map<std::string, std::string> &field)
@@ -222,15 +222,15 @@ namespace Maragi
             if(!field.empty())
             {
                 auto it = field.begin();
-                text += encodeURIParam(it->first);
+                text += Batang::encodeURIParam(it->first);
                 text += "=";
-                text += encodeURIParam(it->second);
+                text += Batang::encodeURIParam(it->second);
                 for(++ it; it != field.end(); ++ it)
                 {
                     text += "&";
-                    text += encodeURIParam(it->first);
+                    text += Batang::encodeURIParam(it->first);
                     text += "=";
-                    text += encodeURIParam(it->second);
+                    text += Batang::encodeURIParam(it->second);
                 }
             }
 
@@ -243,16 +243,16 @@ namespace Maragi
             if(!field.empty())
             {
                 auto it = field.begin();
-                text += encodeURI(it->first);
+                text += Batang::encodeURI(it->first);
                 text += "=\"";
-                text += encodeURI(it->second);
+                text += Batang::encodeURI(it->second);
                 text += "\"";
                 for(++ it; it != field.end(); ++ it)
                 {
                     text += ", ";
-                    text += encodeURI(it->first);
+                    text += Batang::encodeURI(it->first);
                     text += "=\"";
-                    text += encodeURI(it->second);
+                    text += Batang::encodeURI(it->second);
                     text += "\"";
                 }
             }
@@ -281,16 +281,16 @@ namespace Maragi
             uri.removeOAuthParam("oauth_signature");
 
             std::string message = "POST&";
-            message += encodeURI(uri.getBaseURI());
+            message += Batang::encodeURI(uri.getBaseURI());
             message += "&";
             std::map<std::string, std::string> totalParams = uri.getParams();
             const auto &oauthParams = uri.getOAuthParams();
             totalParams.insert(oauthParams.begin(), oauthParams.end());
-            message += encodeURI(makePostField(totalParams));
+            message += Batang::encodeURI(makePostField(totalParams));
 
-            std::string key = encodeURI(AppTokens::CONSUMER_SECRET);
+            std::string key = Batang::encodeURI(AppTokens::CONSUMER_SECRET);
             key += "&";
-            key += encodeURI(tokenSecret);
+            key += Batang::encodeURI(tokenSecret);
 
             uri.addOAuthParam(
                 "oauth_signature",
@@ -313,7 +313,7 @@ namespace Maragi
             {
                 if(*it == '&')
                 {
-                    field.insert(std::make_pair(decodeURI(key), decodeURI(value)));
+                    field.insert(std::make_pair(Batang::decodeURI(key), Batang::decodeURI(value)));
                     key.clear(); value.clear();
                     inValue = false;
                 }
@@ -328,7 +328,7 @@ namespace Maragi
         }
 
         // TODO: Separate the dialog into whole complete class and file.
-        class ConfirmDialog : public UI::Dialog, public Singleton<ConfirmDialog>
+        class ConfirmDialog : public UI::Dialog, public Batang::Singleton<ConfirmDialog>
         {
         private:
             ConfirmDialog() : Dialog(nullptr) {}
@@ -349,7 +349,7 @@ namespace Maragi
 
             bool show()
             {
-                return showModal(delegate(this, &ConfirmDialog::procMessage)) == IDOK;
+                return showModal(Batang::delegate(this, &ConfirmDialog::procMessage)) == IDOK;
             }
 
             virtual intptr_t procMessage(HWND window, unsigned message, WPARAM wParam, LPARAM lParam)
@@ -405,7 +405,7 @@ namespace Maragi
                 return 0;
             }
 
-            friend class Singleton<ConfirmDialog>;
+            friend class Batang::Singleton<ConfirmDialog>;
         };
     }
 
@@ -424,14 +424,14 @@ namespace Maragi
         uri = makeRequestURI(Paths::AUTHORIZE);
         uri.addParam("oauth_token", token);
 
-        std::wstring wuri = decodeUTF8(uri);
+        std::wstring wuri = Batang::decodeUTF8(uri);
         ShellExecuteW(nullptr, nullptr, wuri.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 
         cfd.show();
 
         uri = makeRequestURI(Paths::ACCESS_TOKEN);
         uri.addOAuthParam("oauth_token", token);
-        uri.addOAuthParam("oauth_verifier", encodeUTF8(cfd.getText()));
+        uri.addOAuthParam("oauth_verifier", Batang::encodeUTF8(cfd.getText()));
         signRequestURI(uri, tokenSecret);
         sendRequest(uri);
         

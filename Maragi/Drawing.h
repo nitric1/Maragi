@@ -2,7 +2,7 @@
 
 #include "ComUtility.h"
 #include "Objects.h"
-#include "Singleton.h"
+#include "Batang/Singleton.h"
 
 namespace Maragi
 {
@@ -10,7 +10,7 @@ namespace Maragi
     {
         namespace Drawing
         {
-            class D2DFactory : public Singleton<D2DFactory>
+            class D2DFactory : public Batang::Singleton<D2DFactory>
             {
             private:
                 ComPtr<ID2D1Factory> d2dfac;
@@ -31,7 +31,7 @@ namespace Maragi
                     return dwfac;
                 }
 
-                friend class Singleton<D2DFactory>;
+                friend class Batang::Singleton<D2DFactory>;
             };
 
             class Context
@@ -74,7 +74,7 @@ namespace Maragi
                 Context &operator =(const Context &); // = delete;
             };
 
-            class FontFactory : public Singleton<FontFactory>
+            class FontFactory : public Batang::Singleton<FontFactory>
             {
             private:
                 FontFactory();
@@ -90,7 +90,7 @@ namespace Maragi
                     DWRITE_FONT_STRETCH = DWRITE_FONT_STRETCH_NORMAL
                     );
 
-                friend class Singleton<FontFactory>;
+                friend class Batang::Singleton<FontFactory>;
             };
         }
     }

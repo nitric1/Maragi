@@ -1,13 +1,13 @@
 ﻿#pragma once
 
-#include "Singleton.h"
+#include "Batang/Singleton.h"
 #include "Window.h"
 
 namespace Maragi
 {
     namespace UI
     {
-        class ShortcutKey : public Singleton<ShortcutKey>
+        class ShortcutKey : public Batang::Singleton<ShortcutKey>
         {
         public:
             enum Modifier
@@ -70,7 +70,7 @@ namespace Maragi
             uint32_t processShortcut(const Shell *, Key, bool, bool) const;
             bool processKey(const Shell *, bool, bool, bool, uint32_t, bool, uint32_t) const;
 
-            friend class Singleton<ShortcutKey>;
+            friend class Batang::Singleton<ShortcutKey>;
         };
     }
 }

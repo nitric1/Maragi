@@ -1,8 +1,8 @@
 ﻿#include "Common.h"
 
-#include "URI.h"
+#include "Batang/Utility.h"
 
-#include "Utility.h"
+#include "URI.h"
 
 namespace Maragi
 {
@@ -139,15 +139,15 @@ namespace Maragi
             {
                 auto it = params.begin();
                 uriString += "?";
-                uriString += encodeURIParam(it->first);
+                uriString += Batang::encodeURIParam(it->first);
                 uriString += "=";
-                uriString += encodeURIParam(it->second);
+                uriString += Batang::encodeURIParam(it->second);
                 for(++ it; it != params.end(); ++ it)
                 {
                     uriString += "&";
-                    uriString += encodeURIParam(it->first);
+                    uriString += Batang::encodeURIParam(it->first);
                     uriString += "=";
-                    uriString += encodeURIParam(it->second);
+                    uriString += Batang::encodeURIParam(it->second);
                 }
             }
         }

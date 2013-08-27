@@ -2,7 +2,7 @@
 
 #include "CommandLineParser.h"
 
-namespace Maragi
+namespace Batang
 {
     CommandLineParser::CommandLineParser()
     {

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Maragi
+namespace Batang
 {
     class CommandLineParser
     {

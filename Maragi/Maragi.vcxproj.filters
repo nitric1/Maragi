@@ -24,9 +24,6 @@
     <Filter Include="External Files\jsoncpp">
       <UniqueIdentifier>{5f55805d-74a6-4380-b3ef-db5418769b91}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External Files\other">
-      <UniqueIdentifier>{270966ed-3bf9-4ef2-a5bf-df03b3f37759}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -49,12 +46,6 @@
       <Filter>External Files\jsoncpp</Filter>
     </ClCompile>
     <ClCompile Include="Tokens.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CommandLineParser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Configure.cpp">
@@ -111,12 +102,12 @@
     <ClCompile Include="UIConstants.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Utility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Singleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TwitterClient.h">
@@ -383,12 +374,6 @@
     <ClInclude Include="Tokens.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Configure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -402,18 +387,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TwitterClientError.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\External\include\ERDelegate.h">
-      <Filter>External Files\other</Filter>
-    </ClInclude>
-    <ClInclude Include="..\External\include\ERDelegateStub.h">
-      <Filter>External Files\other</Filter>
-    </ClInclude>
-    <ClInclude Include="Delegate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandLineParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Controls.h">
@@ -462,6 +435,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UIConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

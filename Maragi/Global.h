@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "Singleton.h"
+#include "Batang/Singleton.h"
 
 namespace Maragi
 {
-    class Environment : public Singleton<Environment>
+    class Environment : public Batang::Singleton<Environment>
     {
     private:
         HINSTANCE inst_; // Main instance
@@ -34,7 +34,7 @@ namespace Maragi
             return dllInstances;
         }
 
-        friend class Singleton<Environment>;
+        friend class Batang::Singleton<Environment>;
     };
 
     class Initializer
@@ -76,7 +76,7 @@ namespace Maragi
         }
     };
 
-    class GlobalInitializerManager : public Singleton<GlobalInitializerManager>
+    class GlobalInitializerManager : public Batang::Singleton<GlobalInitializerManager>
     {
     private:
         std::map<std::string, std::shared_ptr<Initializer>> inits;
@@ -97,6 +97,6 @@ namespace Maragi
             add(std::shared_ptr<Initializer>(new SimpleInitializer(name, initFn, uninitFn)));
         }
 
-        friend class Singleton<GlobalInitializerManager>;
+        friend class Batang::Singleton<GlobalInitializerManager>;
     };
 }
