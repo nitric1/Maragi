@@ -62,6 +62,8 @@ namespace Maragi
                 Gurigi::Objects::SizeF::invalid
                 );
 
+            frm->onTaskInvoked += delegate(this, &MainController::process);
+
             using Gurigi::GridSize;
             GridSize rows[] = { GridSize(20.0f), GridSize(1) }, cols[] = { GridSize(120.0f), GridSize(1) };
             Gurigi::ControlPtr<Gurigi::GridLayout<2, 2>> layout = Gurigi::GridLayout<2, 2>::create(
@@ -94,6 +96,16 @@ namespace Maragi
 
             edit = Gurigi::Edit::create(L"Placeholder Now");
             layout->slot(1, 1)->attach(edit);
+
+            /*std::thread t([this]()
+            {
+                for(int i = 0; i < 5; ++ i)
+                {
+                    post([]() { MessageBoxW(nullptr, L"Invoked", L"Invoked", MB_OK); });
+                    std::this_thread::sleep_for(std::chrono::seconds(5));
+                }
+            });
+            t.detach();*/
 
             return frm->show(showCommand);
         }

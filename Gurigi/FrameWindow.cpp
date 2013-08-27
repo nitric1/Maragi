@@ -1,6 +1,7 @@
 ﻿#include "Common.h"
 
 #include "Batang/Global.h"
+#include "Batang/Thread.h"
 
 #include "FrameWindow.h"
 #include "Global.h"
@@ -126,10 +127,40 @@ namespace Gurigi
         UpdateWindow(hwnd);
 
         MSG msg;
-        while(GetMessageW(&msg, nullptr, 0, 0))
+        bool done = false;
+
+        Batang::ThreadTaskPool *thread = Batang::ThreadTaskPool::getCurrent();
+        HANDLE invokedLock = INVALID_HANDLE_VALUE;
+        if(thread)
         {
-            TranslateMessage(&msg);
-            DispatchMessageW(&msg);
+            invokedLock = thread->invokedLock();
+        }
+
+        while(!done)
+        {
+            if(PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
+            {
+                if(msg.message == WM_QUIT)
+                {
+                    done = true;
+                    break;
+                }
+
+                TranslateMessage(&msg);
+                DispatchMessageW(&msg);
+            }
+            else
+            {
+                if(thread)
+                {
+                    if(MsgWaitForMultipleObjects(1, &invokedLock, FALSE, INFINITE, QS_ALLINPUT) == WAIT_OBJECT_0)
+                    {
+                        onTaskInvoked();
+                    }
+                }
+                else
+                    WaitMessage();
+            }
         }
 
         return true;
