@@ -1,12 +1,13 @@
 ﻿#include "Common.h"
 
+#include "Batang/Timer.h"
+
 #include "Gurigi/Controls.h"
 #include "Gurigi/Window.h"
 
 #include "MainController.h"
 #include "Tokens.h"
 #include "TwitterClient.h"
-#include "Batang/Singleton.h"
 
 #pragma warning(push)
 #pragma warning(disable:4702)
@@ -106,6 +107,11 @@ namespace Maragi
                 }
             });
             t.detach();*/
+
+            /*Batang::Timer::instance().installPeriodicTimer(shared_from_this(), std::chrono::seconds(10), []()
+            {
+                MessageBoxW(nullptr, L"10 sec timer", L"Timer", MB_OK);
+            });*/
 
             return frm->show(showCommand);
         }

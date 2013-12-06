@@ -16,6 +16,7 @@
 #include <cassert>
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <deque>

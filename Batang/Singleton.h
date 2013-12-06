@@ -5,6 +5,22 @@ namespace Batang
     template<typename T>
     class Singleton // thread-safe global
     {
+    protected:
+        ~Singleton() {}
+
+    public:
+        static T &instance()
+        {
+            // From VC++ Compiler Nov 2013 CTP, thread-safe static is supported.
+            static T theInstance;
+            return theInstance;
+        }
+        static T &inst() { return instance(); }
+    };
+
+    template<typename T>
+    class SingletonShared // thread-safe global, boxed with std::shared_ptr
+    {
     private:
         class Deleter
         {
@@ -17,14 +33,14 @@ namespace Batang
         };
 
     protected:
-        ~Singleton() {}
+        ~SingletonShared() {}
 
     public:
         static T &instance()
         {
             // From VC++ Compiler Nov 2013 CTP, thread-safe static is supported.
-            static T theInstance;
-            return theInstance;
+            static std::shared_ptr<T> theInstance(new T(), Deleter());
+            return *theInstance;
         }
         static T &inst() { return instance(); }
     };
