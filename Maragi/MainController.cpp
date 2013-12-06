@@ -62,7 +62,7 @@ namespace Maragi
                 Gurigi::Objects::SizeF::invalid
                 );
 
-            frm->onTaskInvoked += delegate(this, &MainController::process);
+            frm->onTaskProcessable += delegate(this, &MainController::process);
 
             using Gurigi::GridSize;
             GridSize rows[] = { GridSize(20.0f), GridSize(1) }, cols[] = { GridSize(120.0f), GridSize(1) };

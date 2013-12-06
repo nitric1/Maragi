@@ -19,6 +19,12 @@
     <Filter Include="External Files\other">
       <UniqueIdentifier>{42de52e0-cc1d-400e-be61-0e5646cf6233}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Detail">
+      <UniqueIdentifier>{83880a4e-c42d-4d27-b5e4-10c2a6d33d45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Detail">
+      <UniqueIdentifier>{fdada17f-1bd6-4dec-9f47-f19fbfc12a54}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -51,6 +57,12 @@
     <ClInclude Include="Global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Detail\Win32Timer.h">
+      <Filter>Header Files\Detail</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -70,6 +82,9 @@
     </ClCompile>
     <ClCompile Include="Global.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Detail\Win32Timer.cpp">
+      <Filter>Source Files\Detail</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
