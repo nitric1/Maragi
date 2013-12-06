@@ -4,6 +4,7 @@
 
 namespace Batang
 {
+    // TODO: Move to detail
     struct Task
     {
         typedef std::tuple<std::mutex, std::condition_variable, bool> InvokeLockTuple;
@@ -12,6 +13,7 @@ namespace Batang
         std::shared_ptr<InvokeLockTuple> invokeWaiter_;
     };
 
+    // TODO: Move to detail
     class TaskPool
     {
     private:
@@ -24,11 +26,12 @@ namespace Batang
         bool empty();
     };
 
-    // TODO: move to detail
     class ThreadTaskPool
     {
     private:
         static boost::thread_specific_ptr<ThreadTaskPool> currentTaskPool_;
+
+    private:
         TaskPool taskPool_;
         std::mutex taskPoolMutex_;
         std::condition_variable invokedCv_;
@@ -55,7 +58,7 @@ namespace Batang
     };
 
     template<typename Derived>
-    class Thread : public ThreadTaskPool
+    class Thread : public ThreadTaskPool, public std::enable_shared_from_this<Derived>
     {
     private:
         template<typename ...Args>
@@ -71,7 +74,7 @@ namespace Batang
         template<typename ...Args>
         void start(Args &&...args)
         {
-            thread_.reset(new std::thread(std::bind(&Thread::runImpl, shared_from_this(), std::forward<Args>(args)...)));
+            thread_.reset(new std::thread(std::bind(&Thread::runImpl<Args...>, shared_from_this(), std::forward<Args>(args)...)));
         }
 
         template<typename ...Args>

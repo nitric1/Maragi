@@ -33,6 +33,7 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#include <unordered_map>
 #include <vector>
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>

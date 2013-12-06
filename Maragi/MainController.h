@@ -1,14 +1,14 @@
 ﻿#pragma once
 
 #include "Batang/CommandLineParser.h"
+#include "Batang/Singleton.h"
 #include "Batang/Thread.h"
 
-#include "Batang/Singleton.h"
 #include "MainWindow.h"
 
 namespace Maragi
 {
-    class MainController : public Batang::Thread<MainController>, public Batang::Singleton<MainController>
+    class MainController : public Batang::Thread<MainController>, public Batang::SingletonShared<MainController>
     {
     private:
         MainWindow *mainWin;
@@ -30,6 +30,6 @@ namespace Maragi
         void parseCommandLine(const std::wstring &);
 
         friend class Batang::Thread<MainController>;
-        friend class Batang::Singleton<MainController>;
+        friend class Batang::SingletonShared<MainController>;
     };
 }
