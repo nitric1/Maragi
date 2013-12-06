@@ -17,6 +17,7 @@
 #include <cstring>
 
 #include <algorithm>
+#include <condition_variable>
 #include <exception>
 #include <functional>
 #include <map>

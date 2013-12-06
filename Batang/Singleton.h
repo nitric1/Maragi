@@ -19,23 +19,15 @@ namespace Batang
     protected:
         ~Singleton() {}
 
-    private:
-        static std::shared_ptr<T> ptr;
-        static boost::once_flag onceFlag;
-
     public:
         static T &instance()
         {
-            boost::call_once(onceFlag, [] { ptr.reset(new T, Deleter()); });
-            return *ptr.get();
+            // From VC++ Compiler Nov 2013 CTP, thread-safe static is supported.
+            static T theInstance;
+            return theInstance;
         }
         static T &inst() { return instance(); }
     };
-
-    template<typename T>
-    std::shared_ptr<T> Singleton<T>::ptr;
-    template<typename T>
-    boost::once_flag Singleton<T>::onceFlag = BOOST_ONCE_INIT;
 
     template<typename T>
     class SingletonLocal // thread-local (using TLS)

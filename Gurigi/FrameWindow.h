@@ -55,7 +55,7 @@ namespace Gurigi
         virtual void redraw();
 
     public: // external event handlers
-        CommonEvent onTaskInvoked;
+        CommonEvent onTaskProcessable;
 
     public:
         virtual const ControlPtr<ShellLayout> &client() const;

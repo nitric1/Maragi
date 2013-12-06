@@ -1,16 +1,26 @@
 #pragma once
 
+#include "Event.h"
+
 namespace Batang
 {
+    struct Task
+    {
+        typedef std::tuple<std::mutex, std::condition_variable, bool> InvokeLockTuple;
+
+        std::function<void ()> fn_;
+        std::shared_ptr<InvokeLockTuple> invokeWaiter_;
+    };
+
     class TaskPool
     {
     private:
-        std::deque<std::function<void ()>> queue_;
+        std::deque<Task> queue_;
         std::mutex mutex_;
 
     public:
-        void push(const std::function<void ()> &task);
-        std::function<void ()> pop();
+        void push(const Task &task);
+        Task pop();
         bool empty();
     };
 
@@ -20,30 +30,32 @@ namespace Batang
     private:
         static boost::thread_specific_ptr<ThreadTaskPool> currentTaskPool_;
         TaskPool taskPool_;
-        HANDLE invokedLock_;
+        std::mutex taskPoolMutex_;
+        std::condition_variable invokedCv_;
 
     public:
-        static ThreadTaskPool *getCurrent();
+        static ThreadTaskPool *current();
 
     protected:
-        static void setCurrent(ThreadTaskPool *);
+        static void current(ThreadTaskPool *);
 
     public:
         ThreadTaskPool();
+
+    public:
+        Event<void> onTaskInvoked;
 
     public:
         virtual void invoke(const std::function<void ()> &task);
         virtual void post(const std::function<void ()> &task);
 
     protected:
-        void process();
-
-    public:
-        HANDLE invokedLock() const { return invokedLock_; }
+        bool process();
+        void pump();
     };
 
     template<typename Derived>
-    class Thread : public ThreadTaskPool, public std::enable_shared_from_this<Derived>
+    class Thread : public ThreadTaskPool
     {
     private:
         template<typename ...Args>
@@ -52,12 +64,14 @@ namespace Batang
             typedef typename std::result_of<decltype(&Derived::run)(Derived, Args...)>::type Type;
         };
 
+    private:
+        std::unique_ptr<std::thread> thread_;
+
     public:
         template<typename ...Args>
         void start(Args &&...args)
         {
-            std::thread t(std::bind(&Thread::runImpl, shared_from_this(), std::forward<Args>(args)...));
-            t.detach();
+            thread_.reset(new std::thread(std::bind(&Thread::runImpl, shared_from_this(), std::forward<Args>(args)...)));
         }
 
         template<typename ...Args>
@@ -70,9 +84,9 @@ namespace Batang
         template<typename ...Args>
         typename RunReturnTypeDeduce<Args...>::Type runImpl(Args &&...args)
         {
-            setCurrent(this);
+            current(this);
             auto ret = static_cast<Derived *>(this)->run(std::forward<Args>(args)...);
-            setCurrent(nullptr);
+            current(nullptr);
             return ret;
         }
     };

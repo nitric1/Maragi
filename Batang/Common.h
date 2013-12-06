@@ -16,6 +16,8 @@
 #include <cassert>
 
 #include <algorithm>
+#include <chrono>
+#include <condition_variable>
 #include <deque>
 #include <functional>
 #include <map>
@@ -24,11 +26,14 @@
 #include <set>
 #include <string>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
+#include <boost/signals2.hpp>
 #include <boost/thread/once.hpp>
 #include <boost/thread/tss.hpp>
 #include <boost/type_traits/function_traits.hpp>
+#include <boost/filesystem.hpp>
 
 using std::max; using std::min;
 

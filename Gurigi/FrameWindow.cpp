@@ -129,12 +129,14 @@ namespace Gurigi
         MSG msg;
         bool done = false;
 
-        Batang::ThreadTaskPool *thread = Batang::ThreadTaskPool::getCurrent();
-        HANDLE invokedLock = INVALID_HANDLE_VALUE;
-        if(thread)
+        Batang::ThreadTaskPool *thread = Batang::ThreadTaskPool::current();
+
+        HANDLE taskInvokedSemaphore = CreateSemaphoreW(nullptr, 1, 1, nullptr);
+        auto taskInvoked = [taskInvokedSemaphore]()
         {
-            invokedLock = thread->invokedLock();
-        }
+            ReleaseSemaphore(taskInvokedSemaphore, 1, nullptr);
+        };
+        auto conn = (thread->onTaskInvoked += taskInvoked);
 
         while(!done)
         {
@@ -153,15 +155,20 @@ namespace Gurigi
             {
                 if(thread)
                 {
-                    if(MsgWaitForMultipleObjects(1, &invokedLock, FALSE, INFINITE, QS_ALLINPUT) == WAIT_OBJECT_0)
+                    if(MsgWaitForMultipleObjects(1, &taskInvokedSemaphore, FALSE, INFINITE, QS_ALLINPUT) == WAIT_OBJECT_0)
                     {
-                        onTaskInvoked();
+                        onTaskProcessable();
                     }
                 }
                 else
+                {
                     WaitMessage();
+                }
             }
         }
+
+        thread->onTaskInvoked -= conn;
+        CloseHandle(taskInvokedSemaphore);
 
         return true;
     }

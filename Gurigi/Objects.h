@@ -299,7 +299,7 @@ namespace Gurigi
         class ColorF : public D2D1::ColorF
         {
         public:
-            ColorF(uint32_t rgb, float a = 1.0f)
+            /*ColorF(uint32_t rgb, float a = 1.0f)
                 : D2D1::ColorF(rgb, a)
             {}
 
@@ -313,7 +313,8 @@ namespace Gurigi
 
             ColorF(COLORREF bgr, float a = 1.0f)
                 : D2D1::ColorF(GetRValue(bgr) << 16 | GetGValue(bgr) << 8 | GetBValue(bgr), a)
-            {}
+            {}*/
+            using D2D1::ColorF::ColorF;
 
         public:
             const ColorF operator ~() const

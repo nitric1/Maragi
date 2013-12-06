@@ -352,6 +352,7 @@
     <None Include="Tokens.h.in" />
     <None Include="Tokens.txt" />
     <None Include="TextReplacer.pl" />
+    <None Include="PreBuild.bat" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Maragi.rc">

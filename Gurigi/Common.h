@@ -16,15 +16,21 @@
 #include <cassert>
 
 #include <algorithm>
+#include <atomic>
+#include <condition_variable>
 #include <deque>
 #include <map>
 #include <memory>
 #include <mutex>
 #include <set>
+#include <thread>
 #include <vector>
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+#pragma warning(push)
+#pragma warning(disable: 4819) // The file contains a character that cannot be represented in the current code page
 #include <boost/format.hpp>
+#pragma warning(pop)
 #include <boost/signals2.hpp>
 #include <boost/thread/once.hpp>
 #include <boost/thread/tss.hpp>
