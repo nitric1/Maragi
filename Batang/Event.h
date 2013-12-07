@@ -14,7 +14,7 @@ namespace Batang
         Event() {}
 
     private:
-        Event(const Event &); // = delete;
+        Event(const Event &) = delete;
 
     public:
         template<typename Func>
@@ -70,7 +70,7 @@ namespace Batang
         Event() {}
 
     private:
-        Event(const Event &); // = delete;
+        Event(const Event &) = delete;
 
     public:
         template<typename Func>

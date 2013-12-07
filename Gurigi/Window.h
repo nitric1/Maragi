@@ -55,7 +55,7 @@ namespace Gurigi
         virtual ~Slot();
 
     private:
-        Slot(const Slot &); // = delete;
+        Slot(const Slot &) = delete;
 
     public:
         virtual bool attach(const ControlWeakPtr<> &);
@@ -143,8 +143,8 @@ namespace Gurigi
         virtual ~Control() = 0;
 
     private: // no implementation
-        Control(); // = delete;
-        Control(const Control &); // = delete;
+        Control() = delete;
+        Control(const Control &) = delete;
 
     protected:
         ControlPtr<> sharedFromThis();
@@ -224,7 +224,7 @@ namespace Gurigi
         virtual ~Shell() = 0;
 
     private: // no implementation
-        Shell(const Shell &); // = delete;
+        Shell(const Shell &) = delete;
 
     protected:
         ShellPtr<> sharedFromThis();

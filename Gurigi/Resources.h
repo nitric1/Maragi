@@ -57,7 +57,7 @@ namespace Gurigi
         class ResourceHelper
         {
         private:
-            ~ResourceHelper(); // = delete;
+            ~ResourceHelper() = delete;
 
         public:
             static HINSTANCE findInstanceByResourceID(const ResourceID &, const ResourceID &);
@@ -144,7 +144,7 @@ namespace Gurigi
             {}
 
         protected:
-            Resource &operator =(const Resource &); // = delete;
+            Resource &operator =(const Resource &) = delete;
 
             friend struct ResourcePtrDeleter;
         };

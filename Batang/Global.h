@@ -90,7 +90,7 @@ namespace Batang
         ~GlobalInitializerManager();
 
     private:
-        GlobalInitializerManager(const GlobalInitializerManager &); // = delete;
+        GlobalInitializerManager(const GlobalInitializerManager &) = delete;
 
     public:
         void add(const std::shared_ptr<Initializer> &);

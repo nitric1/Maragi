@@ -51,8 +51,8 @@ namespace Gurigi
         }
 
     private:
-        ComBase(const ComBase &); // = delete;
-        ComBase &operator =(const ComBase &); // = delete;
+        ComBase(const ComBase &) = delete;
+        ComBase &operator =(const ComBase &) = delete;
     };
 
     struct ComBaseListNil
