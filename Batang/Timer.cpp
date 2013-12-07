@@ -135,11 +135,47 @@ namespace Batang
         }
     }
 
-    void Timer::uninstallAllThreadTimers(ThreadTaskPool &thread)
+    void Timer::uninstallAllThreadTimers(const std::shared_ptr<ThreadTaskPool> &thread)
     {
-        // TODO: find all thread timers
-        // TODO: remove them
-        // TODO: if one of them is at top of the heap, change next tick
+        {
+            std::lock_guard<std::mutex> lock(taskMutex_);
+
+            bool changeNextTick = false;
+            auto next = nextTask();
+
+            for(auto it = tasks_.begin(); it != tasks_.end();)
+            {
+                auto taskThread = it->second->thread_.lock();
+                if(!taskThread || (taskThread && taskThread == thread))
+                {
+                    if(!changeNextTick && it->second == next)
+                    {
+                        changeNextTick = true;
+                        std::pop_heap(taskHeap_.begin(), taskHeap_.end(), PairFirstComparer());
+                        taskHeap_.pop_back();
+                    }
+
+                    it = tasks_.erase(it);
+                }
+                else
+                {
+                    ++ it;
+                }
+            }
+
+            if(changeNextTick)
+            {
+                next = nextTask();
+                if(next)
+                {
+                    timerThread_->nextTick(next->tickAt_ - std::chrono::steady_clock::now());
+                }
+                else
+                {
+                    timerThread_->nextTick(MaxEmptyTimeout);
+                }
+            }
+        }
     }
 
     std::shared_ptr<Timer::TimerTask> Timer::nextTask()
@@ -163,6 +199,8 @@ namespace Batang
 
         return firstTask;
     }
+
+    // TODO: functions managing taskHeap_
 
     void Timer::onTimerTick()
     {
