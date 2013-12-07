@@ -65,12 +65,12 @@ namespace Batang
         return path;
     }
 
-    std::string encodeUTF8(const std::wstring &str)
+    std::string encodeUtf8(const std::wstring &str)
     {
         return boost::locale::conv::utf_to_utf<char>(str);
     }
 
-    std::wstring decodeUTF8(const std::string &str)
+    std::wstring decodeUtf8(const std::string &str)
     {
         return boost::locale::conv::utf_to_utf<wchar_t>(str);
     }
@@ -159,7 +159,7 @@ namespace Batang
         }
     }
 
-    std::string encodeURI(const std::string &str)
+    std::string encodeUri(const std::string &str)
     {
         std::string buf;
         buf.reserve(str.size());
@@ -178,7 +178,7 @@ namespace Batang
         return buf;
     }
 
-    std::string encodeURIParam(const std::string &str)
+    std::string encodeUriParam(const std::string &str)
     {
         std::string buf;
         buf.reserve(str.size());
@@ -199,7 +199,7 @@ namespace Batang
         return buf;
     }
 
-    std::string decodeURI(const std::string &str)
+    std::string decodeUri(const std::string &str)
     {
         std::string buf;
         char percentFirstChar;

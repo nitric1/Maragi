@@ -61,7 +61,7 @@ namespace Maragi
         cbd.client = this;
 
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1l);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, Batang::encodeUTF8(Constants::USER_AGENT).c_str());
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, Batang::encodeUtf8(Constants::USER_AGENT).c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &curlWriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, static_cast<void *>(&cbd));
 
@@ -223,15 +223,15 @@ namespace Maragi
             if(!field.empty())
             {
                 auto it = field.begin();
-                text += Batang::encodeURIParam(it->first);
+                text += Batang::encodeUriParam(it->first);
                 text += "=";
-                text += Batang::encodeURIParam(it->second);
+                text += Batang::encodeUriParam(it->second);
                 for(++ it; it != field.end(); ++ it)
                 {
                     text += "&";
-                    text += Batang::encodeURIParam(it->first);
+                    text += Batang::encodeUriParam(it->first);
                     text += "=";
-                    text += Batang::encodeURIParam(it->second);
+                    text += Batang::encodeUriParam(it->second);
                 }
             }
 
@@ -244,16 +244,16 @@ namespace Maragi
             if(!field.empty())
             {
                 auto it = field.begin();
-                text += Batang::encodeURI(it->first);
+                text += Batang::encodeUri(it->first);
                 text += "=\"";
-                text += Batang::encodeURI(it->second);
+                text += Batang::encodeUri(it->second);
                 text += "\"";
                 for(++ it; it != field.end(); ++ it)
                 {
                     text += ", ";
-                    text += Batang::encodeURI(it->first);
+                    text += Batang::encodeUri(it->first);
                     text += "=\"";
-                    text += Batang::encodeURI(it->second);
+                    text += Batang::encodeUri(it->second);
                     text += "\"";
                 }
             }
@@ -282,16 +282,16 @@ namespace Maragi
             uri.removeOAuthParam("oauth_signature");
 
             std::string message = "POST&";
-            message += Batang::encodeURI(uri.getBaseURI());
+            message += Batang::encodeUri(uri.getBaseURI());
             message += "&";
             std::map<std::string, std::string> totalParams = uri.getParams();
             const auto &oauthParams = uri.getOAuthParams();
             totalParams.insert(oauthParams.begin(), oauthParams.end());
-            message += Batang::encodeURI(makePostField(totalParams));
+            message += Batang::encodeUri(makePostField(totalParams));
 
-            std::string key = Batang::encodeURI(AppTokens::CONSUMER_SECRET);
+            std::string key = Batang::encodeUri(AppTokens::CONSUMER_SECRET);
             key += "&";
-            key += Batang::encodeURI(tokenSecret);
+            key += Batang::encodeUri(tokenSecret);
 
             uri.addOAuthParam(
                 "oauth_signature",
@@ -314,7 +314,7 @@ namespace Maragi
             {
                 if(*it == '&')
                 {
-                    field.insert(std::make_pair(Batang::decodeURI(key), Batang::decodeURI(value)));
+                    field.insert(std::make_pair(Batang::decodeUri(key), Batang::decodeUri(value)));
                     key.clear(); value.clear();
                     inValue = false;
                 }
@@ -425,14 +425,14 @@ namespace Maragi
         uri = makeRequestURI(Paths::AUTHORIZE);
         uri.addParam("oauth_token", token);
 
-        std::wstring wuri = Batang::decodeUTF8(uri);
+        std::wstring wuri = Batang::decodeUtf8(uri);
         ShellExecuteW(nullptr, nullptr, wuri.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 
         cfd.show();
 
         uri = makeRequestURI(Paths::ACCESS_TOKEN);
         uri.addOAuthParam("oauth_token", token);
-        uri.addOAuthParam("oauth_verifier", Batang::encodeUTF8(cfd.getText()));
+        uri.addOAuthParam("oauth_verifier", Batang::encodeUtf8(cfd.getText()));
         signRequestURI(uri, tokenSecret);
         sendRequest(uri);
         

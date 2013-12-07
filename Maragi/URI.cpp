@@ -139,15 +139,15 @@ namespace Maragi
             {
                 auto it = params.begin();
                 uriString += "?";
-                uriString += Batang::encodeURIParam(it->first);
+                uriString += Batang::encodeUriParam(it->first);
                 uriString += "=";
-                uriString += Batang::encodeURIParam(it->second);
+                uriString += Batang::encodeUriParam(it->second);
                 for(++ it; it != params.end(); ++ it)
                 {
                     uriString += "&";
-                    uriString += Batang::encodeURIParam(it->first);
+                    uriString += Batang::encodeUriParam(it->first);
                     uriString += "=";
-                    uriString += Batang::encodeURIParam(it->second);
+                    uriString += Batang::encodeUriParam(it->second);
                 }
             }
         }
