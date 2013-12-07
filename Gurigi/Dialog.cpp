@@ -32,7 +32,7 @@ namespace Gurigi
         ncm.cbSize = CCSIZEOF_STRUCT(NONCLIENTMETRICSW, lfMessageFont); // For Windows under Vista.
         SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, 0, &ncm, 0);
 
-        HINSTANCE inst = Batang::Environment::instance().getInstance();
+        HINSTANCE inst = Batang::Win32Environment::instance().getInstance();
         HRSRC rsrc = FindResourceW(inst, getDialogName(), RT_DIALOG);
         size_t size = SizeofResource(inst, rsrc);
         HGLOBAL mem = LoadResource(inst, rsrc);
@@ -174,7 +174,7 @@ namespace Gurigi
         isDialogEnd = false;
         endDialogResult = -1;
         setProcMessageFn(procMessage);
-        HWND window = CreateDialogIndirectParamW(Batang::Environment::instance().getInstance(), tpl, parentWin, callProcMessageFn, 0);
+        HWND window = CreateDialogIndirectParamW(Batang::Win32Environment::instance().getInstance(), tpl, parentWin, callProcMessageFn, 0);
         if(window != nullptr)
         {
             hwnd(window);

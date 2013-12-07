@@ -22,8 +22,8 @@
 #include <map>
 #include <memory>
 #include <mutex>
-#include <set>
 #include <thread>
+#include <unordered_set>
 #include <vector>
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>

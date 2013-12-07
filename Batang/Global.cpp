@@ -4,7 +4,7 @@
 
 namespace Batang
 {
-    Environment::Environment()
+    Win32Environment::Win32Environment()
     {
         inst_ = GetModuleHandle(nullptr);
     }

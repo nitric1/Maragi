@@ -34,7 +34,7 @@ namespace Gurigi
             DestroyWindow(hwnd());
 
         if(!className.empty())
-            UnregisterClassW(className.c_str(), Batang::Environment::instance().getInstance());
+            UnregisterClassW(className.c_str(), Batang::Win32Environment::instance().getInstance());
     }
 
     ShellPtr<FrameWindow> FrameWindow::create(
@@ -56,7 +56,7 @@ namespace Gurigi
         wcex.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
         wcex.cbClsExtra = 0;
         wcex.cbWndExtra    = sizeof(void *);
-        wcex.hInstance = Batang::Environment::instance().getInstance();
+        wcex.hInstance = Batang::Win32Environment::instance().getInstance();
         wcex.hIcon = *iconLarge;
         wcex.hIconSm = *iconSmall;
         wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
@@ -116,7 +116,7 @@ namespace Gurigi
             windowSize.width, windowSize.height,
             lparent ? lparent->hwnd() : nullptr,
             nullptr,
-            Batang::Environment::instance().getInstance(),
+            Batang::Win32Environment::instance().getInstance(),
             &static_cast<ShellWeakPtr<>>(sharedFromThis())
             );
         if(hwnd == nullptr)
