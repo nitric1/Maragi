@@ -68,8 +68,8 @@ namespace Gurigi
             }
 
         private:
-            Context(const Context &); // = delete;
-            Context &operator =(const Context &); // = delete;
+            Context(const Context &) = delete;
+            Context &operator =(const Context &) = delete;
         };
 
         class FontFactory : public Batang::Singleton<FontFactory>
