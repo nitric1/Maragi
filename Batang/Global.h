@@ -1,17 +1,18 @@
 ﻿#pragma once
 
-#include "Batang/Singleton.h"
+#include "Singleton.h"
 
 namespace Batang
 {
-    class Environment : public Batang::Singleton<Environment>
+#ifdef _WIN32
+    class Win32Environment : public Singleton<Win32Environment>
     {
     private:
         HINSTANCE inst_; // Main instance
-        std::set<HINSTANCE> dllInstances; // DLLs' instance
+        std::unordered_set<HINSTANCE> dllInstances; // DLLs' instance
 
     private:
-        Environment();
+        Win32Environment();
 
     public:
         void addDllInstance(HINSTANCE dllInst)
@@ -29,13 +30,14 @@ namespace Batang
             return inst_;
         }
 
-        const std::set<HINSTANCE> &getDllInstances() const
+        const std::unordered_set<HINSTANCE> &getDllInstances() const
         {
             return dllInstances;
         }
 
-        friend class Batang::Singleton<Environment>;
+        friend class Singleton<Win32Environment>;
     };
+#endif
 
     class Initializer
     {

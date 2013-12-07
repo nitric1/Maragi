@@ -24,12 +24,14 @@
 #include <map>
 #include <memory>
 #include <mutex>
-#include <set>
 #include <string>
 #include <thread>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/locale/encoding_utf.hpp>
 #include <boost/signals2.hpp>
 #include <boost/thread/once.hpp>
 #include <boost/thread/tss.hpp>
@@ -42,15 +44,21 @@ using std::max; using std::min;
 
 // Windows API inclusion; <windows.h> should be first.
 
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 
 #include <windows.h>
 
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4005) // macro redefinition, for INT8_MIN, INT8_MAX, ...
+#endif // _MSC_VER
 #include <intrin.h>
 #include <windowsx.h>
+#ifdef _MSC_VER
 #pragma warning(pop)
+#endif // _MSC_VER
+#endif // _WIN32
 
 // Other common inclusion
 

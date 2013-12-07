@@ -25,7 +25,6 @@
 #include <new>
 #include <numeric>
 #include <random>
-#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -34,10 +33,14 @@
 #include <type_traits>
 #include <utility>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+#pragma warning(push)
+#pragma warning(disable: 4819) // The file contains a character that cannot be represented in the current code page
 #include <boost/format.hpp>
+#pragma warning(pop)
 #include <boost/signals2.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/once.hpp>

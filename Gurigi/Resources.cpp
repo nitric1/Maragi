@@ -104,7 +104,7 @@ namespace Gurigi
         HINSTANCE ResourceHelper::findInstanceByResourceID(const ResourceID &id, const ResourceID &type)
         {
             std::vector<HINSTANCE> instances;
-            instances.push_back(Batang::Environment::instance().getInstance());
+            instances.push_back(Batang::Win32Environment::instance().getInstance());
             // TODO: DLL instances
 
             for(auto it = std::begin(instances); it != std::end(instances); ++ it)

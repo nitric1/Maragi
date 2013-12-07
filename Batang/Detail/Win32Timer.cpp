@@ -1,8 +1,10 @@
 #include "Common.h"
 
-#include "Detail/Win32Timer.h"
+#ifdef _WIN32
 
-#include "Timer.h"
+#include "Win32Timer.h"
+
+#include "../Timer.h"
 
 namespace Batang
 {
@@ -45,3 +47,5 @@ namespace Batang
         }
     }
 }
+
+#endif

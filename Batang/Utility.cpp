@@ -36,24 +36,9 @@ namespace Batang
 
     std::vector<std::wstring> splitAnyOf(const std::wstring &str, const std::wstring &sep)
     {
-        size_t ppos, pos = static_cast<size_t>(-1);
-        std::vector<std::wstring> ve;
-
-        while(true)
-        {
-            ppos = pos;
-            pos = str.find_first_of(sep, ++ ppos);
-
-            if(pos == std::wstring::npos)
-            {
-                ve.push_back(str.substr(ppos));
-                break;
-            }
-            else
-                ve.push_back(str.substr(ppos, pos - ppos));
-        }
-
-        return ve;
+        std::vector<std::wstring> result;
+        boost::algorithm::split(result, str, boost::algorithm::is_any_of(sep));
+        return result;
     }
 
     std::wstring join(const std::vector<std::wstring> &ve, const std::wstring &sep)
@@ -82,16 +67,12 @@ namespace Batang
 
     std::string encodeUTF8(const std::wstring &str)
     {
-        std::vector<char> result(static_cast<size_t>(WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, nullptr, 0, nullptr, nullptr)) + 1);
-        WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, &*result.begin(), static_cast<int>(result.size()), nullptr, nullptr);
-        return &*result.begin();
+        return boost::locale::conv::utf_to_utf<char>(str);
     }
 
     std::wstring decodeUTF8(const std::string &str)
     {
-        std::vector<wchar_t> result(static_cast<size_t>(MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0)) + 1);
-        MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &*result.begin(), static_cast<int>(result.size()));
-        return &*result.begin();
+        return boost::locale::conv::utf_to_utf<wchar_t>(str);
     }
 
     std::string base64Encode(const std::vector<uint8_t> &data)
