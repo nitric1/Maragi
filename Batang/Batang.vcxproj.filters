@@ -63,6 +63,9 @@
     <ClInclude Include="Detail\Win32Timer.h">
       <Filter>Header Files\Detail</Filter>
     </ClInclude>
+    <ClInclude Include="Detail\TimerfdTimer.h">
+      <Filter>Header Files\Detail</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -84,6 +87,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Detail\Win32Timer.cpp">
+      <Filter>Source Files\Detail</Filter>
+    </ClCompile>
+    <ClCompile Include="Detail\TimerfdTimer.cpp">
       <Filter>Source Files\Detail</Filter>
     </ClCompile>
   </ItemGroup>

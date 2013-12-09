@@ -11,7 +11,7 @@ namespace Batang
         class TimerThread : public Thread<TimerThread>
         {
         private:
-            HANDLE timer_;
+            int timerfd_;
             std::atomic<bool> toEnd_;
 
         private:

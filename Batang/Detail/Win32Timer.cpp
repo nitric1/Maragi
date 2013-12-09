@@ -1,6 +1,6 @@
 #include "Common.h"
 
-#ifdef _WIN32
+#ifdef BATANG_TIMER_WIN32
 
 #include "Win32Timer.h"
 
@@ -13,6 +13,11 @@ namespace Batang
         TimerThread::TimerThread()
             : timer_(CreateWaitableTimerW(nullptr, FALSE, nullptr))
         {
+        }
+
+        TimerThread::~TimerThread()
+        {
+            CloseHandle(timer_);
         }
 
         void TimerThread::run()
