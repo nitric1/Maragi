@@ -4,10 +4,12 @@
 
 namespace Batang
 {
+#ifdef _WIN32
     Win32Environment::Win32Environment()
     {
         inst_ = GetModuleHandle(nullptr);
     }
+#endif
 
     GlobalInitializerManager::~GlobalInitializerManager()
     {

@@ -74,7 +74,7 @@ namespace Batang
         template<typename ...Args>
         void start(Args &&...args)
         {
-            thread_.reset(new std::thread(std::bind(&Thread::runImpl<Args...>, shared_from_this(), std::forward<Args>(args)...)));
+            thread_.reset(new std::thread(std::bind(&Thread::runImpl<Args...>, this->shared_from_this(), std::forward<Args>(args)...)));
         }
 
         template<typename ...Args>
@@ -87,10 +87,20 @@ namespace Batang
         template<typename ...Args>
         typename RunReturnTypeDeduce<Args...>::Type runImpl(Args &&...args)
         {
-            current(this);
-            auto ret = static_cast<Derived *>(this)->run(std::forward<Args>(args)...);
-            current(nullptr);
-            return ret;
+            struct SetCurrent
+            {
+            	ThreadTaskPool *thread_;
+                void (* setter_)(ThreadTaskPool *);
+                SetCurrent(ThreadTaskPool *thread, void (* setter)(ThreadTaskPool *))
+                    : thread_(thread)
+                    , setter_(setter)
+                {
+                    setter(thread);
+                }
+                ~SetCurrent() { setter_(nullptr); }
+            } setCurrent(this, &Thread::current);
+
+            return static_cast<Derived *>(this)->run(std::forward<Args>(args)...);
         }
     };
 }
