@@ -17,6 +17,9 @@ namespace Batang
         private:
             TimerThread();
 
+        public:
+            ~TimerThread();
+
         private:
             void run();
 

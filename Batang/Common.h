@@ -42,23 +42,43 @@ using std::max; using std::min;
 
 // External library inclusion
 
+#if defined(_WIN32)
 // Windows API inclusion; <windows.h> should be first.
 
-#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
+
+#define BATANG_TIMER_WIN32
 
 #include <windows.h>
 
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4005) // macro redefinition, for INT8_MIN, INT8_MAX, ...
-#endif // _MSC_VER
+
 #include <intrin.h>
+#endif // _MSC_VER
+
 #include <windowsx.h>
+
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif // _MSC_VER
-#endif // _WIN32
+
+#elif defined(__linux__)
+// Linux API inclusion; <linux/version.h> should be first.
+
+#include <linux/version.h>
+
+#include <time.h>
+#include <unistd.h>
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
+#define BATANG_TIMER_TIMERFD
+
+#include <sys/timerfd.h>
+#endif // LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
+
+#endif
 
 // Other common inclusion
 
