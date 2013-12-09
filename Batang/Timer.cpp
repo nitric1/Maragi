@@ -2,8 +2,10 @@
 
 #include "Timer.h"
 
-#if defined(_WIN32)
+#if defined(BATANG_TIMER_WIN32)
 #include "Detail/Win32Timer.h"
+#elif defined(BATANG_TIMER_TIMERFD)
+#include "Detail/TimerfdTimer.h"
 #else
 #error Not-Win32 platform is currently not supported.
 #endif

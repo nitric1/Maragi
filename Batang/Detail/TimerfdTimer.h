@@ -28,7 +28,7 @@ namespace Batang
             void stop();
 
             friend class Thread<TimerThread>;
-            friend class Timer;
+            friend class ::Batang::Timer;
         };
     }
 }

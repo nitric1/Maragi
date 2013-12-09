@@ -51,7 +51,9 @@ namespace Batang
     {
         auto range = args.equal_range(key);
         std::vector<std::wstring> values;
-        std::for_each(range.first, range.second, [&values](const decltype(*range.first) &value) -> void { values.push_back(value.first); });
+        std::for_each(range.first, range.second,
+            [&values](const std::pair<std::wstring, std::wstring> &value) -> void
+            { values.push_back(value.first); });
         return values;
     }
 

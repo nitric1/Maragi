@@ -42,7 +42,7 @@ namespace Batang
         {
             static const int32_t SecToNsec = 1000000000;
 
-            auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(duration);
+            auto nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
 
             itimerspec dueTime = { { 0, 0 }, { 0, 0 } };
             clock_gettime(CLOCK_MONOTONIC, &dueTime.it_value);
@@ -55,7 +55,7 @@ namespace Batang
                 dueTime.it_value.tv_nsec %= SecToNsec;
             }
 
-            timerfd_settime(fd, TFD_TIMER_ABSTIME, &dueTime, nullptr);
+            timerfd_settime(timerfd_, TFD_TIMER_ABSTIME, &dueTime, nullptr);
         }
 
         void TimerThread::stop()
@@ -63,7 +63,7 @@ namespace Batang
             toEnd_ = true;
 
             itimerspec cancelSpec = { { 0, 0 }, { 0, 0 } };
-            timerfd_settime(fd, 0, &cancelSpec, nullptr);
+            timerfd_settime(timerfd_, 0, &cancelSpec, nullptr);
         }
     }
 }

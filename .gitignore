@@ -4,6 +4,9 @@
 *.opensdf
 *.sdf
 *.suo
+
+*.o
+
 LocMetrics*
 
 Debug
