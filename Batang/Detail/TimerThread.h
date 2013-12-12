@@ -11,7 +11,9 @@ namespace Batang
         class TimerThread : public Thread<TimerThread>
         {
         private:
-            int timerfd_;
+            std::condition_variable timerCv_;
+            std::mutex timerMutex_;
+            std::chrono::steady_clock::duration nextTickDuration_;
             std::atomic<bool> toEnd_;
 
         private:
@@ -28,7 +30,7 @@ namespace Batang
             void stop();
 
             friend class Thread<TimerThread>;
-            friend class ::Batang::Timer;
+            friend class Timer;
         };
     }
 }

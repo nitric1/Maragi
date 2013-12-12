@@ -23,8 +23,7 @@
     <ClInclude Include="CommandLineParser.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Delegate.h" />
-    <ClInclude Include="Detail\TimerfdTimer.h" />
-    <ClInclude Include="Detail\Win32Timer.h" />
+    <ClInclude Include="Detail\TimerThread.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="Singleton.h" />
@@ -41,8 +40,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Detail\TimerfdTimer.cpp" />
-    <ClCompile Include="Detail\Win32Timer.cpp" />
+    <ClCompile Include="Detail\TimerThread.cpp" />
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="Timer.cpp" />
