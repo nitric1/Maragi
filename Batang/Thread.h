@@ -83,6 +83,14 @@ namespace Batang
             return runImpl(std::forward<Args>(args)...);
         }
 
+        void join()
+        {
+            if(thread_)
+            {
+                thread_->join();
+            }
+        }
+
     private:
         template<typename ...Args>
         typename RunReturnTypeDeduce<Args...>::Type runImpl(Args &&...args)

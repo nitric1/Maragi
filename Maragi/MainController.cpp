@@ -108,10 +108,10 @@ namespace Maragi
             });
             t.detach();*/
 
-            /*Batang::Timer::instance().installPeriodicTimer(shared_from_this(), std::chrono::seconds(10), []()
+            Batang::Timer::instance().installPeriodicTimer(shared_from_this(), std::chrono::seconds(1), [&button]()
             {
-                MessageBoxW(nullptr, L"10 sec timer", L"Timer", MB_OK);
-            });*/
+                button->onClick(Gurigi::ControlEventArg());
+            });
 
             return frm->show(showCommand);
         }

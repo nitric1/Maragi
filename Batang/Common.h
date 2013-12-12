@@ -47,8 +47,6 @@ using std::max; using std::min;
 
 #define WIN32_LEAN_AND_MEAN
 
-#define BATANG_TIMER_WIN32
-
 #include <windows.h>
 
 #ifdef _MSC_VER
@@ -63,20 +61,6 @@ using std::max; using std::min;
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif // _MSC_VER
-
-#elif defined(__linux__)
-// Linux API inclusion; <linux/version.h> should be first.
-
-#include <linux/version.h>
-
-#include <time.h>
-#include <unistd.h>
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
-#define BATANG_TIMER_TIMERFD
-
-#include <sys/timerfd.h>
-#endif // LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
 
 #endif
 
