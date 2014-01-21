@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Maragi", "Maragi\Maragi.vcxproj", "{C785E965-297F-45B2-82C7-60D8FA69EB60}"
 	ProjectSection(ProjectDependencies) = postProject
 		{BCA16472-2EAD-4A5F-99ED-C4E98A17999D} = {BCA16472-2EAD-4A5F-99ED-C4E98A17999D}
