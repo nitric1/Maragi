@@ -44,6 +44,7 @@ namespace Batang
 
     public:
         ThreadTaskPool();
+        virtual ~ThreadTaskPool() = 0 {}
 
     public:
         Event<void> onTaskInvoked;

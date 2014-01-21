@@ -4,6 +4,7 @@
 
 #include "Gurigi/Controls.h"
 #include "Gurigi/Window.h"
+#include "Gurigi/FrameWindow.h"
 
 #include "MainController.h"
 #include "Tokens.h"
@@ -17,7 +18,6 @@ namespace Maragi
     MainController::MainController()
     {
         registerEvents();
-        mainWin = &MainWindow::instance();
     }
     
     MainController::~MainController()
@@ -48,9 +48,6 @@ namespace Maragi
             // TwitterClient tc;
             // tc.authorize();
 
-            // mainWin->setShowStatus(showCommand);
-            // return mainWin->show();
-
             Gurigi::ShellPtr<Gurigi::FrameWindow> frm = Gurigi::FrameWindow::create(
                 nullptr,
                 L"Maragi",
@@ -58,18 +55,17 @@ namespace Maragi
                 Gurigi::Resources::Icon::fromSharedResource(IDI_APPLICATION, Gurigi::Objects::SizeI(16, 16)),
                 Gurigi::Objects::ColorF::Black,
                 Gurigi::Objects::SizeF(640.0f, 480.0f),
-                Gurigi::Objects::PointI::invalid,
+                Gurigi::Objects::PointI::Invalid,
                 Gurigi::Objects::SizeF(400.0f, 300.0f),
-                Gurigi::Objects::SizeF::invalid
+                Gurigi::Objects::SizeF::Invalid
                 );
 
             frm->onTaskProcessable += delegate(this, &MainController::process);
 
             using Gurigi::GridSize;
-            GridSize rows[] = { GridSize(20.0f), GridSize(1) }, cols[] = { GridSize(120.0f), GridSize(1) };
             Gurigi::ControlPtr<Gurigi::GridLayout<2, 2>> layout = Gurigi::GridLayout<2, 2>::create(
-                std::vector<GridSize>(std::begin(rows), std::end(rows)),
-                std::vector<GridSize>(std::begin(cols), std::end(cols))
+                { GridSize(20.0f), GridSize(1) },
+                { GridSize(120.0f), GridSize(1) }
                 );
             frm->client()->slot()->attach(layout);
 
@@ -81,18 +77,18 @@ namespace Maragi
             layout->slot(0, 0)->attach(label);
 
             button = Gurigi::Button::create(L"Button Text");
-            button->onClick += Batang::delegate([&edit](const Gurigi::ControlEventArg &)
+            button->onClick += [&edit](const Gurigi::ControlEventArg &)
             {
                 if(edit->text().empty())
                 {
                     edit->text(L"한글 시험 World Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ac lectus lacus. Integer ac nisi a augue fringilla porttitor. Suspendisse id lorem mauris. Nulla vestibulum, enim quis malesuada euismod, ipsum urna dictum ligula, sed placerat ipsum diam vitae ante. Cras condimentum blandit sollicitudin. Aenean vitae nibh nisl, ac iaculis odio. Nullam ut urna risus. Vivamus nec ipsum dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus nulla neque, tempor a pharetra a, bibendum vitae lacus. 한글 워드랩도 테스트하고 싶습니다. 한글 워드랩은 어떻게 생겨먹었습니까?");
-                    edit->selection(0, 587, true);
+                    // edit->selection(0, 587, true);
                     //edit->text(L"الديباجة한글 한글 English");
                     //edit->selection(2, 13, true);
                 }
                 else
                     edit->text(L"");
-            });
+            };
             layout->slot(0, 1)->attach(button);
 
             edit = Gurigi::Edit::create(L"Placeholder Now");
@@ -108,10 +104,12 @@ namespace Maragi
             });
             t.detach();*/
 
-            Batang::Timer::instance().installPeriodicTimer(shared_from_this(), std::chrono::seconds(1), [&button]()
-            {
-                button->onClick(Gurigi::ControlEventArg());
-            });
+            Batang::Timer::instance().installRunOnceTimer(shared_from_this(),
+                std::chrono::steady_clock::now() + std::chrono::seconds(1),
+                [&button]()
+                {
+                    button->onClick(Gurigi::ControlEventArg());
+                });
 
             return frm->show(showCommand);
         }
@@ -142,24 +140,18 @@ namespace Maragi
 
     bool MainController::checkPrerequisites()
     {
-        if(strcmp(AppTokens::CONSUMER_KEY, "") == 0 || strcmp(AppTokens::CONSUMER_SECRET, "") == 0)
-        {
-            throw(std::logic_error("Tokens for authorization are not filled. Check Tokens.h.in."));
-            return false;
-        }
-
         return true;
     }
 
     void MainController::parseCommandLine(const std::wstring &commandLine)
     {
-        cmdLine.addKey(L"help", false);
-        cmdLine.addAbbr(L"h", L"help");
-        cmdLine.addAbbr(L"?", L"help");
+        cmdLine_.addKey(L"help", false);
+        cmdLine_.addAbbr(L"h", L"help");
+        cmdLine_.addAbbr(L"?", L"help");
 
-        cmdLine.parse(commandLine);
+        cmdLine_.parse(commandLine);
 
-        if(!cmdLine.isArgEmpty(L"help"))
+        if(!cmdLine_.isArgEmpty(L"help"))
         {
             // TODO: Maragi.exe --help
         }

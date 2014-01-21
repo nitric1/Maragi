@@ -10,7 +10,7 @@ namespace Gurigi
         : Control(id)
         , color_(Objects::ColorF::Black)
     {
-        format = Drawing::FontFactory::instance().createFont(16.0f); // TODO: font size customization?
+        format_ = Drawing::FontFactory::instance().createFont(16.0f); // TODO: font size customization?
 
         const auto &dwfac = Drawing::D2DFactory::instance().getDWriteFactory();
         ComPtr<IDWriteRenderingParams> renderParamsTemp;
@@ -21,7 +21,7 @@ namespace Gurigi
             renderParamsTemp->GetClearTypeLevel(),
             renderParamsTemp->GetPixelGeometry(),
             DWRITE_RENDERING_MODE_CLEARTYPE_GDI_CLASSIC,
-            &renderParams);
+            &renderParams_);
     }
 
     Label::~Label()
@@ -46,28 +46,28 @@ namespace Gurigi
 
     void Label::discardDrawingResources(Drawing::Context &ctx)
     {
-        brush.release();
+        brush_.release();
     }
 
     void Label::draw(Drawing::Context &ctx)
     {
-        if(!brush)
+        if(!brush_)
         {
             HRESULT hr;
-            hr = ctx->CreateSolidColorBrush(color_, &brush);
+            hr = ctx->CreateSolidColorBrush(color_, &brush_);
             if(FAILED(hr))
                 throw(UIException("CreateSolidColorBrush failed in Label::draw."));
         }
 
         ComPtr<IDWriteRenderingParams> oldRenderParams;
         ctx->GetTextRenderingParams(&oldRenderParams);
-        ctx->SetTextRenderingParams(renderParams);
+        ctx->SetTextRenderingParams(renderParams_);
         ctx->DrawTextW(
             text_.c_str(),
             static_cast<unsigned>(text_.size()),
-            format,
+            format_,
             rect(),
-            brush,
+            brush_,
             D2D1_DRAW_TEXT_OPTIONS_NONE,
             DWRITE_MEASURING_MODE_GDI_CLASSIC);
         ctx->SetTextRenderingParams(oldRenderParams);
@@ -98,7 +98,7 @@ namespace Gurigi
     void Label::color(const Objects::ColorF &color)
     {
         color_ = color;
-        brush.release();
+        brush_.release();
         redraw();
     }
 
@@ -114,30 +114,30 @@ namespace Gurigi
         switch(align & HORZ_MASK)
         {
         case LEFT:
-            format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+            format_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
             break;
 
         case CENTER:
-            format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+            format_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
             break;
 
         case RIGHT:
-            format->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
+            format_->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
             break;
         }
 
         switch(align & VERT_MASK)
         {
         case TOP:
-            format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
+            format_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
             break;
 
         case VCENTER:
-            format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+            format_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
             break;
 
         case BOTTOM:
-            format->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR);
+            format_->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_FAR);
             break;
         }
 
@@ -151,26 +151,26 @@ namespace Gurigi
 
     Button::Button(const ControlID &id)
         : Control(id)
-        , clicked(false)
-        , hovered(false)
+        , clicked_(false)
+        , hovered_(false)
     {
         onMouseButtonDown += Batang::delegate(this, &Button::onMouseButtonDownImpl);
         onMouseButtonDoubleClick += Batang::delegate(this, &Button::onMouseButtonDownImpl);
         onMouseButtonUp += Batang::delegate(this, &Button::onMouseButtonUpImpl);
 
-        onMouseOver += Batang::delegate(
+        onMouseOver +=
             [this](const ControlEventArg &arg)
             {
-                hovered = true;
+                hovered_ = true;
                 redraw();
-            });
+            };
 
-        onMouseOut += Batang::delegate(
+        onMouseOut +=
             [this](const ControlEventArg &arg)
             {
-                hovered = false;
+                hovered_ = false;
                 redraw();
-            });
+            };
     }
 
     Button::~Button()
@@ -188,27 +188,27 @@ namespace Gurigi
     void Button::createDrawingResources(Drawing::Context &ctx)
     {
         // TODO: neat rendering
-        ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGray), &brushUp);
-        ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkGray), &brushDown);
-        ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Silver), &brushHovered);
+        ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::LightGray), &brushUp_);
+        ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DarkGray), &brushDown_);
+        ctx->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Silver), &brushHovered_);
     }
 
     void Button::discardDrawingResources(Drawing::Context &ctx)
     {
-        brushUp.release();
-        brushDown.release();
-        brushHovered.release();
+        brushUp_.release();
+        brushDown_.release();
+        brushHovered_.release();
     }
 
     void Button::draw(Drawing::Context &ctx)
     {
         Objects::RectangleF rect = this->rect();
-        if(clicked)
-            ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushDown);
-        else if(hovered)
-            ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushHovered);
+        if(clicked_)
+            ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushDown_);
+        else if(hovered_)
+            ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushHovered_);
         else
-            ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushUp);
+            ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushUp_);
     }
 
     Objects::SizeF Button::computeSize()
@@ -221,7 +221,7 @@ namespace Gurigi
     {
         if(arg.buttonNum == 1)
         {
-            clicked = true;
+            clicked_ = true;
             redraw();
         }
     }
@@ -230,7 +230,7 @@ namespace Gurigi
     {
         if(arg.buttonNum == 1)
         {
-            clicked = false;
+            clicked_ = false;
             redraw();
             onClick(arg);
         }
@@ -857,7 +857,7 @@ namespace Gurigi
                 );
 
             select(
-                trailing ? SelectModeAbsoluteTrailing : SelectModeAbsoluteLeading,
+                trailing ? SelectMode::AbsoluteTrailing : SelectMode::AbsoluteLeading,
                 htm.textPosition,
                 dragging
                 );

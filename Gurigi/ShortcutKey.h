@@ -8,7 +8,7 @@ namespace Gurigi
     class ShortcutKey : public Batang::Singleton<ShortcutKey>
     {
     public:
-        enum Modifier
+        enum class Modifier : uint8_t
         {
             None = 0,
             Ctrl = 1,
@@ -28,6 +28,11 @@ namespace Gurigi
             bool operator <(const Key &rhs) const
             {
                 return modifier < rhs.modifier || (modifier == rhs.modifier && key < rhs.key);
+            }
+
+            explicit operator bool() const
+            {
+                return key != 0;
             }
         };
 
@@ -50,7 +55,7 @@ namespace Gurigi
         };
 
     private:
-        std::map<std::pair<Key, const Shell *>, Command> keyMap;
+        std::map<std::pair<Key, const Shell *>, Command> keyMap_;
 
     private:
         ShortcutKey();

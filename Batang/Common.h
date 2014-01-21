@@ -32,7 +32,18 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/locale/encoding_utf.hpp>
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4503) // decorated name length exceeded, name was truncated
+#endif // _MSC_VER
+
 #include <boost/signals2.hpp>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif // _MSC_VER
+
 #include <boost/thread/once.hpp>
 #include <boost/thread/tss.hpp>
 #include <boost/type_traits/function_traits.hpp>
@@ -56,6 +67,7 @@ using std::max; using std::min;
 #include <intrin.h>
 #endif // _MSC_VER
 
+#include <process.h>
 #include <windowsx.h>
 
 #ifdef _MSC_VER

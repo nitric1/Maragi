@@ -28,9 +28,9 @@ namespace Gurigi
         Objects::ColorF color_;
         uint32_t align_;
 
-        ComPtr<ID2D1SolidColorBrush> brush;
-        ComPtr<IDWriteTextFormat> format;
-        ComPtr<IDWriteRenderingParams> renderParams;
+        ComPtr<ID2D1SolidColorBrush> brush_;
+        ComPtr<IDWriteTextFormat> format_;
+        ComPtr<IDWriteRenderingParams> renderParams_;
 
     protected:
         Label(const ControlID &);
@@ -64,9 +64,9 @@ namespace Gurigi
     private:
         std::wstring text_;
 
-        ComPtr<ID2D1SolidColorBrush> brushUp, brushDown, brushHovered;
-        bool hovered, clicked;
-        Objects::PointF pt;
+        ComPtr<ID2D1SolidColorBrush> brushUp_, brushDown_, brushHovered_;
+        bool hovered_, clicked_;
+        Objects::PointF pt_;
 
     protected:
         Button(const ControlID &);
@@ -169,16 +169,16 @@ namespace Gurigi
     class Edit : public Control
     {
     private:
-        enum SelectMode
+        enum class SelectMode : uint8_t
         {
-            SelectModeAbsoluteLeading,
-            SelectModeAbsoluteTrailing
+            AbsoluteLeading,
+            AbsoluteTrailing
         };
 
     public:
-        enum ReadingDirection
+        enum class ReadingDirection : uint8_t
         {
-            ReadingDirectionSystemDefault, ReadingDirectionLtr, ReadingDirectionRtl
+            SystemDefault, Ltr, Rtl
         };
 
     private:

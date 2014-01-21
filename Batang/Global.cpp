@@ -6,23 +6,23 @@ namespace Batang
 {
 #ifdef _WIN32
     Win32Environment::Win32Environment()
+        : inst_(GetModuleHandleW(nullptr))
     {
-        inst_ = GetModuleHandle(nullptr);
     }
 #endif
 
     GlobalInitializerManager::~GlobalInitializerManager()
     {
-        for(auto it = std::begin(inits); it != std::end(inits); ++ it)
+        for(auto it = std::begin(inits_); it != std::end(inits_); ++ it)
             it->second->uninit();
     }
 
     void GlobalInitializerManager::add(const std::shared_ptr<Initializer> &init)
     {
-        std::lock_guard<std::mutex> lg(lock);
-        if(inits.find(init->getName()) != std::end(inits))
+        std::lock_guard<std::mutex> lg(lock_);
+        if(inits_.find(init->getName()) != inits_.end())
             return;
-        inits.insert(std::make_pair(init->getName(), init));
+        inits_.insert(std::make_pair(init->getName(), init));
         init->init();
     }
 }

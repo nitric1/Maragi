@@ -10,8 +10,8 @@ namespace Gurigi
     class FrameWindow : public Shell
     {
     public:
-        static const uint32_t windowStyle;
-        static const uint32_t windowStyleEx;
+        static const uint32_t WindowStyle;
+        static const uint32_t WindowStyleEx;
 
     private:
         ControlPtr<ShellLayout> client_; // FrameWindow handles only one child.
@@ -20,13 +20,13 @@ namespace Gurigi
         Objects::SizeF minClientSize_, maxClientSize_;
         Drawing::Context context_;
 
-        std::wstring className;
-        std::wstring initTitle;
-        Objects::PointI initPosition;
-        Objects::SizeF initClientSize;
-        bool inDestroy;
-        int32_t capturedButtons;
-        std::vector<ControlWeakPtr<>> captureds, prevHovereds;
+        std::wstring className_;
+        std::wstring initTitle_;
+        Objects::PointI initPosition_;
+        Objects::SizeF initClientSize_;
+        bool inDestroy_;
+        int32_t capturedButtons_;
+        std::vector<ControlWeakPtr<>> captureds_, prevHovereds_;
 
     protected:
         FrameWindow();
@@ -40,10 +40,10 @@ namespace Gurigi
             const Resources::ResourcePtr<Resources::Icon> &,
             const Resources::ResourcePtr<Resources::Icon> &,
             const Objects::ColorF & = Objects::ColorF(Objects::ColorF::White),
-            const Objects::SizeF & = Objects::SizeF::invalid,
-            const Objects::PointI & = Objects::PointI::invalid,
-            const Objects::SizeF & = Objects::SizeF::invalid,
-            const Objects::SizeF & = Objects::SizeF::invalid
+            const Objects::SizeF & = Objects::SizeF::Invalid,
+            const Objects::PointI & = Objects::PointI::Invalid,
+            const Objects::SizeF & = Objects::SizeF::Invalid,
+            const Objects::SizeF & = Objects::SizeF::Invalid
             ); // TODO: menu
 
     public:

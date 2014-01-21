@@ -11,8 +11,8 @@ namespace Gurigi
         class D2DFactory : public Batang::Singleton<D2DFactory>
         {
         private:
-            ComPtr<ID2D1Factory> d2dfac;
-            ComPtr<IDWriteFactory> dwfac;
+            ComPtr<ID2D1Factory> d2dfac_;
+            ComPtr<IDWriteFactory> dwfac_;
 
         private:
             D2DFactory();
@@ -21,12 +21,12 @@ namespace Gurigi
         public:
             const ComPtr<ID2D1Factory> &getD2DFactory() const
             {
-                return d2dfac;
+                return d2dfac_;
             }
 
             const ComPtr<IDWriteFactory> &getDWriteFactory() const
             {
-                return dwfac;
+                return dwfac_;
             }
 
             friend class Batang::Singleton<D2DFactory>;
@@ -35,7 +35,7 @@ namespace Gurigi
         class Context
         {
         private:
-            ComPtr<ID2D1HwndRenderTarget> rt;
+            ComPtr<ID2D1HwndRenderTarget> rt_;
 
         public:
             Context();
@@ -49,22 +49,22 @@ namespace Gurigi
         public:
             ID2D1HwndRenderTarget *get() const
             {
-                return rt;
+                return rt_;
             }
 
-            operator bool() const
+            explicit operator bool() const
             {
-                return rt.get() != nullptr;
+                return rt_.get() != nullptr;
             }
 
             ID2D1HwndRenderTarget *operator ->() const
             {
-                return rt;
+                return rt_;
             }
 
-            operator ID2D1HwndRenderTarget *() const
+            explicit operator ID2D1HwndRenderTarget *() const
             {
-                return rt;
+                return rt_;
             }
 
         private:

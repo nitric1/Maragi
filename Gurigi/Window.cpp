@@ -6,8 +6,6 @@
 
 namespace Gurigi
 {
-    const ControlID ControlID::undefined(0);
-
     Slot::Slot()
     {
     }
@@ -243,7 +241,7 @@ namespace Gurigi
             ControlPtr<> lctl = it->lock();
             if(lctl)
             {
-                if(arg.shellClientPoint != Objects::PointF::invalid)
+                if(arg.shellClientPoint != Objects::PointF::Invalid)
                     arg.controlPoint = translatePointIn(arg.shellClientPoint, lctl->rect());
                 (lctl.get()->*ev)(arg);
                 if(!arg.isPropagatable())

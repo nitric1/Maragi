@@ -16,7 +16,7 @@ namespace Gurigi
 
             hr = D2D1CreateFactory(
                 D2D1_FACTORY_TYPE_MULTI_THREADED,
-                &d2dfac
+                &d2dfac_
                 );
             if(FAILED(hr))
                 throw(ComException("D2D1CreateFactory failed."));
@@ -24,8 +24,7 @@ namespace Gurigi
             hr = DWriteCreateFactory(
                 DWRITE_FACTORY_TYPE_SHARED,
                 __uuidof(IDWriteFactory),
-                reinterpret_cast<IUnknown **>(&dwfac)
-                );
+                reinterpret_cast<IUnknown **>(&dwfac_));
             if(FAILED(hr))
                 throw(ComException("DWriteCreateFactory failed."));
         }
@@ -40,13 +39,13 @@ namespace Gurigi
 
         void Context::create(HWND hwnd, const Objects::SizeI &size)
         {
-            rt.release();
+            rt_.release();
             HRESULT hr;
 
             hr = D2DFactory::instance().getD2DFactory()->CreateHwndRenderTarget(
                 D2D1::RenderTargetProperties(),
                 D2D1::HwndRenderTargetProperties(hwnd, size),
-                &rt
+                &rt_
                 );
             if(FAILED(hr))
                 throw(ComException("CreateHwndRenderTarget failed."));
@@ -54,25 +53,25 @@ namespace Gurigi
 
         void Context::resize(const Objects::SizeI &size)
         {
-            if(rt)
-                rt->Resize(size);
+            if(rt_)
+                rt_->Resize(size);
         }
 
         void Context::beginDraw()
         {
-            if(rt)
-                rt->BeginDraw();
+            if(rt_)
+                rt_->BeginDraw();
         }
 
         bool Context::endDraw()
         {
-            if(rt)
+            if(rt_)
             {
                 HRESULT hr;
-                hr = rt->EndDraw();
+                hr = rt_->EndDraw();
                 if(hr == D2DERR_RECREATE_TARGET)
                 {
-                    rt.release();
+                    rt_.release();
                     return false;
                 }
             }
@@ -94,8 +93,7 @@ namespace Gurigi
             DWRITE_TEXT_ALIGNMENT textAlign,
             DWRITE_PARAGRAPH_ALIGNMENT paraAlign,
             DWRITE_FONT_STYLE style,
-            DWRITE_FONT_STRETCH stretch
-            )
+            DWRITE_FONT_STRETCH stretch)
         {
             const auto &dwfac = D2DFactory::instance().getDWriteFactory();
             ComPtr<IDWriteTextFormat> format;

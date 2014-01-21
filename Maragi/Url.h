@@ -2,24 +2,24 @@
 
 namespace Maragi
 {
-    class URI
+    class Url
     {
     private:
-        std::string baseURI;
-        std::map<std::string, std::string> params;
-        std::map<std::string, std::string> oauthParams;
-        mutable bool changed;
-        mutable std::string uriString;
+        std::string baseUrl_;
+        std::map<std::string, std::string> params_;
+        std::map<std::string, std::string> oauthParams_;
+        mutable bool changed_;
+        mutable std::string composedUrl_;
 
     public:
-        URI();
-        URI(
+        Url();
+        Url(
             const std::string &,
             const std::map<std::string, std::string> & = std::map<std::string, std::string>(),
             const std::map<std::string, std::string> & = std::map<std::string, std::string>()
         );
-        URI(const URI &);
-        URI(URI &&);
+        Url(const Url &) = default;
+        Url(Url &&) = default;
 
     public:
         void assign(
@@ -27,25 +27,28 @@ namespace Maragi
             const std::map<std::string, std::string> & = std::map<std::string, std::string>(),
             const std::map<std::string, std::string> & = std::map<std::string, std::string>()
         );
-        void assignBaseURI(const std::string &);
-        void assignParam(const std::map<std::string, std::string> &);
-        void assignOAuthParam(const std::map<std::string, std::string> &);
+
         bool hasParam(const std::string &) const;
         const std::string &getParam(const std::string &) const;
         bool addParam(const std::string &, const std::string &);
         void removeParam(const std::string &);
+
         bool hasOAuthParam(const std::string &) const;
         const std::string &getOAuthParam(const std::string &) const;
         bool addOAuthParam(const std::string &, const std::string &);
         void removeOAuthParam(const std::string &);
-        const std::string &getBaseURI() const;
-        const std::map<std::string, std::string> &getParams() const;
-        const std::map<std::string, std::string> &getOAuthParams() const;
-        std::string getStringURI() const;
+
+        const std::string &baseUrl() const;
+        void baseUrl(const std::string &);
+        const std::map<std::string, std::string> &params() const;
+        void params(const std::map<std::string, std::string> &);
+        const std::map<std::string, std::string> &oauthParams() const;
+        void oauthParams(const std::map<std::string, std::string> &);
+        std::string compose() const;
 
     public:
-        URI &operator =(const URI &);
-        URI &operator =(URI &&);
+        Url &operator =(const Url &) = default;
+        Url &operator =(Url &&) = default;
         operator std::string() const;
     };
 }

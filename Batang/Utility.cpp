@@ -159,7 +159,7 @@ namespace Batang
         }
     }
 
-    std::string encodeUri(const std::string &str)
+    std::string encodeUrl(const std::string &str)
     {
         std::string buf;
         buf.reserve(str.size());
@@ -178,7 +178,7 @@ namespace Batang
         return buf;
     }
 
-    std::string encodeUriParam(const std::string &str)
+    std::string encodeUrlParam(const std::string &str)
     {
         std::string buf;
         buf.reserve(str.size());
@@ -199,7 +199,7 @@ namespace Batang
         return buf;
     }
 
-    std::string decodeUri(const std::string &str)
+    std::string decodeUrl(const std::string &str)
     {
         std::string buf;
         char percentFirstChar;

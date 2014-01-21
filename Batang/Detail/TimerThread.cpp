@@ -40,6 +40,10 @@ namespace Batang
 
                 Timer::instance().onTimerTick();
             }
+
+#ifdef _MSC_VER // In VC, thread hangs if thread routine exits normally after main() is end.
+            _endthreadex(0);
+#endif
         }
 
         void TimerThread::nextTick(const std::chrono::steady_clock::duration &duration)
@@ -64,9 +68,7 @@ namespace Batang
         {
             toEnd_ = true;
             timerCv_.notify_one();
-#if !defined(_MSC_VER) // In VC, calling join in singleton destructor hangs because of deadlock.
             join();
-#endif
         }
     }
 }

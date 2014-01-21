@@ -20,7 +20,7 @@ namespace Gurigi
     private:
         Slot slot_;
 
-        ComPtr<ID2D1SolidColorBrush> brush;
+        ComPtr<ID2D1SolidColorBrush> brush_;
 
     protected:
         ShellLayout(const ShellWeakPtr<> &, const ControlID &);
@@ -56,26 +56,26 @@ namespace Gurigi
             uint32_t ratio; // ratio 0 represents "fit to control"
             float realSize;
         };
-        enum { RATIO, REAL } mode;
+        enum class Mode : uint8_t { Ratio, Real } mode;
 
         GridSize()
             : ratio(0)
-            , mode(RATIO)
+            , mode(Mode::Ratio)
         {}
 
         GridSize(int iratio)
             : ratio(static_cast<uint32_t>(iratio))
-            , mode(RATIO)
+            , mode(Mode::Ratio)
         {}
 
         GridSize(uint32_t iratio)
             : ratio(iratio)
-            , mode(RATIO)
+            , mode(Mode::Ratio)
         {}
 
         GridSize(float irealSize)
             : realSize(irealSize)
-            , mode(REAL)
+            , mode(Mode::Real)
         {}
 
         GridSize(const GridSize &that)
@@ -84,22 +84,22 @@ namespace Gurigi
         {}
     };
 
-    template<size_t rows, size_t cols>
+    template<size_t Rows, size_t Cols>
     class GridLayout : public Layout
     {
-        static_assert(rows > 0 && cols > 0, "rows and cols are must be greater than 0.");
+        static_assert(Rows > 0 && Cols > 0, "rows and cols are must be greater than 0.");
 
     private:
-        Slot slot_[rows][cols];
-        GridSize rowsSize_[rows], colsSize_[cols];
-        float widths[cols], heights[rows], widthSubtotal[cols], heightSubtotal[rows];
+        Slot slot_[Rows][Cols];
+        GridSize rowsSize_[Rows], colsSize_[Cols];
+        float widths_[Cols], heights_[Rows], widthSubtotal_[Cols], heightSubtotal_[Rows];
 
     protected:
         // TODO: elegant passing array (initializer list will make C++ world elegant...)
         GridLayout(const ControlID &id, const std::vector<GridSize> &rowsSize, const std::vector<GridSize> &colsSize)
             : Layout(id)
         {
-            if(rowsSize.size() != rows || colsSize.size() != cols)
+            if(rowsSize.size() != Rows || colsSize.size() != Cols)
                 throw(std::logic_error("GridSize of rowsSize and GridSize of colsSize must match with rows and cols."));
             std::copy(std::begin(rowsSize), std::end(rowsSize), rowsSize_);
             std::copy(std::begin(colsSize), std::end(colsSize), colsSize_);
@@ -115,9 +115,9 @@ namespace Gurigi
             )
         {
             ControlPtr<GridLayout> layout(new GridLayout(ControlManager::instance().getNextID(), rowsSize, colsSize));
-            for(size_t i = 0; i < rows; ++ i)
+            for(size_t i = 0; i < Rows; ++ i)
             {
-                for(size_t j = 0; j < cols; ++ j)
+                for(size_t j = 0; j < Cols; ++ j)
                     layout->slot_[i][j].parent(layout);
             }
             return layout;
@@ -126,9 +126,9 @@ namespace Gurigi
     public:
         void createDrawingResources(Drawing::Context &ctx)
         {
-            for(size_t i = 0; i < rows; ++ i)
+            for(size_t i = 0; i < Rows; ++ i)
             {
-                for(size_t j = 0; j < cols; ++ j)
+                for(size_t j = 0; j < Cols; ++ j)
                 {
                     ControlPtr<> lchild = slot_[i][j].child().lock();
                     if(lchild)
@@ -139,9 +139,9 @@ namespace Gurigi
 
         void discardDrawingResources(Drawing::Context &ctx)
         {
-            for(size_t i = 0; i < rows; ++ i)
+            for(size_t i = 0; i < Rows; ++ i)
             {
-                for(size_t j = 0; j < cols; ++ j)
+                for(size_t j = 0; j < Cols; ++ j)
                 {
                     ControlPtr<> lchild = slot_[i][j].child().lock();
                     if(lchild)
@@ -152,9 +152,9 @@ namespace Gurigi
 
         virtual void draw(Drawing::Context &ctx)
         {
-            for(size_t i = 0; i < rows; ++ i)
+            for(size_t i = 0; i < Rows; ++ i)
             {
-                for(size_t j = 0; j < cols; ++ j)
+                for(size_t j = 0; j < Cols; ++ j)
                 {
                     ControlPtr<> lchild = slot_[i][j].child().lock();
                     if(lchild)
@@ -165,20 +165,20 @@ namespace Gurigi
 
         virtual Objects::SizeF computeSize()
         {
-            float widths[cols] = {0.0f, }, heights[rows] = {0.0f, };
-            Objects::SizeF GridSize;
-            for(size_t i = 0; i < rows; ++ i)
+            float widths[Cols] = {0.0f, }, heights[Rows] = {0.0f, };
+            Objects::SizeF gridSize;
+            for(size_t i = 0; i < Rows; ++ i)
             {
-                for(size_t j = 0; j < cols; ++ j)
+                for(size_t j = 0; j < Cols; ++ j)
                 {
                     ControlPtr<> lchild = slot_[i][j].child().lock();
                     if(lchild)
                     {
-                        GridSize = lchild->computeSize();
-                        if(widths[j] < GridSize.width)
-                            widths[j] = GridSize.width;
-                        if(heights[i] < GridSize.height)
-                            heights[i] = GridSize.height;
+                        gridSize = lchild->computeSize();
+                        if(widths[j] < gridSize.width)
+                            widths[j] = gridSize.width;
+                        if(heights[i] < gridSize.height)
+                            heights[i] = gridSize.height;
                     }
                 }
             }
@@ -190,13 +190,13 @@ namespace Gurigi
 
         virtual ControlWeakPtr<> findByPoint(const Objects::PointF &pt)
         {
-            for(size_t i = 0; i < rows; ++ i)
+            for(size_t i = 0; i < Rows; ++ i)
             {
-                for(size_t j = 0; j < cols; ++ j)
+                for(size_t j = 0; j < Cols; ++ j)
                 {
                     if(Objects::RectangleF(
-                        Objects::PointF(widthSubtotal[j], heightSubtotal[i]),
-                        Objects::SizeF(widths[j], heights[i])
+                        Objects::PointF(widthSubtotal_[j], heightSubtotal_[i]),
+                        Objects::SizeF(widths_[j], heights_[i])
                         ).isIn(pt))
                     {
                         ControlPtr<> lchild = slot_[i][j].child().lock();
@@ -215,13 +215,13 @@ namespace Gurigi
             if(!rect().isIn(pt))
                 return std::vector<ControlWeakPtr<>>();
 
-            for(size_t i = 0; i < rows; ++ i)
+            for(size_t i = 0; i < Rows; ++ i)
             {
-                for(size_t j = 0; j < cols; ++ j)
+                for(size_t j = 0; j < Cols; ++ j)
                 {
                     if(Objects::RectangleF(
-                        Objects::PointF(widthSubtotal[j], heightSubtotal[i]),
-                        Objects::SizeF(widths[j], heights[i])
+                        Objects::PointF(widthSubtotal_[j], heightSubtotal_[i]),
+                        Objects::SizeF(widths_[j], heights_[i])
                         ).isIn(pt))
                     {
                         ControlPtr<> lchild = slot_[i][j].child().lock();
@@ -244,13 +244,13 @@ namespace Gurigi
             if(!rect().isIn(pt))
                 return std::vector<ControlWeakPtr<>>();
 
-            for(size_t i = 0; i < rows; ++ i)
+            for(size_t i = 0; i < Rows; ++ i)
             {
-                for(size_t j = 0; j < cols; ++ j)
+                for(size_t j = 0; j < Cols; ++ j)
                 {
                     if(Objects::RectangleF(
-                        Objects::PointF(widthSubtotal[j], heightSubtotal[i]),
-                        Objects::SizeF(widths[j], heights[i])
+                        Objects::PointF(widthSubtotal_[j], heightSubtotal_[i]),
+                        Objects::SizeF(widths_[j], heights_[i])
                         ).isIn(pt))
                     {
                         ControlPtr<> lchild = slot_[i][j].child().lock();
@@ -271,9 +271,9 @@ namespace Gurigi
         void walk(const std::function<void (const ControlWeakPtr<> &)> &fn)
         {
             fn(sharedFromThis());
-            for(size_t i = 0; i < rows; ++ i)
+            for(size_t i = 0; i < Rows; ++ i)
             {
-                for(size_t j = 0; j < cols; ++ j)
+                for(size_t j = 0; j < Cols; ++ j)
                 {
                     ControlPtr<> lchild = slot_[i][j].child().lock();
                     if(lchild)
@@ -284,9 +284,9 @@ namespace Gurigi
 
         void walkReverse(const std::function<void (const ControlWeakPtr<> &)> &fn)
         {
-            for(size_t i = 0; i < rows; ++ i)
+            for(size_t i = 0; i < Rows; ++ i)
             {
-                for(size_t j = 0; j < cols; ++ j)
+                for(size_t j = 0; j < Cols; ++ j)
                 {
                     ControlPtr<> lchild = slot_[i][j].child().lock();
                     if(lchild)
@@ -298,9 +298,9 @@ namespace Gurigi
 
         virtual Slot *slot(size_t row, size_t col)
         {
-            if(row >= rows)
+            if(row >= Rows)
                 throw(std::out_of_range("row is bigger than allocated rows"));
-            else if(col >= cols)
+            else if(col >= Cols)
                 throw(std::out_of_range("col is bigger than allocated columns"));
             return &slot_[row][col];
         }
@@ -310,11 +310,11 @@ namespace Gurigi
             return rowsSize_[row];
         }
 
-        virtual void rowSize(size_t row, const GridSize &GridSize)
+        virtual void rowSize(size_t row, const GridSize &gridSize)
         {
-            if(GridSize.mode == GridSize::RATIO && GridSize.ratio == 0)
+            if(gridSize.mode == GridSize::Mode::Ratio && gridSize.ratio == 0)
                 throw(std::logic_error("GridSize.ratio must not be zero."));
-            rowsSize_[row] = GridSize;
+            rowsSize_[row] = gridSize;
         }
 
         virtual const GridSize &columnSize(size_t col) const
@@ -322,17 +322,17 @@ namespace Gurigi
             return colsSize_[col];
         }
 
-        virtual void columnSize(size_t col, const GridSize &GridSize)
+        virtual void columnSize(size_t col, const GridSize &gridSize)
         {
-            if(GridSize.mode == GridSize::RATIO && GridSize.ratio == 0)
+            if(gridSize.mode == GridSize::Mode::Ratio && gridSize.ratio == 0)
                 throw(std::logic_error("GridSize.ratio must not be zero."));
-            colsSize_[col] = GridSize;
+            colsSize_[col] = gridSize;
         }
 
     private:
         /*
         Actual grid size is decided by follow process:
-        1. set grid sizes which has REAL mode
+        1. set grid sizes which has Real mode
         2-1. if total ratio is 0, set grid sizes by remain size and computeSize ratios.
         2-2. else, calculate sizes which has ratio = 0 with computeSize, and set remain grid sizes.
         */
@@ -341,28 +341,28 @@ namespace Gurigi
             float remainWidth = rect.width(), remainHeight = rect.height();
             float ratio0TotalWidth = 0.0f, ratio0TotalHeight = 0.0f;
             uint32_t totalWidthRatio = 0, totalHeightRatio = 0;
-            Objects::SizeF computeSizeCache[rows][cols] = { Objects::SizeF::invalid, };
+            Objects::SizeF computeSizeCache[Rows][Cols] = { Objects::SizeF::Invalid, };
             size_t i, j;
 
-            widthSubtotal[0] = rect.left;
-            heightSubtotal[0] = rect.top;
+            widthSubtotal_[0] = rect.left;
+            heightSubtotal_[0] = rect.top;
 
-            for(i = 0; i < rows; ++ i)
+            for(i = 0; i < Rows; ++ i)
             {
-                if(rowsSize_[i].mode == GridSize::REAL)
+                if(rowsSize_[i].mode == GridSize::Mode::Real)
                 {
-                    heights[i] = rowsSize_[i].realSize;
+                    heights_[i] = rowsSize_[i].realSize;
                     remainHeight -= rowsSize_[i].realSize;
                 }
                 else
                     totalHeightRatio += rowsSize_[i].ratio;
             }
 
-            for(i = 0; i < cols; ++ i)
+            for(i = 0; i < Cols; ++ i)
             {
-                if(colsSize_[i].mode == GridSize::REAL)
+                if(colsSize_[i].mode == GridSize::Mode::Real)
                 {
-                    widths[i] = colsSize_[i].realSize;
+                    widths_[i] = colsSize_[i].realSize;
                     remainWidth -= colsSize_[i].realSize;
                 }
                 else
@@ -371,12 +371,12 @@ namespace Gurigi
 
             if(totalHeightRatio == 0)
             {
-                for(i = 0; i < rows; ++ i)
+                for(i = 0; i < Rows; ++ i)
                 {
-                    if(rowsSize_[i].mode == GridSize::RATIO && rowsSize_[i].ratio == 0)
+                    if(rowsSize_[i].mode == GridSize::Mode::Ratio && rowsSize_[i].ratio == 0)
                     {
                         float maxHeight = 0.0f;
-                        for(j = 0; j < cols; ++ j)
+                        for(j = 0; j < Cols; ++ j)
                         {
                             ControlPtr<> lchild = slot_[i][j].child().lock();
                             if(lchild)
@@ -387,25 +387,25 @@ namespace Gurigi
                             }
                         }
 
-                        heights[i] = maxHeight;
+                        heights_[i] = maxHeight;
                         ratio0TotalHeight += maxHeight;
                     }
                 }
 
-                for(i = 0; i < rows; ++ i)
+                for(i = 0; i < Rows; ++ i)
                 {
-                    if(rowsSize_[i].mode == GridSize::RATIO && rowsSize_[i].ratio == 0)
-                        heights[i] = heights[i] * remainHeight / ratio0TotalHeight;
+                    if(rowsSize_[i].mode == GridSize::Mode::Ratio && rowsSize_[i].ratio == 0)
+                        heights_[i] = heights_[i] * remainHeight / ratio0TotalHeight;
                 }
             }
             else
             {
-                for(i = 0; i < rows; ++ i)
+                for(i = 0; i < Rows; ++ i)
                 {
-                    if(rowsSize_[i].mode == GridSize::RATIO && rowsSize_[i].ratio == 0)
+                    if(rowsSize_[i].mode == GridSize::Mode::Ratio && rowsSize_[i].ratio == 0)
                     {
                         float maxHeight = 0.0f;
-                        for(j = 0; j < cols; ++ j)
+                        for(j = 0; j < Cols; ++ j)
                         {
                             ControlPtr<> lchild = slot_[i][j].child().lock();
                             if(lchild)
@@ -416,28 +416,28 @@ namespace Gurigi
                             }
                         }
 
-                        heights[i] = maxHeight;
+                        heights_[i] = maxHeight;
                         remainHeight -= maxHeight;
                     }
                 }
 
-                for(i = 0; i < rows; ++ i)
+                for(i = 0; i < Rows; ++ i)
                 {
-                    if(rowsSize_[i].mode == GridSize::RATIO && rowsSize_[i].ratio != 0)
-                        heights[i] = remainHeight * rowsSize_[i].ratio / totalHeightRatio;
+                    if(rowsSize_[i].mode == GridSize::Mode::Ratio && rowsSize_[i].ratio != 0)
+                        heights_[i] = remainHeight * rowsSize_[i].ratio / totalHeightRatio;
                 }
             }
 
             if(totalWidthRatio == 0)
             {
-                for(i = 0; i < cols; ++ i)
+                for(i = 0; i < Cols; ++ i)
                 {
-                    if(colsSize_[i].mode == GridSize::RATIO && colsSize_[i].ratio == 0)
+                    if(colsSize_[i].mode == GridSize::Mode::Ratio && colsSize_[i].ratio == 0)
                     {
                         float maxWidth = 0.0f;
-                        for(j = 0; j < rows; ++ j)
+                        for(j = 0; j < Rows; ++ j)
                         {
-                            if(computeSizeCache[i][j] == Objects::SizeF::invalid)
+                            if(computeSizeCache[i][j] == Objects::SizeF::Invalid)
                             {
                                 ControlPtr<> lchild = slot_[i][j].child().lock();
                                 if(lchild)
@@ -448,27 +448,27 @@ namespace Gurigi
                                 maxWidth = computeSizeCache[i][j].width;
                         }
 
-                        widths[i] = maxWidth;
+                        widths_[i] = maxWidth;
                         ratio0TotalWidth += maxWidth;
                     }
                 }
 
-                for(i = 0; i < cols; ++ i)
+                for(i = 0; i < Cols; ++ i)
                 {
-                    if(colsSize_[i].mode == GridSize::RATIO && colsSize_[i].ratio == 0)
-                        widths[i] = widths[i] * remainWidth / ratio0TotalWidth;
+                    if(colsSize_[i].mode == GridSize::Mode::Ratio && colsSize_[i].ratio == 0)
+                        widths_[i] = widths_[i] * remainWidth / ratio0TotalWidth;
                 }
             }
             else
             {
-                for(i = 0; i < cols; ++ i)
+                for(i = 0; i < Cols; ++ i)
                 {
-                    if(colsSize_[i].mode == GridSize::RATIO && colsSize_[i].ratio == 0)
+                    if(colsSize_[i].mode == GridSize::Mode::Ratio && colsSize_[i].ratio == 0)
                     {
                         float maxWidth = 0.0f;
-                        for(j = 0; j < rows; ++ j)
+                        for(j = 0; j < Rows; ++ j)
                         {
-                            if(computeSizeCache[i][j] == Objects::SizeF::invalid)
+                            if(computeSizeCache[i][j] == Objects::SizeF::Invalid)
                             {
                                 ControlPtr<> lchild = slot_[i][j].child().lock();
                                 if(lchild)
@@ -479,22 +479,22 @@ namespace Gurigi
                                 maxWidth = computeSizeCache[i][j].width;
                         }
 
-                        widths[i] = maxWidth;
+                        widths_[i] = maxWidth;
                         remainWidth -= maxWidth;
                     }
                 }
 
-                for(i = 0; i < cols; ++ i)
+                for(i = 0; i < Cols; ++ i)
                 {
-                    if(colsSize_[i].mode == GridSize::RATIO && colsSize_[i].ratio != 0)
-                        widths[i] = remainWidth * colsSize_[i].ratio / totalWidthRatio;
+                    if(colsSize_[i].mode == GridSize::Mode::Ratio && colsSize_[i].ratio != 0)
+                        widths_[i] = remainWidth * colsSize_[i].ratio / totalWidthRatio;
                 }
             }
 
-            for(i = 1; i < rows; ++ i)
-                heightSubtotal[i] = heightSubtotal[i - 1] + heights[i - 1];
-            for(i = 1; i < cols; ++ i)
-                widthSubtotal[i] = widthSubtotal[i - 1] + widths[i - 1];
+            for(i = 1; i < Rows; ++ i)
+                heightSubtotal_[i] = heightSubtotal_[i - 1] + heights_[i - 1];
+            for(i = 1; i < Cols; ++ i)
+                widthSubtotal_[i] = widthSubtotal_[i - 1] + widths_[i - 1];
         }
 
     protected:
@@ -502,16 +502,16 @@ namespace Gurigi
         {
             calculateSizes(rect);
 
-            for(size_t i = 0; i < rows; ++ i)
+            for(size_t i = 0; i < Rows; ++ i)
             {
-                for(size_t j = 0; j < cols; ++ j)
+                for(size_t j = 0; j < Cols; ++ j)
                 {
                     ControlPtr<> lchild = slot_[i][j].child().lock();
                     if(lchild)
                     {
                         lchild->rect(Objects::RectangleF(
-                            Objects::PointF(widthSubtotal[j], heightSubtotal[i]),
-                            Objects::SizeF(widths[j], heights[i])
+                            Objects::PointF(widthSubtotal_[j], heightSubtotal_[i]),
+                            Objects::SizeF(widths_[j], heights_[i])
                             ));
                     }
                 }

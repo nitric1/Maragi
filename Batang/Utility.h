@@ -11,9 +11,9 @@ namespace Batang
     std::wstring decodeUtf8(const std::string &);
     std::string base64Encode(const std::vector<uint8_t> &);
     std::vector<uint8_t> base64Decode(const std::string &);
-    std::string encodeUri(const std::string &);
-    std::string encodeUriParam(const std::string &);
-    std::string decodeUri(const std::string &);
+    std::string encodeUrl(const std::string &);
+    std::string encodeUrlParam(const std::string &);
+    std::string decodeUrl(const std::string &);
 
     float round(float);
     double round(double);

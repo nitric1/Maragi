@@ -204,7 +204,7 @@ namespace Batang
 
         std::vector<std::shared_ptr<TimerTask>> tasks;
 
-        {
+        { // retrieve tasks
             std::lock_guard<std::mutex> lock(taskMutex_);
 
             if(tasks_.empty())
@@ -223,11 +223,11 @@ namespace Batang
                         std::pop_heap(taskHeap_.begin(), taskHeap_.end(), PairFirstComparer());
                         taskHeap_.pop_back();
 
-                        if(next->interval_.count() == 0)
+                        if(next->interval_.count() == 0) // run-once
                         {
                             tasks_.erase(next->id_);
                         }
-                        else
+                        else // periodic
                         {
                             next->tickAt_ += next->interval_;
                             taskHeap_.emplace_back(next->tickAt_, next);
@@ -242,7 +242,7 @@ namespace Batang
             }
         }
 
-        for(auto &task : tasks)
+        for(auto &task: tasks)
         {
             auto thread = task->thread_.lock();
             if(thread)
@@ -251,7 +251,7 @@ namespace Batang
             }
         }
 
-        {
+        { // next ticks
             std::lock_guard<std::mutex> lock(taskMutex_);
             auto next = nextTask();
             if(next)

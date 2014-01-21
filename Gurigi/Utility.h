@@ -13,115 +13,115 @@ namespace Gurigi
         static_assert(std::is_convertible<T *, Base *>::value, "T must be a derived class of Base.");
 
     private:
-        std::shared_ptr<Base> ptr;
-        T *castPtr;
+        std::shared_ptr<Base> ptr_;
+        T *castPtr_;
 
     public:
         SharedPtr()
-            : ptr(nullptr, Deleter())
-            , castPtr(nullptr)
+            : ptr_(nullptr, Deleter())
+            , castPtr_(nullptr)
         {}
 
         SharedPtr(Base *iptr)
-            : ptr(iptr, Deleter())
-            , castPtr(dynamic_cast<T *>(iptr))
+            : ptr_(iptr, Deleter())
+            , castPtr_(dynamic_cast<T *>(iptr))
         {}
 
         template<typename Other>
         SharedPtr(const SharedPtr<Base, Deleter, Other> &that)
-            : ptr(that.ptr)
-            , castPtr(dynamic_cast<T *>(that.ptr.get()))
+            : ptr_(that.ptr_)
+            , castPtr_(dynamic_cast<T *>(that.ptr_.get()))
         {}
 
         template<typename Other>
         SharedPtr(SharedPtr<Base, Deleter, Other> &&that)
-            : ptr(std::move(that.ptr))
+            : ptr_(std::move(that.ptr_))
         {
-            castPtr = dynamic_cast<T *>(ptr.get());
+            castPtr_ = dynamic_cast<T *>(ptr_.get());
         }
 
         SharedPtr(const std::shared_ptr<Base> &iptr)
-            : ptr(iptr)
-            , castPtr(dynamic_cast<T *>(iptr.get()))
+            : ptr_(iptr)
+            , castPtr_(dynamic_cast<T *>(iptr.get()))
         {}
 
         SharedPtr(std::shared_ptr<Base> &&iptr)
-            : ptr(std::move(iptr))
+            : ptr_(std::move(iptr))
         {
-            castPtr = dynamic_cast<T *>(ptr.get());
+            castPtr_ = dynamic_cast<T *>(ptr_.get());
         }
 
     public:
         T *get() const
         {
-            return castPtr;
+            return castPtr_;
         }
 
     public:
         template<typename Other>
         SharedPtr &operator =(const SharedPtr<Base, Deleter, Other> &rhs)
         {
-            ptr = rhs.ptr;
-            castPtr = dynamic_cast<T *>(ptr.get());
+            ptr_ = rhs.ptr_;
+            castPtr_ = dynamic_cast<T *>(ptr_.get());
             return *this;
         }
 
         template<typename Other>
         SharedPtr &operator =(SharedPtr<Base, Deleter, Other> &&rhs)
         {
-            ptr = std::move(rhs.ptr);
-            castPtr = dynamic_cast<T *>(ptr.get());
+            ptr_ = std::move(rhs.ptr_);
+            castPtr_ = dynamic_cast<T *>(ptr_.get());
             return *this;
         }
 
         bool operator ==(const SharedPtr &rhs) const
         {
-            return castPtr == rhs.castPtr;
+            return castPtr_ == rhs.castPtr_;
         }
 
         bool operator !=(const SharedPtr &rhs) const
         {
-            return castPtr != rhs.castPtr;
+            return castPtr_ != rhs.castPtr_;
         }
 
         bool operator <(const SharedPtr &rhs) const
         {
-            return castPtr < rhs.castPtr;
+            return castPtr_ < rhs.castPtr_;
         }
 
         bool operator >(const SharedPtr &rhs) const
         {
-            return castPtr > rhs.castPtr;
+            return castPtr_ > rhs.castPtr_;
         }
 
         bool operator <=(const SharedPtr &rhs) const
         {
-            return castPtr <= rhs.castPtr;
+            return castPtr_ <= rhs.castPtr_;
         }
 
         bool operator >=(const SharedPtr &rhs) const
         {
-            return castPtr >= rhs.castPtr;
+            return castPtr_ >= rhs.castPtr_;
         }
 
         T *operator ->() const
         {
-            return castPtr;
+            return castPtr_;
         }
 
-        operator bool() const
+        explicit operator bool() const
         {
-            return castPtr != nullptr;
+            return castPtr_ != nullptr;
         }
 
         bool operator !() const
         {
-            return castPtr == nullptr;
+            return castPtr_ == nullptr;
         }
 
         T &operator *() const
         {
-            return *castPtr;
+            return *castPtr_;
         }
 
         template<typename, typename, typename>
@@ -136,49 +136,49 @@ namespace Gurigi
         static_assert(std::is_convertible<T *, Base *>::value, "T must be a derived class of Base.");
 
     protected:
-        std::weak_ptr<Base> ptr;
+        std::weak_ptr<Base> ptr_;
 
     public:
         WeakPtr()
-            : ptr()
+            : ptr_()
         {}
 
         WeakPtr(nullptr_t)
-            : ptr()
+            : ptr_()
         {}
 
         WeakPtr(const std::weak_ptr<Base> &iptr)
-            : ptr(iptr)
+            : ptr_(iptr)
         {}
 
         template<typename Other>
         WeakPtr(const SharedPtr<Base, Deleter, Other> &that)
-            : ptr(that.ptr)
+            : ptr_(that.ptr_)
         {}
 
         template<typename Other>
         WeakPtr(const WeakPtr<Base, Deleter, SharedPtrReturn, Other> &that)
-            : ptr(that.ptr)
+            : ptr_(that.ptr_)
         {}
 
     public:
         SharedPtrReturn lock() const
         {
-            return ptr.lock();
+            return ptr_.lock();
         }
 
     public:
         template<typename Other>
         WeakPtr &operator =(const SharedPtr<Base, Deleter, Other> &rhs)
         {
-            ptr = rhs.ptr;
+            ptr_ = rhs.ptr_;
             return *this;
         }
 
         template<typename Other>
         WeakPtr &operator =(const WeakPtr<Base, Deleter, SharedPtrReturn, Other> &rhs)
         {
-            ptr = rhs.ptr;
+            ptr_ = rhs.ptr_;
             return *this;
         }
 
@@ -355,10 +355,9 @@ namespace Gurigi
     class ControlManager : public Batang::Singleton<ControlManager>
     {
     private:
-        std::map<ControlID, ControlWeakPtr<>> controls;
+        std::map<ControlID, ControlWeakPtr<>> controls_;
 
-    private:
-        ControlID nextID;
+        ControlID nextID_;
 
     private:
         ControlManager();
@@ -376,10 +375,9 @@ namespace Gurigi
     class ShellManager : public Batang::Singleton<ShellManager>
     {
     private:
-        std::map<HWND, ShellWeakPtr<>> shells;
+        std::map<HWND, ShellWeakPtr<>> shells_;
 
-    private:
-        uint32_t nextID;
+        uint32_t nextID_;
 
     private:
         ShellManager();

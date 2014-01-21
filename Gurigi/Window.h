@@ -101,7 +101,7 @@ namespace Gurigi
             , rawMessage(0)
             , wParam(0), lParam(0)
             , buttonNum(0)
-            , controlPoint(Objects::PointF::invalid), shellClientPoint(Objects::PointF::invalid) // , screenPoint(Objects::PointF::invalid)
+            , controlPoint(Objects::PointF::Invalid), shellClientPoint(Objects::PointF::Invalid) // , screenPoint(Objects::PointF::invalid)
             , wheelAmount(0.0f)
             , altKey(false), ctrlKey(false), shiftKey(false)
             , keyCode('\0')

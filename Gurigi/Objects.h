@@ -7,7 +7,7 @@ namespace Gurigi
         template<typename T>
         struct Point
         {
-            static const Point invalid;
+            static const Point Invalid;
 
             T x, y;
 
@@ -53,7 +53,7 @@ namespace Gurigi
         };
 
         template<typename T>
-        const Point<T> Point<T>::invalid(
+        const Point<T> Point<T>::Invalid(
             std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
             std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
             );
@@ -64,7 +64,7 @@ namespace Gurigi
         template<typename T>
         struct Size
         {
-            static const Size invalid;
+            static const Size Invalid;
 
             T width, height;
 
@@ -111,7 +111,7 @@ namespace Gurigi
         };
 
         template<typename T>
-        const Size<T> Size<T>::invalid(
+        const Size<T> Size<T>::Invalid(
             std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
             std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
             );
@@ -122,7 +122,7 @@ namespace Gurigi
         template<typename T>
         struct Rectangle
         {
-            static const Rectangle invalid;
+            static const Rectangle Invalid;
 
             // X-axis: [left, right)
             // Y-axis: [top, bottom)
@@ -214,7 +214,7 @@ namespace Gurigi
         };
 
         template<typename T>
-        const Rectangle<T> Rectangle<T>::invalid(
+        const Rectangle<T> Rectangle<T>::Invalid(
             std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
             std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
             std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min(),
@@ -225,7 +225,7 @@ namespace Gurigi
         class Polyline
         {
         public:
-            static const Polyline invalid;
+            static const Polyline Invalid;
 
         private:
             std::vector<Point<T>> points_;
@@ -255,13 +255,13 @@ namespace Gurigi
         };
 
         template<typename T>
-        const Polyline<T> Polyline<T>::invalid;
+        const Polyline<T> Polyline<T>::Invalid;
 
         template<typename T>
         class Region
         {
         public:
-            static const Region invalid;
+            static const Region Invalid;
 
         private:
             std::vector<Point<T>> points_;
@@ -291,7 +291,7 @@ namespace Gurigi
         };
 
         template<typename T>
-        const Region<T> Region<T>::invalid;
+        const Region<T> Region<T>::Invalid;
 
         typedef Rectangle<int32_t> RectangleI;
         typedef Rectangle<float> RectangleF;

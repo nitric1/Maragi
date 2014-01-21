@@ -12,18 +12,18 @@ namespace Gurigi
         private:
             union
             {
-                uint16_t id;
-                const wchar_t *name;
+                uint16_t id_;
+                const wchar_t *name_;
             };
-            bool allocated;
+            bool allocated_;
 
         public:
             ResourceID(uint16_t iid)
-                : id(iid), allocated(false)
+                : id_(iid), allocated_(false)
             {}
 
             ResourceID(const wchar_t *iname)
-                : name(iname), allocated(false)
+                : name_(iname), allocated_(false)
             {}
 
             ResourceID(const std::wstring &);
@@ -32,8 +32,8 @@ namespace Gurigi
 
             ~ResourceID()
             {
-                if(allocated)
-                    delete [] name;
+                if(allocated_)
+                    delete [] name_;
             }
 
         public:
@@ -42,12 +42,12 @@ namespace Gurigi
 
             operator uint16_t() const
             {
-                return id;
+                return id_;
             }
 
             operator const wchar_t *() const
             {
-                return name;
+                return name_;
             }
 
             friend bool operator ==(const ResourceID &, const ResourceID &);
@@ -152,8 +152,8 @@ namespace Gurigi
         class Icon : public Resource
         {
         private:
-            HICON icon;
-            bool shared;
+            HICON icon_;
+            bool shared_;
 
         protected:
             Icon();
@@ -171,19 +171,19 @@ namespace Gurigi
         public:
             HICON getIcon() const
             {
-                return icon;
+                return icon_;
             }
 
             operator HICON() const
             {
-                return icon;
+                return icon_;
             }
         };
 
         class Cursor : public Resource
         {
         private:
-            HCURSOR cursor;
+            HCURSOR cursor_;
 
         public:
             struct Predefined
@@ -207,12 +207,12 @@ namespace Gurigi
         public:
             HCURSOR getCursor() const
             {
-                return cursor;
+                return cursor_;
             }
 
             operator HCURSOR() const
             {
-                return cursor;
+                return cursor_;
             }
         };
     }
