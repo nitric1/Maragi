@@ -4,15 +4,12 @@
 #include "Batang/Singleton.h"
 #include "Batang/Thread.h"
 
-#include "MainWindow.h"
-
 namespace Maragi
 {
     class MainController : public Batang::Thread<MainController>, public Batang::SingletonShared<MainController>
     {
     private:
-        MainWindow *mainWin;
-        Batang::CommandLineParser cmdLine;
+        Batang::CommandLineParser cmdLine_;
 
     private:
         MainController();

@@ -9,32 +9,32 @@
 
 namespace Gurigi
 {
-    const uint32_t FrameWindow::windowStyle = WS_OVERLAPPEDWINDOW;
-    const uint32_t FrameWindow::windowStyleEx = WS_EX_CLIENTEDGE;
+    const uint32_t FrameWindow::WindowStyle = WS_OVERLAPPEDWINDOW;
+    const uint32_t FrameWindow::WindowStyleEx = WS_EX_CLIENTEDGE;
 
     FrameWindow::FrameWindow()
         : Shell()
         , bgColor_(Objects::ColorF::White)
-        , inDestroy(false)
-        , capturedButtons(0)
+        , inDestroy_(false)
+        , capturedButtons_(0)
     {
     }
 
     FrameWindow::FrameWindow(const ShellWeakPtr<> &parent)
         : Shell(parent)
         , bgColor_(Objects::ColorF::White)
-        , inDestroy(false)
-        , capturedButtons(0)
+        , inDestroy_(false)
+        , capturedButtons_(0)
     {
     }
 
     FrameWindow::~FrameWindow()
     {
-        if(hwnd() != nullptr && !inDestroy)
+        if(hwnd() != nullptr && !inDestroy_)
             DestroyWindow(hwnd());
 
-        if(!className.empty())
-            UnregisterClassW(className.c_str(), Batang::Win32Environment::instance().getInstance());
+        if(!className_.empty())
+            UnregisterClassW(className_.c_str(), Batang::Win32Environment::instance().getInstance());
     }
 
     ShellPtr<FrameWindow> FrameWindow::create(
@@ -69,13 +69,13 @@ namespace Gurigi
 
         ShellPtr<FrameWindow> frm = new FrameWindow(parent);
 
-        frm->className = className;
-        frm->initTitle = title;
+        frm->className_ = className;
+        frm->initTitle_ = title;
         frm->iconLarge_ = iconLarge;
         frm->iconSmall_ = iconSmall;
         frm->bgColor_ = bgColor;
-        frm->initPosition = position;
-        frm->initClientSize = clientSize;
+        frm->initPosition_ = position;
+        frm->initClientSize_ = clientSize;
         frm->minClientSize_ = minClientSize;
         frm->maxClientSize_ = maxClientSize;
 
@@ -94,13 +94,13 @@ namespace Gurigi
         // TODO: menu
         Objects::SizeI windowSize;
 
-        if(initPosition == initPosition.invalid)
-            initPosition = Objects::PointI(CW_USEDEFAULT, CW_USEDEFAULT);
-        if(initClientSize == initClientSize.invalid)
+        if(initPosition_ == initPosition_.Invalid)
+            initPosition_ = Objects::PointI(CW_USEDEFAULT, CW_USEDEFAULT);
+        if(initClientSize_ == initClientSize_.Invalid)
             windowSize = Objects::SizeF(CW_USEDEFAULT, CW_USEDEFAULT);
         else
         {
-            windowSize = adjustWindowSize(initClientSize);
+            windowSize = adjustWindowSize(initClientSize_);
 
             // XXX: scrollbars?
         }
@@ -108,11 +108,11 @@ namespace Gurigi
         ShellPtr<> lparent = parent().lock();
 
         HWND hwnd = CreateWindowExW(
-            windowStyleEx,
-            className.c_str(),
-            initTitle.c_str(),
-            windowStyle,
-            initPosition.x, initPosition.y,
+            WindowStyleEx,
+            className_.c_str(),
+            initTitle_.c_str(),
+            WindowStyle,
+            initPosition_.x, initPosition_.y,
             windowSize.width, windowSize.height,
             lparent ? lparent->hwnd() : nullptr,
             nullptr,
@@ -136,7 +136,7 @@ namespace Gurigi
         {
             ReleaseSemaphore(taskInvokedSemaphore, 1, nullptr);
         };
-        auto conn = (thread->onTaskInvoked += taskInvoked);
+        auto conn = (thread->onTaskInvoked.connect(taskInvoked));
 
         while(!done)
         {
@@ -177,7 +177,7 @@ namespace Gurigi
     {
         RECT rc = { 0, 0, static_cast<int>(ceil(size.width)), static_cast<int>(ceil(size.height)) };
         // TODO: menu
-        AdjustWindowRectEx(&rc, windowStyle, FALSE, windowStyleEx);
+        AdjustWindowRectEx(&rc, WindowStyle, FALSE, WindowStyleEx);
         // TODO: consider DPI
         //float dpiX, dpiY;
         //Drawing::D2DFactory::instance().getD2DFactory()->GetDesktopDpi(&dpiX, &dpiY);
@@ -329,13 +329,13 @@ namespace Gurigi
         case WM_GETMINMAXINFO:
             {
                 MINMAXINFO *mmi = reinterpret_cast<MINMAXINFO *>(lParam);
-                if(minClientSize_ != Objects::SizeF::invalid)
+                if(minClientSize_ != Objects::SizeF::Invalid)
                 {
                     Objects::SizeI min = adjustWindowSize(minClientSize_);
                     POINT pt = { min.width, min.height };
                     mmi->ptMinTrackSize = pt;
                 }
-                if(maxClientSize_ != Objects::SizeF::invalid)
+                if(maxClientSize_ != Objects::SizeF::Invalid)
                 {
                     Objects::SizeI max = adjustWindowSize(maxClientSize_);
                     POINT pt = { max.width, max.height };
@@ -381,23 +381,23 @@ namespace Gurigi
             {
                 Objects::PointF pt(static_cast<float>(GET_X_LPARAM(lParam)), static_cast<float>(GET_Y_LPARAM(lParam)));
                 std::vector<ControlWeakPtr<>> hovereds;
-                if(captureds.empty())
+                if(captureds_.empty())
                     hovereds = client_->findReverseTreeByPoint(pt);
                 else
-                    hovereds = captureds;
+                    hovereds = captureds_;
                 if(!hovereds.empty())
                 {
                     ev.shellClientPoint = pt;
-                    if(hovereds.size() != prevHovereds.size()
-                        || !std::equal(hovereds.begin(), hovereds.end(), prevHovereds.begin()))
+                    if(hovereds.size() != prevHovereds_.size()
+                        || !std::equal(hovereds.begin(), hovereds.end(), prevHovereds_.begin()))
                     {
                         // mouseout & mouseover
-                        fireEvent(prevHovereds, &Control::onMouseOut, ev);
+                        fireEvent(prevHovereds_, &Control::onMouseOut, ev);
                         fireEvent(hovereds, &Control::onMouseOver, ev);
                     }
 
                     fireEvent(hovereds, &Control::onMouseMove, ev);
-                    prevHovereds = std::move(hovereds);
+                    prevHovereds_ = std::move(hovereds);
 
                     TRACKMOUSEEVENT tme = {0, };
                     tme.cbSize = sizeof(tme);
@@ -412,16 +412,16 @@ namespace Gurigi
             {
                 Objects::PointF pt(static_cast<float>(GET_X_LPARAM(lParam)), static_cast<float>(GET_Y_LPARAM(lParam)));
                 std::vector<ControlWeakPtr<>> hovereds;
-                if(captureds.empty())
+                if(captureds_.empty())
                     hovereds = client_->findReverseTreeByPoint(pt);
                 else
-                    hovereds = captureds;
+                    hovereds = captureds_;
                 if(!hovereds.empty())
                 {
                     ev.shellClientPoint = pt;
                     ev.wheelAmount = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / WHEEL_DELTA;
                     fireEvent(hovereds, &Control::onMouseWheel, ev);
-                    prevHovereds = std::move(hovereds);
+                    prevHovereds_ = std::move(hovereds);
                 }
             }
             return 0;
@@ -431,10 +431,10 @@ namespace Gurigi
 
         case WM_MOUSELEAVE:
             {
-                if(!prevHovereds.empty())
+                if(!prevHovereds_.empty())
                 {
-                    fireEvent(prevHovereds, &Control::onMouseOut, ev);
-                    prevHovereds.clear();
+                    fireEvent(prevHovereds_, &Control::onMouseOut, ev);
+                    prevHovereds_.clear();
                 }
             }
             return 0;
@@ -454,10 +454,10 @@ namespace Gurigi
             {
                 Objects::PointF pt(static_cast<float>(GET_X_LPARAM(lParam)), static_cast<float>(GET_Y_LPARAM(lParam)));
                 std::vector<ControlWeakPtr<>> hovereds;
-                if(captureds.empty())
+                if(captureds_.empty())
                     hovereds = client_->findReverseTreeByPoint(pt);
                 else
-                    hovereds = captureds;
+                    hovereds = captureds_;
                 if(!hovereds.empty())
                 {
                     ev.shellClientPoint = pt;
@@ -495,10 +495,10 @@ namespace Gurigi
                     case WM_RBUTTONDOWN:
                     case WM_MBUTTONDOWN:
                     case WM_XBUTTONDOWN:
-                        if(capturedButtons ++ == 0)
+                        if(capturedButtons_ ++ == 0)
                         {
                             SetCapture(hwnd);
-                            captureds = hovereds;
+                            captureds_ = hovereds;
                         }
                         fireEvent(hovereds, &Control::onMouseButtonDown, ev);
                         break;
@@ -507,10 +507,10 @@ namespace Gurigi
                     case WM_RBUTTONDBLCLK:
                     case WM_MBUTTONDBLCLK:
                     case WM_XBUTTONDBLCLK:
-                        if(capturedButtons ++ == 0)
+                        if(capturedButtons_ ++ == 0)
                         {
                             SetCapture(hwnd);
-                            captureds = hovereds;
+                            captureds_ = hovereds;
                         }
                         fireEvent(hovereds, &Control::onMouseButtonDoubleClick, ev);
                         break;
@@ -519,10 +519,10 @@ namespace Gurigi
                     case WM_RBUTTONUP:
                     case WM_MBUTTONUP:
                     case WM_XBUTTONUP:
-                        if(-- capturedButtons == 0)
+                        if(-- capturedButtons_ == 0)
                         {
                             ReleaseCapture();
-                            captureds.clear();
+                            captureds_.clear();
                         }
                         fireEvent(hovereds, &Control::onMouseButtonUp, ev);
                         break;
@@ -536,7 +536,7 @@ namespace Gurigi
 
         case WM_DESTROY:
             // TODO: modeless window
-            inDestroy = true;
+            inDestroy_ = true;
             ShellManager::instance().remove(hwnd);
             PostQuitMessage(0);
             return 0;

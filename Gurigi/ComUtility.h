@@ -17,11 +17,11 @@ namespace Gurigi
     class ComBase : public Chain
     {
     private:
-        ulong32_t refCount;
+        ulong32_t refCount_;
 
     public:
-        ComBase() throw()
-            : refCount(1)
+        ComBase() noexcept
+            : refCount_(1)
         {}
 
         virtual ~ComBase()
@@ -39,12 +39,12 @@ namespace Gurigi
 
         virtual ulong32_t __stdcall AddRef()
         {
-            return InterlockedIncrement(&refCount);
+            return InterlockedIncrement(&refCount_);
         }
 
         virtual ulong32_t __stdcall Release()
         {
-            ulong32_t count = InterlockedDecrement(&refCount);
+            ulong32_t count = InterlockedDecrement(&refCount_);
             if(count == 0)
                 delete this;
             return count;
@@ -63,7 +63,7 @@ namespace Gurigi
     class ComBaseListSelf : public Chain
     {
     public:
-        void queryInterfaceImpl(const IID &iid, void **obj) throw()
+        void queryInterfaceImpl(const IID &iid, void **obj) noexcept
         {
             if(iid != __uuidof(T))
                 return Chain::queryInterfaceImpl(iid, obj);
@@ -75,7 +75,7 @@ namespace Gurigi
     class ComBaseList : public T, public Chain
     {
     public:
-        void queryInterfaceImpl(const IID &iid, void **obj) throw()
+        void queryInterfaceImpl(const IID &iid, void **obj) noexcept
         {
             if(iid != __uuidof(T))
                 return Chain::queryInterfaceImpl(iid, obj);
@@ -87,7 +87,7 @@ namespace Gurigi
     class ComBaseList<T, ComBaseListNil> : public T
     {
     public:
-        void queryInterfaceImpl(const IID &iid, void **obj) throw()
+        void queryInterfaceImpl(const IID &iid, void **obj) noexcept
         {
             if(iid != __uuidof(T))
                 return;

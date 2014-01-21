@@ -16,26 +16,53 @@ namespace Gurigi
 
     ShortcutKey::Modifier ShortcutKey::getModifier(bool ctrl, bool alt, bool shift)
     {
-        return static_cast<Modifier>(
-            (ctrl ? Ctrl : 0)
-            | (alt ? Alt : 0)
-            | (shift ? Shift : 0));
+        if(ctrl && alt && shift)
+            return Modifier::Ctrl_Alt_Shift;
+        else if(ctrl && alt)
+            return Modifier::Ctrl_Alt;
+        else if(ctrl && shift)
+            return Modifier::Ctrl_Shift;
+        else if(alt && shift)
+            return Modifier::Alt_Shift;
+        else if(ctrl)
+            return Modifier::Ctrl;
+        else if(alt)
+            return Modifier::Alt;
+        else if(shift)
+            return Modifier::Shift;
+        return Modifier::None;
     }
 
     namespace
     {
         bool isNormalKey(uint32_t key)
         {
-            // TODO: check key is normal (can make character)
+            if(key == VK_SPACE)
+                return true;
+            else if(0x30 <= key && key <= 0x39) // 0 - 9
+                return true;
+            else if(0x41 <= key && key <= 0x5A) // A - Z
+                return true;
+            /*
+            // Well, numpad keys should not be treated as normal key...
+            else if(VK_NUMPAD0 <= key && key <= VK_NUMPAD9)
+                return true;
+            else if(key == VK_MULTIPLY || key == VK_ADD || key == VK_SUBTRACT || key == VK_DIVIDE || key == VK_DECIMAL) // Numpad * + - / .
+                return true;
+            */
+            else if(key == VK_OEM_1 || key == VK_OEM_PLUS || key == VK_OEM_COMMA || key == VK_OEM_MINUS || key == VK_OEM_PERIOD
+                || key == VK_OEM_2 || key == VK_OEM_3 || key == VK_OEM_4 || key == VK_OEM_5 || key == VK_OEM_6
+                || key == VK_OEM_7 || key == VK_OEM_8 || key == VK_OEM_102)
+                return true;
             return false;
         }
     }
 
     bool ShortcutKey::verifyKey(Modifier modifier, uint32_t key)
     {
-        if(modifier == None && isNormalKey(key))
+        if(modifier == Modifier::None && isNormalKey(key))
             return false;
-        else if(modifier == Shift && isNormalKey(key))
+        else if(modifier == Modifier::Shift && isNormalKey(key))
             return false;
         return true;
     }
@@ -43,7 +70,7 @@ namespace Gurigi
     ShortcutKey::Key ShortcutKey::makeKey(Modifier modifier, uint32_t key)
     {
         if(!verifyKey(modifier, key))
-            ; // TODO: reject
+            return Key();
         Key skey = {modifier, key};
         return skey;
     }
@@ -64,7 +91,7 @@ namespace Gurigi
         cmd.canRepeated = canRepeated;
         cmd.id = id;
 
-        return keyMap.insert(make_pair(make_pair(key, window), cmd)).second;
+        return keyMap_.insert(make_pair(make_pair(key, window), cmd)).second;
     }
 
     bool ShortcutKey::modifyShortcut(const Shell *window, uint32_t id, Key key, bool canExtended, bool canRepeated)
@@ -76,11 +103,11 @@ namespace Gurigi
 
     bool ShortcutKey::removeShortcut(const Shell *window, uint32_t id)
     {
-        for(auto it = keyMap.begin(); it != keyMap.end(); ++ it)
+        for(auto it = keyMap_.begin(); it != keyMap_.end(); ++ it)
         {
             if(it->first.second == window && it->second.id == id)
             {
-                keyMap.erase(it);
+                keyMap_.erase(it);
                 return true;
             }
         }
@@ -90,8 +117,8 @@ namespace Gurigi
 
     uint32_t ShortcutKey::processShortcut(const Shell *window, Key key, bool extended, bool repeated) const
     {
-        auto it = keyMap.find(make_pair(key, window));
-        if(it == keyMap.end())
+        auto it = keyMap_.find(make_pair(key, window));
+        if(it == keyMap_.end())
             return 0;
 
         if((extended && !it->second.canExtended) || (repeated && !it->second.canRepeated))

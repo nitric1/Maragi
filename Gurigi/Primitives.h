@@ -4,7 +4,7 @@ namespace Gurigi
 {
     struct ControlID
     {
-        static const ControlID undefined;
+        static const ControlID Undefined;
 
         uintptr_t id;
 

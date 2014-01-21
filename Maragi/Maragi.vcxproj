@@ -172,10 +172,9 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Common.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="MainController.cpp" />
-    <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Tokens.cpp" />
     <ClCompile Include="TwitterClient.cpp" />
-    <ClCompile Include="URI.cpp" />
+    <ClCompile Include="Url.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -267,12 +266,11 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="MainController.h" />
-    <ClInclude Include="MainWindow.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Tokens.h" />
     <ClInclude Include="TwitterClient.h" />
     <ClInclude Include="TwitterClientError.h" />
-    <ClInclude Include="URI.h" />
+    <ClInclude Include="Url.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>

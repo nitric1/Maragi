@@ -12,41 +12,41 @@
 
 namespace Maragi
 {
-    TwitterClientError::TwitterClientError(const char *message) throw()
+    TwitterClientError::TwitterClientError(const char *message) noexcept
         : std::runtime_error(message)
     {
     }
 
-    TwitterClientError::TwitterClientError(const std::string &message) throw()
+    TwitterClientError::TwitterClientError(const std::string &message) noexcept
         : std::runtime_error(message)
     {
     }
 
-    TwitterClientError::TwitterClientError(const TwitterClientError &obj) throw()
+    TwitterClientError::TwitterClientError(const TwitterClientError &obj) noexcept
         : std::runtime_error(obj)
     {
     }
 
-    TwitterClientError::~TwitterClientError() throw()
+    TwitterClientError::~TwitterClientError() noexcept
     {
     }
 
-    NotAuthorizedError::NotAuthorizedError(const char *message) throw()
+    NotAuthorizedError::NotAuthorizedError(const char *message) noexcept
         : TwitterClientError(message)
     {
     }
 
-    NotAuthorizedError::NotAuthorizedError(const std::string &message) throw()
+    NotAuthorizedError::NotAuthorizedError(const std::string &message) noexcept
         : TwitterClientError(message)
     {
     }
 
-    NotAuthorizedError::NotAuthorizedError(const NotAuthorizedError &obj) throw()
+    NotAuthorizedError::NotAuthorizedError(const NotAuthorizedError &obj) noexcept
         : TwitterClientError(obj)
     {
     }
 
-    NotAuthorizedError::~NotAuthorizedError() throw()
+    NotAuthorizedError::~NotAuthorizedError() noexcept
     {
     }
 
@@ -54,23 +54,23 @@ namespace Maragi
     {
         initializeCurl();
 
-        curl = curl_easy_init();
-        if(curl == nullptr)
+        curl_ = curl_easy_init();
+        if(curl_ == nullptr)
             throw(std::runtime_error("CURL initialization failed."));
 
-        cbd.client = this;
+        cbd_.client = this;
 
-        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1l);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, Batang::encodeUtf8(Constants::USER_AGENT).c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &curlWriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, static_cast<void *>(&cbd));
+        curl_easy_setopt(curl_, CURLOPT_NOPROGRESS, 1l);
+        curl_easy_setopt(curl_, CURLOPT_USERAGENT, Batang::encodeUtf8(Constants::USER_AGENT).c_str());
+        curl_easy_setopt(curl_, CURLOPT_WRITEFUNCTION, &curlWriteCallback);
+        curl_easy_setopt(curl_, CURLOPT_WRITEDATA, static_cast<void *>(&cbd_));
 
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0l);
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0l);
+        curl_easy_setopt(curl_, CURLOPT_SSL_VERIFYPEER, 0l);
+        curl_easy_setopt(curl_, CURLOPT_SSL_VERIFYHOST, 0l);
     }
 
     TwitterClient::TwitterClient(const std::string &iscreenName, const std::string &iaccessToken, const std::string &iaccessTokenSecret)
-        : screenName(iscreenName), accessToken(iaccessToken), accessTokenSecret(iaccessTokenSecret)
+        : screenName_(iscreenName), accessToken_(iaccessToken), accessTokenSecret_(iaccessTokenSecret)
     {
     }
 
@@ -80,7 +80,7 @@ namespace Maragi
 
     TwitterClient::~TwitterClient()
     {
-        curl_easy_cleanup(curl);
+        curl_easy_cleanup(curl_);
     }
 
     bool TwitterClient::initializeCurl()
@@ -95,14 +95,13 @@ namespace Maragi
 
     size_t TwitterClient::curlWriteCallback(void *data, size_t size, size_t nmemb, void *param)
     {
-        CurlWriteCallbackData *cbd = static_cast<CurlWriteCallbackData *>(param);
+        CurlWriteCallbackData *cbd_ = static_cast<CurlWriteCallbackData *>(param);
         size_t realSize = size * nmemb;
 
-        cbd->data.insert(cbd->data.end(), static_cast<uint8_t *>(data), static_cast<uint8_t *>(data) + realSize);
+        cbd_->data.insert(cbd_->data.end(), static_cast<uint8_t *>(data), static_cast<uint8_t *>(data) + realSize);
 
-        // TODO: Call callback function
-        if(cbd->cb)
-            cbd->cb(cbd->data.size());
+        if(cbd_->cb)
+            cbd_->cb(cbd_->data.size());
 
         return realSize;
     }
@@ -124,7 +123,7 @@ namespace Maragi
             return str;
         }
 
-        URI makeRequestURI(const std::string &path)
+        Url makeRequestUrl(const std::string &path)
         {
             std::string uri = Paths::PROTOCOL;
             uri += "://";
@@ -132,7 +131,7 @@ namespace Maragi
             uri += "/";
             uri += path;
 
-            return URI(uri);
+            return Url(uri);
         }
 
         class CryptProvider : public Batang::Singleton<CryptProvider>
@@ -188,7 +187,7 @@ namespace Maragi
             return toBase(rnd, 62);
         }
 
-        std::string HMACSHA1(const std::vector<uint8_t> &key, const std::vector<uint8_t> &message)
+        std::string HmacSha1(const std::vector<uint8_t> &key, const std::vector<uint8_t> &message)
         {
             std::vector<uint8_t> normKey(20);
 
@@ -223,15 +222,15 @@ namespace Maragi
             if(!field.empty())
             {
                 auto it = field.begin();
-                text += Batang::encodeUriParam(it->first);
+                text += Batang::encodeUrlParam(it->first);
                 text += "=";
-                text += Batang::encodeUriParam(it->second);
+                text += Batang::encodeUrlParam(it->second);
                 for(++ it; it != field.end(); ++ it)
                 {
                     text += "&";
-                    text += Batang::encodeUriParam(it->first);
+                    text += Batang::encodeUrlParam(it->first);
                     text += "=";
-                    text += Batang::encodeUriParam(it->second);
+                    text += Batang::encodeUrlParam(it->second);
                 }
             }
 
@@ -244,16 +243,16 @@ namespace Maragi
             if(!field.empty())
             {
                 auto it = field.begin();
-                text += Batang::encodeUri(it->first);
+                text += Batang::encodeUrl(it->first);
                 text += "=\"";
-                text += Batang::encodeUri(it->second);
+                text += Batang::encodeUrl(it->second);
                 text += "\"";
                 for(++ it; it != field.end(); ++ it)
                 {
                     text += ", ";
-                    text += Batang::encodeUri(it->first);
+                    text += Batang::encodeUrl(it->first);
                     text += "=\"";
-                    text += Batang::encodeUri(it->second);
+                    text += Batang::encodeUrl(it->second);
                     text += "\"";
                 }
             }
@@ -261,7 +260,7 @@ namespace Maragi
             return text;
         }
 
-        std::string signRequestURI(URI &uri, const std::string &tokenSecret = std::string())
+        std::string signRequestUrl(Url &uri, const std::string &tokenSecret = std::string())
         {
             FILETIME ft;
             GetSystemTimeAsFileTime(&ft);
@@ -282,20 +281,20 @@ namespace Maragi
             uri.removeOAuthParam("oauth_signature");
 
             std::string message = "POST&";
-            message += Batang::encodeUri(uri.getBaseURI());
+            message += Batang::encodeUrl(uri.baseUrl());
             message += "&";
-            std::map<std::string, std::string> totalParams = uri.getParams();
-            const auto &oauthParams = uri.getOAuthParams();
+            std::map<std::string, std::string> totalParams = uri.params();
+            const auto &oauthParams = uri.oauthParams();
             totalParams.insert(oauthParams.begin(), oauthParams.end());
-            message += Batang::encodeUri(makePostField(totalParams));
+            message += Batang::encodeUrl(makePostField(totalParams));
 
-            std::string key = Batang::encodeUri(AppTokens::CONSUMER_SECRET);
+            std::string key = Batang::encodeUrl(AppTokens::CONSUMER_SECRET);
             key += "&";
-            key += Batang::encodeUri(tokenSecret);
+            key += Batang::encodeUrl(tokenSecret);
 
             uri.addOAuthParam(
                 "oauth_signature",
-                HMACSHA1(
+                HmacSha1(
                     std::vector<uint8_t>(key.begin(), key.end()),
                     std::vector<uint8_t>(message.begin(), message.end())
                 )
@@ -314,7 +313,7 @@ namespace Maragi
             {
                 if(*it == '&')
                 {
-                    field.insert(std::make_pair(Batang::decodeUri(key), Batang::decodeUri(value)));
+                    field.insert(std::make_pair(Batang::decodeUrl(key), Batang::decodeUrl(value)));
                     key.clear(); value.clear();
                     inValue = false;
                 }
@@ -410,64 +409,65 @@ namespace Maragi
         };
     }
 
-    bool TwitterClient::authorize()
+    void TwitterClient::authorize()
     {
-        ConfirmDialog &cfd = ConfirmDialog::inst();
+        post([this]()
+        {
+            ConfirmDialog &cfd = ConfirmDialog::inst();
 
-        URI uri = makeRequestURI(Paths::REQUEST_TOKEN);
-        uri.addOAuthParam("oauth_callback", "oob");
-        signRequestURI(uri);
-        sendRequest(uri);
+            Url uri = makeRequestUrl(Paths::REQUEST_TOKEN);
+            uri.addOAuthParam("oauth_callback", "oob");
+            signRequestUrl(uri);
+            sendRequest(uri);
 
-        std::map<std::string, std::string> recvParams = parsePostField(cbd.data.begin(), cbd.data.end());
-        std::string token = recvParams["oauth_token"], tokenSecret = recvParams["oauth_token_secret"];
+            std::map<std::string, std::string> recvParams = parsePostField(cbd_.data.begin(), cbd_.data.end());
+            std::string token = recvParams["oauth_token"], tokenSecret = recvParams["oauth_token_secret"];
 
-        uri = makeRequestURI(Paths::AUTHORIZE);
-        uri.addParam("oauth_token", token);
+            uri = makeRequestUrl(Paths::AUTHORIZE);
+            uri.addParam("oauth_token", token);
 
-        std::wstring wuri = Batang::decodeUtf8(uri);
-        ShellExecuteW(nullptr, nullptr, wuri.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+            std::wstring wuri = Batang::decodeUtf8(uri);
+            ShellExecuteW(nullptr, nullptr, wuri.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 
-        cfd.show();
+            cfd.show();
 
-        uri = makeRequestURI(Paths::ACCESS_TOKEN);
-        uri.addOAuthParam("oauth_token", token);
-        uri.addOAuthParam("oauth_verifier", Batang::encodeUtf8(cfd.getText()));
-        signRequestURI(uri, tokenSecret);
-        sendRequest(uri);
-        
-        std::string fields(cbd.data.begin(), cbd.data.end());
-        MessageBoxA(nullptr, fields.c_str(), "Access Token", MB_OK);
+            uri = makeRequestUrl(Paths::ACCESS_TOKEN);
+            uri.addOAuthParam("oauth_token", token);
+            uri.addOAuthParam("oauth_verifier", Batang::encodeUtf8(cfd.getText()));
+            signRequestUrl(uri, tokenSecret);
+            sendRequest(uri);
 
-        return true;
+            std::string fields(cbd_.data.begin(), cbd_.data.end());
+            MessageBoxA(nullptr, fields.c_str(), "Access Token", MB_OK);
+        });
     }
 
-    const std::string &TwitterClient::getScreenName()
+    const std::string &TwitterClient::screenName()
     {
-        return screenName;
+        return screenName_;
     }
 
-    const std::string &TwitterClient::getAccessToken()
+    const std::string &TwitterClient::accessToken()
     {
-        return accessToken;
+        return accessToken_;
     }
 
-    const std::string &TwitterClient::getAccessTokenSecret()
+    const std::string &TwitterClient::accessTokenSecret()
     {
-        return accessTokenSecret;
+        return accessTokenSecret_;
     }
 
-    bool TwitterClient::sendRequest(const URI &uri)
+    bool TwitterClient::sendRequest(const Url &uri)
     {
-        curl_easy_setopt(curl, CURLOPT_URL, uri.getBaseURI().c_str());
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, makePostField(uri.getParams()).c_str());
+        curl_easy_setopt(curl_, CURLOPT_URL, uri.baseUrl().c_str());
+        curl_easy_setopt(curl_, CURLOPT_POSTFIELDS, makePostField(uri.params()).c_str());
 
-        curl_slist *header = curl_slist_append(nullptr, makeOAuthHeader(uri.getOAuthParams()).c_str());
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, header);
+        curl_slist *header = curl_slist_append(nullptr, makeOAuthHeader(uri.oauthParams()).c_str());
+        curl_easy_setopt(curl_, CURLOPT_HTTPHEADER, header);
 
-        cbd.data.clear();
+        cbd_.data.clear();
 
-        CURLcode res = curl_easy_perform(curl);
+        CURLcode res = curl_easy_perform(curl_);
         curl_slist_free_all(header);
 
         return res == CURLE_OK;

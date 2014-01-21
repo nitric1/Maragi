@@ -10,9 +10,9 @@ namespace Gurigi
         enum { WM_APP_ENDDIALOG = WM_APP + 100 };
 
     private:
-        std::vector<uint8_t> dlgData;
-        bool isDialogEnd;
-        intptr_t endDialogResult;
+        std::vector<uint8_t> dlgData_;
+        bool isDialogEnd_;
+        intptr_t endDialogResult_;
 
     public:
         Dialog();

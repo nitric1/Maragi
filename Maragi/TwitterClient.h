@@ -2,7 +2,7 @@
 
 #include "Batang/Thread.h"
 
-#include "URI.h"
+#include "Url.h"
 #include "TwitterClientError.h"
 
 namespace Maragi
@@ -18,9 +18,9 @@ namespace Maragi
         };
 
     private:
-        CURL *curl;
-        CurlWriteCallbackData cbd;
-        std::string screenName, accessToken, accessTokenSecret;
+        CURL *curl_;
+        CurlWriteCallbackData cbd_;
+        std::string screenName_, accessToken_, accessTokenSecret_;
 
     public:
         TwitterClient();
@@ -33,12 +33,12 @@ namespace Maragi
         static size_t curlWriteCallback(void *, size_t, size_t, void *);
 
     public:
-        bool authorize();
-        const std::string &getScreenName();
-        const std::string &getAccessToken();
-        const std::string &getAccessTokenSecret();
+        void authorize();
+        const std::string &screenName();
+        const std::string &accessToken();
+        const std::string &accessTokenSecret();
 
     private:
-        bool sendRequest(const URI &uri);
+        bool sendRequest(const Url &uri);
     };
 }

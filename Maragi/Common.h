@@ -37,11 +37,17 @@
 #include <vector>
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+
 #pragma warning(push)
 #pragma warning(disable: 4819) // The file contains a character that cannot be represented in the current code page
 #include <boost/format.hpp>
 #pragma warning(pop)
+
+#pragma warning(push)
+#pragma warning(disable: 4503) // decorated name length exceeded, name was truncated
 #include <boost/signals2.hpp>
+#pragma warning(pop)
+
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/once.hpp>
 #include <boost/thread/tss.hpp>

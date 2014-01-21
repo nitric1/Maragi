@@ -9,7 +9,7 @@ namespace Batang
     {
     private:
         HINSTANCE inst_; // Main instance
-        std::unordered_set<HINSTANCE> dllInstances; // DLLs' instance
+        std::unordered_set<HINSTANCE> dllInstances_; // DLLs' instance
 
     private:
         Win32Environment();
@@ -17,12 +17,12 @@ namespace Batang
     public:
         void addDllInstance(HINSTANCE dllInst)
         {
-            dllInstances.insert(dllInst);
+            dllInstances_.insert(dllInst);
         }
 
         void removeDllInstance(HINSTANCE dllInst)
         {
-            dllInstances.erase(dllInst);
+            dllInstances_.erase(dllInst);
         }
 
         HINSTANCE getInstance() const
@@ -32,7 +32,7 @@ namespace Batang
 
         const std::unordered_set<HINSTANCE> &getDllInstances() const
         {
-            return dllInstances;
+            return dllInstances_;
         }
 
         friend class Singleton<Win32Environment>;
@@ -54,35 +54,35 @@ namespace Batang
     class SimpleInitializer : public Initializer
     {
     private:
-        std::string name;
-        std::function<void ()> initFn, uninitFn;
+        std::string name_;
+        std::function<void ()> initFn_, uninitFn_;
 
     public:
         SimpleInitializer(const std::string &iname, const std::function<void ()> &iinitFn, const std::function<void ()> &iuninitFn)
-            : name(iname), initFn(iinitFn), uninitFn(iuninitFn)
+            : name_(iname), initFn_(iinitFn), uninitFn_(iuninitFn)
         {}
 
         virtual std::string getName() const
         {
-            return name;
+            return name_;
         }
 
         virtual void init()
         {
-            initFn();
+            initFn_();
         }
 
         virtual void uninit()
         {
-            uninitFn();
+            uninitFn_();
         }
     };
 
     class GlobalInitializerManager : public Batang::Singleton<GlobalInitializerManager>
     {
     private:
-        std::map<std::string, std::shared_ptr<Initializer>> inits;
-        std::mutex lock;
+        std::map<std::string, std::shared_ptr<Initializer>> inits_;
+        std::mutex lock_;
 
     private:
         GlobalInitializerManager()

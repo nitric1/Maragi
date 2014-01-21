@@ -17,7 +17,7 @@ namespace Gurigi
     }
 
     ControlManager::ControlManager()
-        : nextID()
+        : nextID_()
     {
     }
 
@@ -27,30 +27,30 @@ namespace Gurigi
 
     ControlID ControlManager::getNextID()
     {
-        ++ nextID.id;
-        return nextID;
+        ++ nextID_.id;
+        return nextID_;
     }
 
     void ControlManager::add(const ControlID &id, const ControlWeakPtr<> &control)
     {
-        controls.insert(std::make_pair(id, control));
+        controls_.insert(std::make_pair(id, control));
     }
 
     ControlWeakPtr<> ControlManager::find(ControlID id)
     {
-        auto it = controls.find(id);
-        if(it == std::end(controls))
+        auto it = controls_.find(id);
+        if(it == std::end(controls_))
             return nullptr;
         return it->second;
     }
 
     void ControlManager::remove(ControlID id)
     {
-        controls.erase(id);
+        controls_.erase(id);
     }
 
     ShellManager::ShellManager()
-        : nextID()
+        : nextID_()
     {
     }
 
@@ -62,7 +62,7 @@ namespace Gurigi
     {
         ShellPtr<> lshell;
         {
-            auto &shells = ShellManager::instance().shells;
+            auto &shells = ShellManager::instance().shells_;
             auto it = shells.find(hwnd);
             if(it == std::end(shells))
             {
@@ -91,7 +91,7 @@ namespace Gurigi
     {
         ShellPtr<> lshell;
         {
-            auto &shells = ShellManager::instance().shells;
+            auto &shells = ShellManager::instance().shells_;
             auto it = shells.find(hwnd);
             if(it == std::end(shells))
             {
@@ -118,25 +118,25 @@ namespace Gurigi
 
     std::wstring ShellManager::getNextClassName()
     {
-        ++ nextID;
-        return (boost::wformat(Constants::SHELL_CLASSNAME_TEMPLATE) % nextID).str();
+        ++ nextID_;
+        return (boost::wformat(Constants::SHELL_CLASSNAME_TEMPLATE) % nextID_).str();
     }
 
     void ShellManager::add(HWND hwnd, const ShellWeakPtr<> &shell)
     {
-        shells.insert(std::make_pair(hwnd, shell));
+        shells_.insert(std::make_pair(hwnd, shell));
     }
 
     ShellWeakPtr<> ShellManager::find(HWND hwnd)
     {
-        auto it = shells.find(hwnd);
-        if(it == std::end(shells))
+        auto it = shells_.find(hwnd);
+        if(it == std::end(shells_))
             return nullptr;
         return it->second;
     }
 
     void ShellManager::remove(HWND hwnd)
     {
-        shells.erase(hwnd);
+        shells_.erase(hwnd);
     }
 }

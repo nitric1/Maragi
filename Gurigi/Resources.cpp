@@ -13,55 +13,55 @@ namespace Gurigi
         {
             wchar_t *namep = new wchar_t[iname.size() + 1];
             wcscpy_s(namep, iname.size() + 1, iname.c_str());
-            name = namep;
-            allocated = true;
+            name_ = namep;
+            allocated_ = true;
         }
 
         ResourceID::ResourceID(const ResourceID &that)
         {
-            if(that.allocated)
+            if(that.allocated_)
             {
-                size_t len = wcslen(that.name);
+                size_t len = wcslen(that.name_);
                 wchar_t *namep = new wchar_t[len + 1];
-                wcscpy_s(namep, len + 1, that.name);
-                name = namep;
-                allocated = true;
+                wcscpy_s(namep, len + 1, that.name_);
+                name_ = namep;
+                allocated_ = true;
             }
             else
             {
-                name = that.name;
-                allocated = false;
+                name_ = that.name_;
+                allocated_ = false;
             }
         }
 
         ResourceID::ResourceID(ResourceID &&that)
         {
-            name = that.name;
-            allocated = that.allocated;
+            name_ = that.name_;
+            allocated_ = that.allocated_;
 
-            that.name = nullptr;
-            that.allocated = false;
+            that.name_ = nullptr;
+            that.allocated_ = false;
         }
 
         ResourceID &ResourceID::operator =(const ResourceID &rhs)
         {
             if(&rhs != this)
             {
-                if(allocated)
-                    delete [] name;
+                if(allocated_)
+                    delete [] name_;
 
-                if(rhs.allocated)
+                if(rhs.allocated_)
                 {
-                    size_t len = wcslen(rhs.name);
+                    size_t len = wcslen(rhs.name_);
                     wchar_t *namep = new wchar_t[len + 1];
-                    wcscpy_s(namep, len + 1, rhs.name);
-                    name = namep;
-                    allocated = true;
+                    wcscpy_s(namep, len + 1, rhs.name_);
+                    name_ = namep;
+                    allocated_ = true;
                 }
                 else
                 {
-                    name = rhs.name;
-                    allocated = false;
+                    name_ = rhs.name_;
+                    allocated_ = false;
                 }
             }
             return *this;
@@ -71,26 +71,26 @@ namespace Gurigi
         {
             if(&rhs != this)
             {
-                if(allocated)
-                    delete [] name;
+                if(allocated_)
+                    delete [] name_;
 
-                name = rhs.name;
-                allocated = rhs.allocated;
+                name_ = rhs.name_;
+                allocated_ = rhs.allocated_;
 
-                rhs.name = nullptr;
-                rhs.allocated = false;
+                rhs.name_ = nullptr;
+                rhs.allocated_ = false;
             }
             return *this;
         }
 
         bool operator ==(const ResourceID &lhs, const ResourceID &rhs)
         {
-            if(lhs.allocated == rhs.allocated)
+            if(lhs.allocated_ == rhs.allocated_)
             {
-                if(lhs.allocated)
-                    return wcscmp(lhs.name, rhs.name) == 0;
+                if(lhs.allocated_)
+                    return wcscmp(lhs.name_, rhs.name_) == 0;
                 else
-                    return lhs.name == rhs.name;
+                    return lhs.name_ == rhs.name_;
             }
 
             return false;
@@ -109,7 +109,7 @@ namespace Gurigi
 
             for(auto it = std::begin(instances); it != std::end(instances); ++ it)
             {
-                if(FindResource(*it, id, type) != nullptr)
+                if(FindResourceW(*it, id, type) != nullptr)
                     return *it;
             }
 
@@ -122,19 +122,19 @@ namespace Gurigi
         }
 
         Icon::Icon()
-            : icon(nullptr), shared(false)
+            : icon_(nullptr), shared_(false)
         {
         }
 
         Icon::Icon(HICON iicon, bool ishared)
-            : icon(iicon), shared(ishared)
+            : icon_(iicon), shared_(ishared)
         {
         }
 
         Icon::~Icon()
         {
-            if(icon != nullptr && !shared)
-                DestroyIcon(icon);
+            if(icon_ != nullptr && !shared_)
+                DestroyIcon(icon_);
         }
 
         ResourcePtr<Icon> Icon::fromResource(const ResourceID &id)
@@ -204,15 +204,15 @@ namespace Gurigi
         }
 
         Cursor::Cursor()
-            : cursor(nullptr)
+            : cursor_(nullptr)
         {
         }
 
         Cursor::Cursor(HCURSOR icursor)
-            : cursor(icursor)
+            : cursor_(icursor)
         {
         }
-            
+
         Cursor::~Cursor()
         {
         }
