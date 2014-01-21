@@ -175,27 +175,24 @@ namespace Gurigi
 
     Objects::SizeI FrameWindow::adjustWindowSize(const Objects::SizeF &size) const
     {
-        RECT rc = { 0, 0, static_cast<int>(ceil(size.width)), static_cast<int>(ceil(size.height)) };
+        Objects::SizeI converted = Objects::convertSize(size);
+        RECT rc = { 0, 0, converted.width, converted.height };
         // TODO: menu
         AdjustWindowRectEx(&rc, WindowStyle, FALSE, WindowStyleEx);
-        // TODO: consider DPI
-        //float dpiX, dpiY;
-        //Drawing::D2DFactory::instance().getD2DFactory()->GetDesktopDpi(&dpiX, &dpiY);
         return Objects::SizeI(rc.right - rc.left, rc.bottom - rc.top);
     }
 
     Objects::PointF FrameWindow::screenToClient(const Objects::PointI &pt) const
     {
-        // TODO: consider DPI
         POINT wpt = { pt.x, pt.y };
         ScreenToClient(hwnd(), &wpt);
-        return Objects::PointF(static_cast<float>(wpt.x), static_cast<float>(wpt.y));
+        return Objects::convertPoint(Objects::PointI(wpt.x, wpt.y));
     }
 
     Objects::PointI FrameWindow::clientToScreen(const Objects::PointF &pt) const
     {
-        // TODO: consider DPI
-        POINT wpt = { static_cast<long>(pt.x), static_cast<long>(pt.y) };
+        Objects::PointI converted = Objects::convertPoint(pt);
+        POINT wpt = { converted.x, converted.y };
         ClientToScreen(hwnd(), &wpt);
         return Objects::PointI(wpt.x, wpt.y);
     }
@@ -247,8 +244,7 @@ namespace Gurigi
     {
         RECT rc;
         GetClientRect(hwnd(), &rc);
-        // TODO: consider DPI
-        return Objects::SizeF(static_cast<float>(rc.right - rc.left), static_cast<float>(rc.bottom - rc.top));
+        return Objects::convertSize(Objects::SizeI(rc.right - rc.left, rc.bottom - rc.top));
     }
 
     void FrameWindow::clientSize(const Objects::SizeF &size)
@@ -315,8 +311,7 @@ namespace Gurigi
         {
         case WM_SIZE:
             {
-                // TODO: consider DPI
-                Objects::SizeF size(LOWORD(lParam), HIWORD(lParam));
+                Objects::SizeF size(Objects::convertSize(Objects::SizeI(LOWORD(lParam), HIWORD(lParam))));
                 context_.resize(size);
                 client_->rect(Objects::RectangleF(Objects::PointF(), size));
             }

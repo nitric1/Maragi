@@ -221,6 +221,9 @@ namespace Gurigi
             std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
             );
 
+        typedef Rectangle<int32_t> RectangleI;
+        typedef Rectangle<float> RectangleF;
+
         template<typename T>
         class Polyline
         {
@@ -293,9 +296,6 @@ namespace Gurigi
         template<typename T>
         const Region<T> Region<T>::Invalid;
 
-        typedef Rectangle<int32_t> RectangleI;
-        typedef Rectangle<float> RectangleF;
-
         class ColorF : public D2D1::ColorF
         {
         public:
@@ -329,5 +329,12 @@ namespace Gurigi
                 return *this;
             }
         };
+
+        PointI convertPoint(const PointF &);
+        PointF convertPoint(const PointI &);
+        SizeI convertSize(const SizeF &);
+        SizeF convertSize(const SizeI &);
+        RectangleI convertRectangle(const RectangleF &);
+        RectangleF convertRectangle(const RectangleI &);
     }
 }

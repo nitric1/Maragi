@@ -775,6 +775,8 @@ namespace Gurigi
 
             D2D1_POINT_2F caretPos = transform.TransformPoint(caretRect.leftTop());
 
+            // TODO: consider dpi
+
             CreateCaret(lshell->hwnd(), nullptr, static_cast<int>(Batang::round(caretRect.width())), static_cast<int>(Batang::round(caretRect.height())));
             SetCaretPos(static_cast<int>(Batang::round(caretPos.x)), static_cast<int>(Batang::round(caretPos.y)));
 

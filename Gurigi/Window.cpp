@@ -281,10 +281,9 @@ namespace Gurigi
 
     Objects::SizeF Shell::clientSize() const
     {
-        // TODO: consider DPI
         RECT rc;
         GetClientRect(hwnd_, &rc);
-        return Objects::SizeF(static_cast<float>(rc.right - rc.left), static_cast<float>(rc.bottom - rc.top));
+        return Objects::convertSize(Objects::SizeI(rc.right - rc.left, rc.bottom - rc.top));
     }
 
     const ControlWeakPtr<> &Shell::focus() const
