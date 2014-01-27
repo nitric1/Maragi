@@ -43,6 +43,8 @@
 #include <boost/format.hpp>
 #pragma warning(pop)
 
+#include <boost/range/any_range.hpp>
+
 #pragma warning(push)
 #pragma warning(disable: 4503) // decorated name length exceeded, name was truncated
 #include <boost/signals2.hpp>

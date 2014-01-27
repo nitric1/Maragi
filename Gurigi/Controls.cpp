@@ -420,156 +420,17 @@ namespace Gurigi
         return S_OK;
     }
 
-    namespace
-    {
-        class TextAnalyzer : public ComBase<ComBaseList<IDWriteTextAnalysisSource, ComBaseList<IDWriteTextAnalysisSink, ComBaseList<IUnknown>>>>
-        {
-        public:
-            struct Run
-            {
-                size_t textStart;
-                size_t textLength;
-                size_t glyphStart;
-                size_t glyphCount;
-                DWRITE_SCRIPT_ANALYSIS scriptAnalysis;
-                uint8_t bidiLevel; // TODO: type
-                bool isNumberSubstituted;
-                bool isSideways;
-            };
-
-        public:
-            TextAnalyzer(const std::wstring &text, IDWriteNumberSubstitution *numberSubstitution, DWRITE_READING_DIRECTION readingDirection)
-                : text_(text)
-                , numberSubstitution_(numberSubstitution)
-                , readingDirection_(readingDirection)
-            {}
-
-        public:
-            void analyze(IDWriteTextAnalyzer *analyzer);
-
-        public:
-            const std::vector<Run> &runs() const
-            {
-                return runs_;
-            }
-            const std::vector<DWRITE_LINE_BREAKPOINT> &breakpoints() const
-            {
-                return breakpoints_;
-            }
-
-        public:
-            virtual HRESULT __stdcall GetTextAtPosition(uint32_t, const wchar_t **, uint32_t *);
-            virtual HRESULT __stdcall GetTextBeforePosition(uint32_t, const wchar_t **, uint32_t *);
-
-        private:
-            std::wstring text_;
-            IDWriteNumberSubstitution *numberSubstitution_;
-            DWRITE_READING_DIRECTION readingDirection_;
-            std::vector<Run> runs_;
-            std::vector<DWRITE_LINE_BREAKPOINT> breakpoints_;
-        };
-
-        void TextAnalyzer::analyze(IDWriteTextAnalyzer *analyzer)
-        {
-            runs_.resize(1);
-        }
-
-        HRESULT __stdcall TextAnalyzer::GetTextAtPosition(uint32_t pos, const wchar_t **str, uint32_t *len)
-        {
-            if(pos >= text_.size())
-            {
-                *str = nullptr;
-                *len = 0;
-            }
-            else
-            {
-                *str = &text_[pos];
-                *len = text_.size() - pos;
-            }
-            return S_OK;
-        }
-
-        HRESULT __stdcall TextAnalyzer::GetTextBeforePosition(uint32_t pos, const wchar_t **str, uint32_t *len)
-        {
-            if(pos == 0 || pos > text_.size())
-            {
-                *str = nullptr;
-                *len = 0;
-            }
-            else
-            {
-                *str = text_.c_str();
-                *len = pos;
-            }
-            return S_OK;
-        }
-    }
-
-    EditLayout::EditLayout()
-    {}
-
-    EditLayout::~EditLayout()
-    {}
-
-    void EditLayout::draw(void *clientDrawingContext, IDWriteTextRenderer *renderer, const Objects::PointF &origin)
-    {
-    }
-
-    const std::wstring &EditLayout::text() const
-    {
-        return text_;
-    }
-
-    void EditLayout::text(const std::wstring &itext)
-    {
-        text_ = itext;
-        // TODO: reanalyze
-    }
-
-    const std::vector<ComPtr<IDWriteTextFormat>> &EditLayout::textFormats() const
-    {
-        return textFormats_;
-    }
-
-    void EditLayout::textFormats(const std::vector<ComPtr<IDWriteTextFormat>> &itextFormats)
-    {
-        textFormats_ = itextFormats;
-        // TODO: reanalyze
-    }
-
-    void EditLayout::textFormats(std::vector<ComPtr<IDWriteTextFormat>> &&itextFormats)
-    {
-        textFormats_ = std::move(itextFormats);
-        // TODO: reanalyze
-    }
-
-    DWRITE_READING_DIRECTION EditLayout::readingDirection() const
-    {
-        return readingDirection_;
-    }
-
-    void EditLayout::readingDirection(DWRITE_READING_DIRECTION readingDirection)
-    {
-        readingDirection_ = readingDirection;
-    }
-
-
-    void EditLayout::analyze()
-    {
-    }
-
     Edit::Edit(const ControlID &id)
         : Control(id)
         , colorText_(Objects::ColorF::Black)
         , colorPlaceholder_(Objects::ColorF::DarkGray)
         , colorBackground_(Objects::ColorF::Black)
-        , renderer(new (std::nothrow) EditRenderer())
+        // , renderer(new (std::nothrow) EditRenderer())
         , focused(false)
         , dragging(false)
         , trailing(false)
     {
-        formatText = Drawing::FontFactory::instance().createFont(16.0f); // TODO: font size customization?
-        formatPlaceholder = Drawing::FontFactory::instance().createFont(
+        formatPlaceholder_ = Drawing::FontFactory::instance().createFont(
             16.0f,
             DWRITE_FONT_WEIGHT_BOLD
             );
@@ -583,7 +444,7 @@ namespace Gurigi
             renderParamsTemp->GetClearTypeLevel(),
             renderParamsTemp->GetPixelGeometry(),
             DWRITE_RENDERING_MODE_CLEARTYPE_GDI_CLASSIC,
-            &renderParams
+            &renderParams_
             );
 
         onMouseMove += Batang::delegate(this, &Edit::onMouseMoveImpl);
@@ -592,7 +453,72 @@ namespace Gurigi
         onFocus += Batang::delegate(this, &Edit::onFocusImpl);
         onBlur += Batang::delegate(this, &Edit::onBlurImpl);
 
-        selectionEffect = ComPtr<EditDrawingEffect>(new EditDrawingEffect(GetSysColor(COLOR_HIGHLIGHTTEXT)));
+        selectionEffect_ = ComPtr<EditDrawingEffect>(new EditDrawingEffect(GetSysColor(COLOR_HIGHLIGHTTEXT)));
+
+        // TODO: temp
+        editLayout_.fontEmSize(16.0f);
+        editLayout_.size(Gurigi::Objects::SizeF(100.0f, 100.0f));
+        editLayout_.defaultReadingDirection(DWRITE_READING_DIRECTION_LEFT_TO_RIGHT);
+
+        std::vector<Gurigi::ComPtr<IDWriteTextFormat>> textFormats;
+
+        {
+            textFormats.emplace_back();
+            Gurigi::ComPtr<IDWriteTextFormat> &textFormat = textFormats.back();
+            dwfac->CreateTextFormat(
+                L"Segoe UI",
+                nullptr,
+                DWRITE_FONT_WEIGHT_REGULAR,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                16.0f,
+                L"",
+                &textFormat);
+        }
+
+        {
+            textFormats.emplace_back();
+            Gurigi::ComPtr<IDWriteTextFormat> &textFormat = textFormats.back();
+            dwfac->CreateTextFormat(
+                L"Meiryo",
+                nullptr,
+                DWRITE_FONT_WEIGHT_REGULAR,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                16.0f,
+                L"",
+                &textFormat);
+        }
+
+        {
+            textFormats.emplace_back();
+            Gurigi::ComPtr<IDWriteTextFormat> &textFormat = textFormats.back();
+            dwfac->CreateTextFormat(
+                L"Microsoft YaHei",
+                nullptr,
+                DWRITE_FONT_WEIGHT_REGULAR,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                16.0f,
+                L"",
+                &textFormat);
+        }
+
+        {
+            textFormats.emplace_back();
+            Gurigi::ComPtr<IDWriteTextFormat> &textFormat = textFormats.back();
+            dwfac->CreateTextFormat(
+                L"Malgun Gothic",
+                nullptr,
+                DWRITE_FONT_WEIGHT_REGULAR,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                16.0f,
+                L"",
+                &textFormat);
+        }
+
+        editLayout_.textFormats(std::move(textFormats));
     }
 
     Edit::~Edit()
@@ -621,42 +547,42 @@ namespace Gurigi
 
     void Edit::createDrawingResources(Drawing::Context &ctx)
     {
-        ctx->CreateSolidColorBrush(Objects::ColorF(GetSysColor(COLOR_HIGHLIGHT)), &brushSelection);
+        ctx->CreateSolidColorBrush(Objects::ColorF(GetSysColor(COLOR_HIGHLIGHT)), &brushSelection_);
     }
 
     void Edit::discardDrawingResources(Drawing::Context &ctx)
     {
-        brushText.release();
-        brushPlaceholder.release();
-        brushBackground.release();
-        brushSelection.release();
+        brushText_.release();
+        brushPlaceholder_.release();
+        brushBackground_.release();
+        brushSelection_.release();
     }
 
     void Edit::draw(Drawing::Context &ctx)
     {
         HRESULT hr;
-        if(!brushText)
+        if(!brushText_)
         {
-            hr = ctx->CreateSolidColorBrush(colorText_, &brushText);
+            hr = ctx->CreateSolidColorBrush(colorText_, &brushText_);
             if(FAILED(hr))
                 throw(UIException("CreateSolidColorBrush failed in Edit::draw."));
         }
-        if(!brushPlaceholder)
+        if(!brushPlaceholder_)
         {
-            hr = ctx->CreateSolidColorBrush(colorPlaceholder_, &brushPlaceholder);
+            hr = ctx->CreateSolidColorBrush(colorPlaceholder_, &brushPlaceholder_);
             if(FAILED(hr))
                 throw(UIException("CreateSolidColorBrush failed in Edit::draw."));
         }
-        if(!brushBackground)
+        if(!brushBackground_)
         {
-            hr = ctx->CreateSolidColorBrush(colorBackground_, &brushBackground);
+            hr = ctx->CreateSolidColorBrush(colorBackground_, &brushBackground_);
             if(FAILED(hr))
                 throw(UIException("CreateSolidColorBrush failed in Edit::draw."));
         }
 
         ComPtr<IDWriteRenderingParams> oldRenderParams;
         ctx->GetTextRenderingParams(&oldRenderParams);
-        ctx->SetTextRenderingParams(renderParams);
+        ctx->SetTextRenderingParams(renderParams_);
 
         D2D1_MATRIX_3X2_F oldTransform;
         ctx->GetTransform(&oldTransform);
@@ -664,7 +590,7 @@ namespace Gurigi
         Objects::RectangleF newRect(Objects::PointF(0.0f, 0.0f), rect().size());
         ctx->FillRectangle(
             newRect,
-            brushBackground
+            brushBackground_
             );
 
         // TODO: scroll clip layer or geometry
@@ -674,28 +600,29 @@ namespace Gurigi
         ctx->SetTransform(clientTransform * paddingTransform * scrollTransform);
 
         for(auto it = std::begin(selectionRects); it != std::end(selectionRects); ++ it)
-            ctx->FillRectangle(*it, brushSelection);
+            ctx->FillRectangle(*it, brushSelection_);
 
         if(text_.empty())
         {
             ctx->DrawTextW(
                 placeholder_.c_str(),
                 static_cast<unsigned>(placeholder_.size()),
-                formatPlaceholder,
+                formatPlaceholder_,
                 newRect,
-                brushPlaceholder,
+                brushPlaceholder_,
                 D2D1_DRAW_TEXT_OPTIONS_NONE,
                 DWRITE_MEASURING_MODE_GDI_CLASSIC
                 );
         }
         else
         {
-            renderer->drawLayout(
+            /*renderer->drawLayout(
                 ctx,
                 EditDrawingEffect(colorText_),
                 layout,
                 newRect
-                );
+                );*/
+            editLayoutSink_.draw(ctx, Objects::PointF(1.0f, 1.0f), brushText_);
         }
 
         ctx->SetTransform(oldTransform);
@@ -714,17 +641,24 @@ namespace Gurigi
         paddingTransform = D2D1::Matrix3x2F::Translation(1.0f, 1.0f); // TODO: padding implementation by design
         scrollTransform = D2D1::Matrix3x2F::Identity(); // TODO: scroll
 
-        if(layout)
-        {
-            layout->SetMaxWidth(rect.width());
-            layout->SetMaxHeight(rect.height());
-        }
-        updateSelection();
-        updateCaret();
+        Objects::SizeF size = rect.size();
+
+        editLayout_.size(Objects::SizeF(size.width - 2.0f, size.height - 2.0f));
+        editLayout_.flow(editLayoutSource_, editLayoutSink_);
+
+        //updateSelection();
+        //updateCaret();
     }
 
     void Edit::textRefresh()
     {
+        editLayout_.text(text_);
+        editLayout_.analyze();
+        if(editLayout_.size().width > 0.0f)
+        {
+            editLayout_.flow(editLayoutSource_, editLayoutSink_);
+        }
+        /*
         layout.release();
 
         Objects::SizeF size = rect().size();
@@ -745,10 +679,10 @@ namespace Gurigi
         layout->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);
 
         updateSelection();
-        updateCaret();
+        updateCaret();*/
     }
 
-    bool Edit::updateCaret()
+    /*bool Edit::updateCaret()
     {
         ShellPtr<> lshell = shell().lock();
         if(layout && lshell)
@@ -864,7 +798,7 @@ namespace Gurigi
                 dragging
                 );
         }
-    }
+    }*/
 
     void Edit::select(SelectMode mode, uint32_t pos, bool dragging)
     {
@@ -872,7 +806,7 @@ namespace Gurigi
 
     void Edit::onMouseMoveImpl(const ControlEventArg &arg)
     {
-        if(!dragging)
+        /*if(!dragging)
         {
             D2D1::Matrix3x2F inverseTransform = paddingTransform * scrollTransform;
             inverseTransform.Invert();
@@ -890,7 +824,7 @@ namespace Gurigi
             }
         }
         else
-            selectByPoint(arg.controlPoint, true);
+            selectByPoint(arg.controlPoint, true);*/
 
         cursor(Resources::Cursor::Predefined::ibeam());
     }
@@ -899,7 +833,7 @@ namespace Gurigi
     {
         if(arg.buttonNum == 1)
         {
-            selectByPoint(arg.controlPoint, false);
+            //selectByPoint(arg.controlPoint, false);
             dragging = true;
         }
     }
@@ -914,12 +848,12 @@ namespace Gurigi
 
     void Edit::onFocusImpl(const ControlEventArg &)
     {
-        if(updateCaret())
+        /*if(updateCaret())
         {
             ShellPtr<> lshell = shell().lock();
             if(lshell)
                 ShowCaret(lshell->hwnd());
-        }
+        }*/
 
         focused = true;
     }
@@ -928,7 +862,7 @@ namespace Gurigi
     {
         focused = false;
 
-        DestroyCaret();
+        //DestroyCaret();
     }
 
     const std::wstring &Edit::text() const
@@ -940,7 +874,9 @@ namespace Gurigi
     {
         text_ = itext;
         // TODO: discard IME mode, ...
-        selection(0, false);
+        textRefresh();
+        redraw();
+        //selection(0, false);
     }
 
     const std::wstring &Edit::placeholder() const

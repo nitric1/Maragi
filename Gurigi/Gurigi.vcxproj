@@ -35,6 +35,7 @@
     <ClInclude Include="Global.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Window.h" />
+    <ClInclude Include="Detail\EditLayout.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -57,6 +58,7 @@
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="Utility.cpp" />
     <ClCompile Include="Window.cpp" />
+    <ClCompile Include="Detail\EditLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Batang\Batang.vcxproj">

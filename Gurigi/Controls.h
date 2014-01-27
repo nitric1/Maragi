@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Window.h"
+#include "Detail/EditLayout.h"
 
 namespace Gurigi
 {
@@ -95,6 +96,7 @@ namespace Gurigi
         virtual void text(const std::wstring &);
     };
 
+    // TODO: Move to Detail or some other namespace
     class DECLSPEC_UUID("809B62F5-ABC3-4FF2-B9F8-7CDC8F78D790") EditDrawingEffect
         : public ComBase<ComBaseListSelf<EditDrawingEffect, ComBaseList<IUnknown>>>
     {
@@ -135,37 +137,6 @@ namespace Gurigi
         virtual HRESULT __stdcall IsPixelSnappingDisabled(void *, BOOL *);
     };
 
-    class EditLayout
-    {
-    private:
-        std::wstring text_;
-        std::vector<ComPtr<IDWriteTextFormat>> textFormats_;
-        std::vector<ComPtr<IDWriteFont>> fonts;
-        std::vector<ComPtr<IDWriteFontFace>> fontFaces;
-        DWRITE_READING_DIRECTION readingDirection_;
-
-    public:
-        EditLayout();
-        ~EditLayout();
-
-    public:
-        void draw(void *, IDWriteTextRenderer *, const Objects::PointF &);
-
-    private:
-
-    public:
-        const std::wstring &text() const;
-        void text(const std::wstring &);
-        const std::vector<ComPtr<IDWriteTextFormat>> &textFormats() const;
-        void textFormats(const std::vector<ComPtr<IDWriteTextFormat>> &);
-        void textFormats(std::vector<ComPtr<IDWriteTextFormat>> &&);
-        DWRITE_READING_DIRECTION readingDirection() const;
-        void readingDirection(DWRITE_READING_DIRECTION);
-
-    private:
-        void analyze();
-    };
-
     class Edit : public Control
     {
     private:
@@ -187,12 +158,15 @@ namespace Gurigi
         Objects::ColorF colorText_, colorPlaceholder_, colorBackground_;
         ReadingDirection readingDirection_;
 
-        ComPtr<ID2D1SolidColorBrush> brushText, brushPlaceholder, brushBackground, brushSelection;
-        ComPtr<IDWriteTextFormat> formatText, formatPlaceholder;
-        ComPtr<IDWriteTextLayout> layout;
-        ComPtr<EditRenderer> renderer;
-        ComPtr<EditDrawingEffect> selectionEffect;
-        ComPtr<IDWriteRenderingParams> renderParams;
+        Detail::EditLayout editLayout_;
+        Detail::EditLayoutSource editLayoutSource_;
+        Detail::EditLayoutSink editLayoutSink_;
+
+        ComPtr<ID2D1SolidColorBrush> brushText_, brushPlaceholder_, brushBackground_, brushSelection_;
+        ComPtr<IDWriteTextFormat> formatPlaceholder_;
+        ComPtr<EditRenderer> renderer_;
+        ComPtr<EditDrawingEffect> selectionEffect_;
+        ComPtr<IDWriteRenderingParams> renderParams_;
 
         std::vector<Objects::RectangleF> selectionRects;
 
