@@ -41,6 +41,18 @@ namespace Gurigi
                 return !(*this == rhs);
             }
 
+            Point &operator +=(const Point &rhs)
+            {
+                x += rhs.x;
+                y += rhs.y;
+                return *this;
+            }
+
+            const Point operator +(const Point &rhs) const
+            {
+                return Point(*this) += rhs;
+            }
+
             operator D2D1_POINT_2U() const
             {
                 return D2D1::Point2U(static_cast<uint32_t>(x), static_cast<uint32_t>(y));

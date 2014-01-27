@@ -112,7 +112,7 @@ namespace Gurigi
             : ptr(nullptr)
         {}
 
-        ComPtr(T *iptr)
+        explicit ComPtr(T *iptr)
             : ptr(iptr)
         {}
 
@@ -122,9 +122,25 @@ namespace Gurigi
             ptr->AddRef();
         }
 
+        template<typename U>
+        ComPtr(const ComPtr<U> &that)
+            : ptr(that.ptr)
+        {
+            static_assert(std::is_convertible<U *, T *>::value, "Type of pointer in argument must be a subclass of T.");
+            ptr->AddRef();
+        }
+
         ComPtr(ComPtr &&that)
             : ptr(that.ptr)
         {
+            that.ptr = nullptr;
+        }
+
+        template<typename U>
+        ComPtr(ComPtr<U> &&that)
+            : ptr(that.ptr)
+        {
+            static_assert(std::is_convertible<U *, T *>::value, "Type of pointer in argument must be a subclass of T.");
             that.ptr = nullptr;
         }
 
@@ -169,7 +185,7 @@ namespace Gurigi
 
         void release()
         {
-            if(ptr != nullptr)
+            if(ptr)
             {
                 ptr->Release();
                 ptr = nullptr;
@@ -185,10 +201,10 @@ namespace Gurigi
         {
             if(ptr != rhs.ptr)
             {
-                if(ptr != nullptr)
+                if(ptr)
                     ptr->Release();
                 ptr = rhs.ptr;
-                if(ptr != nullptr)
+                if(ptr)
                     ptr->AddRef();
             }
             return *this;
@@ -198,13 +214,16 @@ namespace Gurigi
         {
             if(ptr != rhs.ptr)
             {
-                if(ptr != nullptr)
+                if(ptr)
                     ptr->Release();
                 ptr = rhs.ptr;
                 rhs.ptr = nullptr;
             }
             return *this;
         }
+
+        template<typename U>
+        friend class ComPtr;
     };
 
     class ComException : public std::runtime_error

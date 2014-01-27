@@ -22,6 +22,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <numeric>
 #include <thread>
 #include <unordered_set>
 #include <vector>
@@ -32,6 +33,9 @@
 #pragma warning(disable: 4819) // The file contains a character that cannot be represented in the current code page
 #include <boost/format.hpp>
 #pragma warning(pop)
+
+#include <boost/range/any_range.hpp>
+#include <boost/range/sub_range.hpp>
 
 #pragma warning(push)
 #pragma warning(disable: 4503) // decorated name length exceeded, name was truncated
