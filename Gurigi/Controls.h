@@ -172,7 +172,6 @@ namespace Gurigi
 
         D2D1::Matrix3x2F clientTransform_, paddingTransform_, scrollTransform_;
         bool focused_, dragging_, trailing_;
-        int32_t caretHeight_;
 
     protected:
         Edit(const ControlID &);
@@ -201,7 +200,7 @@ namespace Gurigi
     private:
         void textRefresh();
         bool updateCaret();
-        void updateSelection();
+        bool updateSelection();
         void selectByPoint(const Objects::PointF &, bool);
         void select(SelectMode, uint32_t, bool);
 
