@@ -111,6 +111,8 @@ namespace Gurigi
         private:
             struct GlyphRun
             {
+                size_t textStartPos;
+                size_t textLength;
                 ComPtr<IDWriteFontFace> fontFace;
                 float fontEmSize;
                 Objects::PointF baselineOffset;
@@ -125,16 +127,20 @@ namespace Gurigi
             std::vector<uint16_t> glyphIndices_;
             std::vector<float> glyphAdvances_;
             std::vector<DWRITE_GLYPH_OFFSET> glyphOffsets_;
+            std::vector<uint16_t> glyphClusters_;
 
         public:
             EditLayoutSink();
             void clear();
             void prepare(size_t);
-            void addGlyphRun(const Objects::PointF &,
+            void addGlyphRun(const RandomAnyRange<uint16_t> &,
+                const Objects::PointF &,
                 const RandomAnyRange<uint16_t> &, const RandomAnyRange<float> &, const RandomAnyRange<DWRITE_GLYPH_OFFSET> &,
                 const ComPtr<IDWriteFontFace> &,
                 float, uint8_t, bool);
-            void draw(Gurigi::Drawing::Context &, const Objects::PointF &, const ComPtr<ID2D1Brush> &);
+            void draw(Gurigi::Drawing::Context &, const Objects::PointF &, const ComPtr<ID2D1Brush> &) const;
+            bool getTextPosInfo(size_t, bool, Objects::PointF &, ComPtr<IDWriteFontFace> &, float &) const;
+            bool hitTestTextPos(const Objects::PointF &, size_t &, bool &) const;
         };
 
         class EditLayout

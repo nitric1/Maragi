@@ -1,5 +1,7 @@
 ﻿#include "Common.h"
 
+#include "Batang/Utility.h"
+
 #include "Drawing.h"
 #include "Global.h"
 #include "Objects.h"
@@ -19,7 +21,7 @@ namespace Gurigi
 
             int32_t toRawPixel(float val, float dpi)
             {
-                return static_cast<int32_t>(val * dpi / 96.0f);
+                return static_cast<int32_t>(Batang::round(val * dpi / 96.0f));
             }
 
             float fromRawPixel(int32_t val, float dpi)
