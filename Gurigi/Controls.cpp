@@ -429,6 +429,7 @@ namespace Gurigi
         , focused_(false)
         , dragging_(false)
         , trailing_(false)
+        , caretHeight_(0)
     {
         formatPlaceholder_ = Drawing::FontFactory::instance().createFont(
             16.0f,
@@ -450,6 +451,19 @@ namespace Gurigi
         onMouseMove += Batang::delegate(this, &Edit::onMouseMoveImpl);
         onMouseButtonDown += Batang::delegate(this, &Edit::onMouseButtonDownImpl);
         onMouseButtonUp += Batang::delegate(this, &Edit::onMouseButtonUpImpl);
+        onKeyDown += [this](const ControlEventArg &e)
+        {
+            if(e.keyCode == VK_LEFT)
+            {
+                auto sel = selection().second;
+                if(sel == 0) return;
+                selection(sel - 1, false);
+            }
+            else if(e.keyCode == VK_RIGHT)
+            {
+                selection(selection().second + 1, true);
+            }
+        };
         onFocus += Batang::delegate(this, &Edit::onFocusImpl);
         onBlur += Batang::delegate(this, &Edit::onBlurImpl);
 
@@ -718,8 +732,7 @@ namespace Gurigi
             SystemParametersInfoW(SPI_GETCARETWIDTH, 0, &caretWidth, FALSE);
 
             Objects::RectangleF caretRect(
-                Objects::PointF(offset.x - static_cast<float>(caretWidth) / 2.0f,
-                    offset.y - (metrics.ascent * fontEmSize / metrics.designUnitsPerEm)),
+                Objects::PointF(offset.x + 1.0f, offset.y - (metrics.ascent * fontEmSize / metrics.designUnitsPerEm)),
                 Objects::SizeF(static_cast<float>(caretWidth),
                     (metrics.ascent + metrics.descent) * fontEmSize / metrics.designUnitsPerEm));
 
@@ -727,10 +740,16 @@ namespace Gurigi
             Objects::PointI caretPosI = Objects::convertPoint(Objects::PointF(caretPosF.x, caretPosF.y));
             Objects::SizeI caretSize = Objects::convertSize(caretRect.size());
 
-            CreateCaret(lshell->hwnd(), nullptr, caretWidth, caretSize.height);
+            bool showReserved = false;
+            if(caretHeight_ != caretSize.height)
+            {
+                CreateCaret(lshell->hwnd(), nullptr, caretWidth, caretSize.height);
+                caretHeight_ = caretSize.height;
+                showReserved = true;
+            }
             SetCaretPos(caretPosI.x, caretPosI.y);
 
-            if(focused_)
+            if(focused_ && showReserved)
                 ShowCaret(lshell->hwnd());
 
             return true;
@@ -866,6 +885,7 @@ namespace Gurigi
     void Edit::onBlurImpl(const ControlEventArg &)
     {
         focused_ = false;
+        caretHeight_ = 0;
 
         DestroyCaret();
     }
@@ -879,6 +899,7 @@ namespace Gurigi
     {
         text_ = itext;
         // TODO: discard IME mode, ...
+        textRefresh();
         selection(0, false);
     }
 
@@ -901,10 +922,13 @@ namespace Gurigi
 
     void Edit::selection(uint32_t selPos, bool trailing)
     {
+        if(selPos > text_.size())
+            selPos = text_.size();
         selStart_ = selEnd_ = selPos;
         trailing_ = trailing;
         // TODO: discard IME mode, ...
-        textRefresh();
+        updateSelection();
+        updateCaret();
         redraw();
     }
 
@@ -914,7 +938,8 @@ namespace Gurigi
         selEnd_ = selEnd;
         trailing_ = trailing;
         // TODO: discard IME mode, ...
-        textRefresh();
+        updateSelection();
+        updateCaret();
         redraw();
     }
 }

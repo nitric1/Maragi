@@ -172,6 +172,7 @@ namespace Gurigi
 
         D2D1::Matrix3x2F clientTransform_, paddingTransform_, scrollTransform_;
         bool focused_, dragging_, trailing_;
+        int32_t caretHeight_;
 
     protected:
         Edit(const ControlID &);
