@@ -429,7 +429,6 @@ namespace Gurigi
         , focused_(false)
         , dragging_(false)
         , trailing_(false)
-        , caretHeight_(0)
     {
         formatPlaceholder_ = Drawing::FontFactory::instance().createFont(
             16.0f,
@@ -740,16 +739,10 @@ namespace Gurigi
             Objects::PointI caretPosI = Objects::convertPoint(Objects::PointF(caretPosF.x, caretPosF.y));
             Objects::SizeI caretSize = Objects::convertSize(caretRect.size());
 
-            bool showReserved = false;
-            if(caretHeight_ != caretSize.height)
-            {
-                CreateCaret(lshell->hwnd(), nullptr, caretWidth, caretSize.height);
-                caretHeight_ = caretSize.height;
-                showReserved = true;
-            }
+            CreateCaret(lshell->hwnd(), nullptr, caretWidth, caretSize.height);
             SetCaretPos(caretPosI.x, caretPosI.y);
 
-            if(focused_ && showReserved)
+            if(focused_)
                 ShowCaret(lshell->hwnd());
 
             return true;
@@ -758,8 +751,15 @@ namespace Gurigi
         return false;
     }
 
-    void Edit::updateSelection()
+    bool Edit::updateSelection()
     {
+        bool ret = false;
+
+        if(selStart_ == selEnd_ && !selectionRects_.empty())
+        {
+            ret = true;
+        }
+
         selectionRects_.clear();
         if(selStart_ != selEnd_)
         {
@@ -804,7 +804,11 @@ namespace Gurigi
 
             DWRITE_TEXT_RANGE range = { min, max - min };
             layout->SetDrawingEffect(selectionEffect, range);*/
+
+            ret = true;
         }
+
+        return ret;
     }
 
     void Edit::selectByPoint(const Objects::PointF &pt, bool dragging)
@@ -872,20 +876,13 @@ namespace Gurigi
 
     void Edit::onFocusImpl(const ControlEventArg &)
     {
-        if(updateCaret())
-        {
-            ShellPtr<> lshell = shell().lock();
-            if(lshell)
-                ShowCaret(lshell->hwnd());
-        }
-
         focused_ = true;
+        updateCaret();
     }
 
     void Edit::onBlurImpl(const ControlEventArg &)
     {
         focused_ = false;
-        caretHeight_ = 0;
 
         DestroyCaret();
     }
@@ -900,7 +897,10 @@ namespace Gurigi
         text_ = itext;
         // TODO: discard IME mode, ...
         textRefresh();
-        selection(0, false);
+        if(selStart_ != 0 || selEnd_ != 0)
+            selection(0, false);
+        else
+            redraw();
     }
 
     const std::wstring &Edit::placeholder() const
@@ -908,9 +908,9 @@ namespace Gurigi
         return placeholder_;
     }
 
-    void Edit::placeholder(const std::wstring &iplaceholder)
+    void Edit::placeholder(const std::wstring &placeholder)
     {
-        placeholder_ = iplaceholder;
+        placeholder_ = placeholder;
         if(text_.empty())
             redraw();
     }
@@ -927,9 +927,11 @@ namespace Gurigi
         selStart_ = selEnd_ = selPos;
         trailing_ = trailing;
         // TODO: discard IME mode, ...
-        updateSelection();
+        if(updateSelection())
+        {
+            redraw();
+        }
         updateCaret();
-        redraw();
     }
 
     void Edit::selection(uint32_t selStart, uint32_t selEnd, bool trailing)
@@ -938,8 +940,10 @@ namespace Gurigi
         selEnd_ = selEnd;
         trailing_ = trailing;
         // TODO: discard IME mode, ...
-        updateSelection();
+        if(updateSelection())
+        {
+            redraw();
+        }
         updateCaret();
-        redraw();
     }
 }
