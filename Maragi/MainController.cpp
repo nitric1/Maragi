@@ -108,7 +108,7 @@ namespace Maragi
             t.detach();*/
 
             Batang::Timer::instance().installRunOnceTimer(shared_from_this(),
-                std::chrono::steady_clock::now() + std::chrono::seconds(1),
+                std::chrono::steady_clock::now(),
                 [&button]()
                 {
                     button->onClick(Gurigi::ControlEventArg());
