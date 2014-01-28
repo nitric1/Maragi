@@ -290,7 +290,7 @@ namespace Gurigi
         {
             GlyphRun tmp;
             tmp.textStartPos = pos;
-            auto it = std::upper_bound(glyphRuns_.begin(), glyphRuns_.end(), tmp,
+            auto it = std::lower_bound(glyphRuns_.begin(), glyphRuns_.end(), tmp,
                 [](const GlyphRun &lhs, const GlyphRun &rhs) -> bool
                 {
                     return lhs.textStartPos < rhs.textStartPos;
@@ -1042,6 +1042,7 @@ namespace Gurigi
             for(size_t i = 0; i < totalRuns; ++ i)
             {
                 const Run &run = runs_[bidiOrdering[i]];
+                size_t glyphStartDiff = 0;
                 size_t glyphStart = run.glyphStart;
                 size_t glyphEnd = glyphStart + run.glyphCount;
 
@@ -1050,7 +1051,9 @@ namespace Gurigi
 
                 if(start.textPosition > run.textStart)
                 {
-                    glyphStart = getClusterGlyphStart(start);
+                    size_t newGlyphStart = getClusterGlyphStart(start);
+                    glyphStartDiff = newGlyphStart - glyphStart;
+                    glyphStart = newGlyphStart;
                 }
                 if(clusterWsEnd.textPosition < run.textStart + run.textLength)
                 {
@@ -1067,9 +1070,18 @@ namespace Gurigi
                 size_t textStart = std::max(start.textPosition, run.textStart);
                 size_t textEnd = std::min(clusterWsEnd.textPosition, run.textStart + run.textLength);
 
+                std::vector<uint16_t> glyphClusters(glyphClusters_.begin() + textStart, glyphClusters_.begin() + textEnd);
+                if(glyphStartDiff > 0)
+                {
+                    for(uint16_t &cluster: glyphClusters)
+                    {
+                        cluster -= glyphStartDiff;
+                    }
+                }
+
                 // TODO: text format
                 sink.addGlyphRun(
-                    boost::make_iterator_range(glyphClusters_.begin() + textStart, glyphClusters_.begin() + textEnd),
+                    glyphClusters,
                     Objects::PointF((run.bidiLevel & 1) ? (x + runWidth) : x, y),
                     boost::make_iterator_range(glyphIndices_.begin() + glyphStart, glyphIndices_.begin() + glyphEnd),
                     boost::make_iterator_range(glyphAdvances_.begin() + glyphStart, glyphAdvances_.begin() + glyphEnd),

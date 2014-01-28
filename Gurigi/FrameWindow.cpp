@@ -529,6 +529,23 @@ namespace Gurigi
             }
             return 0;
 
+        case WM_KEYDOWN:
+            {
+                ev.keyCode = wParam;
+                std::vector<ControlWeakPtr<>> focuseds;
+                auto lfocused = focus().lock();
+                while(lfocused)
+                {
+                    auto parent = lfocused->parent();
+                    if(!parent)
+                        break;
+                    focuseds.push_back(lfocused);
+                    lfocused = lfocused->parent()->parent().lock();
+                }
+                fireEvent(focuseds, &Control::onKeyDown, ev);
+            }
+            return 0;
+
         case WM_DESTROY:
             // TODO: modeless window
             inDestroy_ = true;
