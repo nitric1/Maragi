@@ -216,6 +216,7 @@ namespace Gurigi
             glyphIndices_.clear();
             glyphAdvances_.clear();
             glyphOffsets_.clear();
+            glyphClusters_.clear();
         }
 
         void EditLayoutSink::prepare(size_t size)
@@ -418,7 +419,7 @@ namespace Gurigi
         void EditLayout::size(const Objects::SizeF &size)
         {
             size_ = size;
-            invalidate();
+            // invalidate();
         }
 
         void EditLayout::analyze()
