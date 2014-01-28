@@ -168,10 +168,10 @@ namespace Gurigi
         ComPtr<EditDrawingEffect> selectionEffect_;
         ComPtr<IDWriteRenderingParams> renderParams_;
 
-        std::vector<Objects::RectangleF> selectionRects;
+        std::vector<Objects::RectangleF> selectionRects_;
 
-        D2D1::Matrix3x2F clientTransform, paddingTransform, scrollTransform;
-        bool focused, dragging, trailing;
+        D2D1::Matrix3x2F clientTransform_, paddingTransform_, scrollTransform_;
+        bool focused_, dragging_, trailing_;
 
     protected:
         Edit(const ControlID &);

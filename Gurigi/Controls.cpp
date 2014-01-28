@@ -426,9 +426,9 @@ namespace Gurigi
         , colorPlaceholder_(Objects::ColorF::DarkGray)
         , colorBackground_(Objects::ColorF::Black)
         // , renderer(new (std::nothrow) EditRenderer())
-        , focused(false)
-        , dragging(false)
-        , trailing(false)
+        , focused_(false)
+        , dragging_(false)
+        , trailing_(false)
     {
         formatPlaceholder_ = Drawing::FontFactory::instance().createFont(
             16.0f,
@@ -481,6 +481,20 @@ namespace Gurigi
             Gurigi::ComPtr<IDWriteTextFormat> &textFormat = textFormats.back();
             dwfac->CreateTextFormat(
                 L"Meiryo",
+                nullptr,
+                DWRITE_FONT_WEIGHT_REGULAR,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                16.0f,
+                L"",
+                &textFormat);
+        }
+
+        {
+            textFormats.emplace_back();
+            Gurigi::ComPtr<IDWriteTextFormat> &textFormat = textFormats.back();
+            dwfac->CreateTextFormat(
+                L"Microsoft JhengHei",
                 nullptr,
                 DWRITE_FONT_WEIGHT_REGULAR,
                 DWRITE_FONT_STYLE_NORMAL,
@@ -586,7 +600,7 @@ namespace Gurigi
 
         D2D1_MATRIX_3X2_F oldTransform;
         ctx->GetTransform(&oldTransform);
-        ctx->SetTransform(clientTransform);
+        ctx->SetTransform(clientTransform_);
         Objects::RectangleF newRect(Objects::PointF(0.0f, 0.0f), rect().size());
         ctx->FillRectangle(
             newRect,
@@ -597,9 +611,9 @@ namespace Gurigi
 
         // TODO: border
 
-        ctx->SetTransform(clientTransform * paddingTransform * scrollTransform);
+        ctx->SetTransform(clientTransform_ * paddingTransform_ * scrollTransform_);
 
-        for(auto it = std::begin(selectionRects); it != std::end(selectionRects); ++ it)
+        for(auto it = std::begin(selectionRects_); it != std::end(selectionRects_); ++ it)
             ctx->FillRectangle(*it, brushSelection_);
 
         if(text_.empty())
@@ -637,17 +651,17 @@ namespace Gurigi
 
     void Edit::onResizeInternal(const Objects::RectangleF &rect)
     {
-        clientTransform = D2D1::Matrix3x2F::Translation(rect.left, rect.top);
-        paddingTransform = D2D1::Matrix3x2F::Translation(1.0f, 1.0f); // TODO: padding implementation by design
-        scrollTransform = D2D1::Matrix3x2F::Identity(); // TODO: scroll
+        clientTransform_ = D2D1::Matrix3x2F::Translation(rect.left, rect.top);
+        paddingTransform_ = D2D1::Matrix3x2F::Translation(1.0f, 1.0f); // TODO: padding implementation by design
+        scrollTransform_ = D2D1::Matrix3x2F::Identity(); // TODO: scroll
 
         Objects::SizeF size = rect.size();
 
         editLayout_.size(Objects::SizeF(size.width - 2.0f, size.height - 2.0f));
         editLayout_.flow(editLayoutSource_, editLayoutSink_);
 
-        //updateSelection();
-        //updateCaret();
+        updateSelection();
+        updateCaret();
     }
 
     void Edit::textRefresh()
@@ -676,45 +690,47 @@ namespace Gurigi
         if(FAILED(hr))
             throw(UIException("CreateTextLayout failed in Edit::textRefresh"));
 
-        layout->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);
+        layout->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);*/
 
         updateSelection();
-        updateCaret();*/
+        updateCaret();
     }
 
-    /*bool Edit::updateCaret()
+    bool Edit::updateCaret()
     {
         ShellPtr<> lshell = shell().lock();
-        if(layout && lshell)
+        if(lshell)
         {
-            D2D1::Matrix3x2F transform = clientTransform * paddingTransform * scrollTransform;
+            D2D1::Matrix3x2F transform = clientTransform_ * paddingTransform_ * scrollTransform_;
 
-            DWRITE_HIT_TEST_METRICS htm;
-            float x, y;
-            layout->HitTestTextPosition(
-                selEnd_,
-                !!trailing,
-                &x,
-                &y,
-                &htm
-                );
+            Objects::PointF offset;
+            ComPtr<IDWriteFontFace> fontFace;
+            float fontEmSize;
+            if(!editLayoutSink_.getTextPosInfo(selEnd_, trailing_, offset, fontFace, fontEmSize))
+            {
+                return false;
+            }
+
+            DWRITE_FONT_METRICS metrics;
+            fontFace->GetMetrics(&metrics);
 
             uint32_t caretWidth = 2;
             SystemParametersInfoW(SPI_GETCARETWIDTH, 0, &caretWidth, FALSE);
 
             Objects::RectangleF caretRect(
-                Objects::PointF(x - static_cast<float>(caretWidth) / 2.0f, static_cast<float>(y)),
-                Objects::SizeF(static_cast<float>(caretWidth), htm.height)
-                );
+                Objects::PointF(offset.x - static_cast<float>(caretWidth) / 2.0f,
+                    offset.y - (metrics.ascent * fontEmSize / metrics.designUnitsPerEm)),
+                Objects::SizeF(static_cast<float>(caretWidth),
+                    (metrics.ascent + metrics.descent) * fontEmSize / metrics.designUnitsPerEm));
 
-            D2D1_POINT_2F caretPos = transform.TransformPoint(caretRect.leftTop());
+            D2D1_POINT_2F caretPosF = transform.TransformPoint(caretRect.leftTop());
+            Objects::PointI caretPosI = Objects::convertPoint(Objects::PointF(caretPosF.x, caretPosF.y));
+            Objects::SizeI caretSize = Objects::convertSize(caretRect.size());
 
-            // TODO: consider dpi
+            CreateCaret(lshell->hwnd(), nullptr, caretWidth, caretSize.height);
+            SetCaretPos(caretPosI.x, caretPosI.y);
 
-            CreateCaret(lshell->hwnd(), nullptr, static_cast<int>(Batang::round(caretRect.width())), static_cast<int>(Batang::round(caretRect.height())));
-            SetCaretPos(static_cast<int>(Batang::round(caretPos.x)), static_cast<int>(Batang::round(caretPos.y)));
-
-            if(focused)
+            if(focused_)
                 ShowCaret(lshell->hwnd());
 
             return true;
@@ -725,11 +741,11 @@ namespace Gurigi
 
     void Edit::updateSelection()
     {
-        selectionRects.clear();
+        selectionRects_.clear();
         if(selStart_ != selEnd_)
         {
             uint32_t min = std::min(selStart_, selEnd_), max = std::max(selStart_, selEnd_);
-            uint32_t hitTestCount;
+            /*uint32_t hitTestCount;
 
             layout->HitTestTextRange(
                 min,
@@ -768,37 +784,26 @@ namespace Gurigi
             }
 
             DWRITE_TEXT_RANGE range = { min, max - min };
-            layout->SetDrawingEffect(selectionEffect, range);
+            layout->SetDrawingEffect(selectionEffect, range);*/
         }
     }
 
     void Edit::selectByPoint(const Objects::PointF &pt, bool dragging)
     {
-        if(layout)
-        {
-            D2D1::Matrix3x2F inverseTransform = paddingTransform * scrollTransform;
-            inverseTransform.Invert();
+        D2D1::Matrix3x2F inverseTransform = paddingTransform_ * scrollTransform_;
+        inverseTransform.Invert();
 
-            D2D1_POINT_2F pos = inverseTransform.TransformPoint(pt);
+        D2D1_POINT_2F offset = inverseTransform.TransformPoint(pt);
 
-            BOOL trailing, inside;
-            DWRITE_HIT_TEST_METRICS htm;
+        bool trailing;
+        size_t pos;
 
-            layout->HitTestPoint(
-                pos.x,
-                pos.y,
-                &trailing,
-                &inside,
-                &htm
-                );
+        if(!editLayoutSink_.hitTestTextPos(Objects::PointF(offset.x, offset.y), pos, trailing))
+            return;
 
-            select(
-                trailing ? SelectMode::AbsoluteTrailing : SelectMode::AbsoluteLeading,
-                htm.textPosition,
-                dragging
-                );
-        }
-    }*/
+        select(trailing ? SelectMode::AbsoluteTrailing : SelectMode::AbsoluteLeading,
+            pos, dragging);
+    }
 
     void Edit::select(SelectMode mode, uint32_t pos, bool dragging)
     {
@@ -806,17 +811,17 @@ namespace Gurigi
 
     void Edit::onMouseMoveImpl(const ControlEventArg &arg)
     {
-        /*if(!dragging)
+        if(!dragging_)
         {
-            D2D1::Matrix3x2F inverseTransform = paddingTransform * scrollTransform;
+            D2D1::Matrix3x2F inverseTransform = paddingTransform_ * scrollTransform_;
             inverseTransform.Invert();
 
             D2D1_POINT_2F posTemp = inverseTransform.TransformPoint(arg.controlPoint);
             Objects::PointF pos(posTemp.x, posTemp.y);
 
-            for(auto it = std::begin(selectionRects); it != std::end(selectionRects); ++ it)
+            for(auto &rect: selectionRects_)
             {
-                if(it->isIn(pos))
+                if(rect.isIn(pos))
                 {
                     cursor(Resources::Cursor::Predefined::arrow());
                     return;
@@ -824,7 +829,7 @@ namespace Gurigi
             }
         }
         else
-            selectByPoint(arg.controlPoint, true);*/
+            selectByPoint(arg.controlPoint, true);
 
         cursor(Resources::Cursor::Predefined::ibeam());
     }
@@ -833,8 +838,8 @@ namespace Gurigi
     {
         if(arg.buttonNum == 1)
         {
-            //selectByPoint(arg.controlPoint, false);
-            dragging = true;
+            selectByPoint(arg.controlPoint, false);
+            dragging_ = true;
         }
     }
 
@@ -842,27 +847,27 @@ namespace Gurigi
     {
         if(arg.buttonNum == 1)
         {
-            dragging = false;
+            dragging_ = false;
         }
     }
 
     void Edit::onFocusImpl(const ControlEventArg &)
     {
-        /*if(updateCaret())
+        if(updateCaret())
         {
             ShellPtr<> lshell = shell().lock();
             if(lshell)
                 ShowCaret(lshell->hwnd());
-        }*/
+        }
 
-        focused = true;
+        focused_ = true;
     }
 
     void Edit::onBlurImpl(const ControlEventArg &)
     {
-        focused = false;
+        focused_ = false;
 
-        //DestroyCaret();
+        DestroyCaret();
     }
 
     const std::wstring &Edit::text() const
@@ -874,9 +879,7 @@ namespace Gurigi
     {
         text_ = itext;
         // TODO: discard IME mode, ...
-        textRefresh();
-        redraw();
-        //selection(0, false);
+        selection(0, false);
     }
 
     const std::wstring &Edit::placeholder() const
@@ -896,20 +899,20 @@ namespace Gurigi
         return std::make_pair(selStart_, selEnd_);
     }
 
-    void Edit::selection(uint32_t selPos, bool itrailing)
+    void Edit::selection(uint32_t selPos, bool trailing)
     {
         selStart_ = selEnd_ = selPos;
-        trailing = itrailing;
+        trailing_ = trailing;
         // TODO: discard IME mode, ...
         textRefresh();
         redraw();
     }
 
-    void Edit::selection(uint32_t iselStart, uint32_t iselEnd, bool itrailing)
+    void Edit::selection(uint32_t selStart, uint32_t selEnd, bool trailing)
     {
-        selStart_ = iselStart;
-        selEnd_ = iselEnd;
-        trailing = itrailing;
+        selStart_ = selStart;
+        selEnd_ = selEnd;
+        trailing_ = trailing;
         // TODO: discard IME mode, ...
         textRefresh();
         redraw();

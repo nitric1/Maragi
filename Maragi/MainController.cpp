@@ -82,7 +82,7 @@ namespace Maragi
                 if(edit->text().empty())
                 {
                     edit->text(L"ABC안녕하세요ありがとう言语 한글 시험 World Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ac lectus lacus. Integer ac nisi a augue fringilla porttitor. Suspendisse id lorem mauris. Nulla vestibulum, enim quis malesuada euismod, ipsum urna dictum ligula, sed placerat ipsum diam vitae ante. Cras condimentum blandit sollicitudin. Aenean vitae nibh nisl, ac iaculis odio. Nullam ut urna risus. Vivamus nec ipsum dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus nulla neque, tempor a pharetra a, bibendum vitae lacus. 한글 워드랩도 테스트하고 싶습니다. 한글 워드랩은 어떻게 생겨먹었습니까?");
-                    // edit->selection(0, 587, true);
+                    edit->selection(4, false);
                     //edit->text(L"الديباجة한글 한글 English");
                     //edit->selection(2, 13, true);
                 }
