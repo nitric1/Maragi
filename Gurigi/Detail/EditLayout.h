@@ -133,7 +133,7 @@ namespace Gurigi
             EditLayoutSink();
             void clear();
             void prepare(size_t);
-            void addGlyphRun(const RandomAnyRange<uint16_t> &,
+            void addGlyphRun(size_t, const RandomAnyRange<uint16_t> &,
                 const Objects::PointF &,
                 const RandomAnyRange<uint16_t> &, const RandomAnyRange<float> &, const RandomAnyRange<DWRITE_GLYPH_OFFSET> &,
                 const ComPtr<IDWriteFontFace> &,
