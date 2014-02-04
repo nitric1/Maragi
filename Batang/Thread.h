@@ -2,37 +2,17 @@
 
 #include "Event.h"
 
+#include "Detail/Task.h"
+
 namespace Batang
 {
-    // TODO: Move to detail
-    struct Task
-    {
-        typedef std::tuple<std::mutex, std::condition_variable, bool> InvokeLockTuple;
-
-        std::function<void ()> fn_;
-        std::shared_ptr<InvokeLockTuple> invokeWaiter_;
-    };
-
-    // TODO: Move to detail
-    class TaskPool
-    {
-    private:
-        std::deque<Task> queue_;
-        std::mutex mutex_;
-
-    public:
-        void push(const Task &task);
-        Task pop();
-        bool empty();
-    };
-
     class ThreadTaskPool
     {
     private:
         static boost::thread_specific_ptr<ThreadTaskPool> currentTaskPool_;
 
     private:
-        TaskPool taskPool_;
+        Detail::TaskPool taskPool_;
         std::mutex taskPoolMutex_;
         std::condition_variable invokedCv_;
 
