@@ -226,15 +226,15 @@ namespace Gurigi
             glyphOffsets_.reserve(size);
         }
 
-        void EditLayoutSink::addGlyphRun(const RandomAnyRange<uint16_t> &glyphClusters,
+        void EditLayoutSink::addGlyphRun(size_t textStartPos, const RandomAnyRange<uint16_t> &glyphClusters,
             const Objects::PointF &baselineOffset,
             const RandomAnyRange<uint16_t> &glyphIndices, const RandomAnyRange<float> &glyphAdvances, const RandomAnyRange<DWRITE_GLYPH_OFFSET> &glyphOffsets,
             const ComPtr<IDWriteFontFace> &fontFace,
             float fontEmSize, uint8_t bidiLevel, bool isSideways)
         {
-            size_t textStartPos = glyphClusters_.size();
             size_t textLength = glyphClusters.size();
 
+            glyphClusters_.resize(textStartPos);
             glyphClusters_.insert(glyphClusters_.end(), glyphClusters.begin(), glyphClusters.end());
 
             assert(glyphIndices.size() == glyphAdvances.size());
@@ -289,6 +289,11 @@ namespace Gurigi
 
         bool EditLayoutSink::getTextPosInfo(size_t pos, bool trailing, Objects::PointF &offset, ComPtr<IDWriteFontFace> &fontFace, float &fontEmSize) const
         {
+            if(glyphRuns_.empty())
+            {
+                return false;
+            }
+
             GlyphRun tmp;
             tmp.textStartPos = pos;
             auto it = std::lower_bound(glyphRuns_.begin(), glyphRuns_.end(), tmp,
@@ -299,42 +304,46 @@ namespace Gurigi
 
             if(it == glyphRuns_.begin())
             {
-                // TODO: assert?
-                return false;
-            }
-
-            auto nextIt = it;
-            -- it;
-            if(pos > it->textStartPos + it->textLength)
-            {
-                return false;
-            }
-
-            if(pos < it->textStartPos + it->textLength) // pos is in cluster
-            {
+                // maybe, pos == 0
                 offset = it->baselineOffset;
-                offset.x = std::accumulate(
-                    glyphAdvances_.begin() + it->glyphStartPos,
-                    glyphAdvances_.begin() + it->glyphStartPos + glyphClusters_[pos],
-                    offset.x);
-                fontFace = it->fontFace;
-                fontEmSize = it->fontEmSize;
-            }
-            else if(nextIt == glyphRuns_.end() || it->baselineOffset.y == nextIt->baselineOffset.y || trailing) // line ending
-            {
-                offset = it->baselineOffset;
-                offset.x = std::accumulate(
-                    glyphAdvances_.begin() + it->glyphStartPos,
-                    glyphAdvances_.begin() + it->glyphStartPos + it->glyphCount,
-                    offset.x);
                 fontFace = it->fontFace;
                 fontEmSize = it->fontEmSize;
             }
             else
             {
-                offset = nextIt->baselineOffset;
-                fontFace = nextIt->fontFace;
-                fontEmSize = nextIt->fontEmSize;
+                auto nextIt = it;
+                -- it;
+                if(pos > it->textStartPos + it->textLength) // line break or beyond-the-end
+                {
+                    pos = it->textStartPos + it->textLength;
+                }
+
+                if(pos < it->textStartPos + it->textLength) // pos is in cluster
+                {
+                    offset = it->baselineOffset;
+                    offset.x = std::accumulate(
+                        glyphAdvances_.begin() + it->glyphStartPos,
+                        glyphAdvances_.begin() + it->glyphStartPos + glyphClusters_[pos],
+                        offset.x);
+                    fontFace = it->fontFace;
+                    fontEmSize = it->fontEmSize;
+                }
+                else if(nextIt == glyphRuns_.end() || it->baselineOffset.y == nextIt->baselineOffset.y || trailing) // line ending
+                {
+                    offset = it->baselineOffset;
+                    offset.x = std::accumulate(
+                        glyphAdvances_.begin() + it->glyphStartPos,
+                        glyphAdvances_.begin() + it->glyphStartPos + it->glyphCount,
+                        offset.x);
+                    fontFace = it->fontFace;
+                    fontEmSize = it->fontEmSize;
+                }
+                else
+                {
+                    offset = nextIt->baselineOffset;
+                    fontFace = nextIt->fontFace;
+                    fontEmSize = nextIt->fontEmSize;
+                }
             }
 
             return true;
@@ -419,7 +428,6 @@ namespace Gurigi
         void EditLayout::size(const Objects::SizeF &size)
         {
             size_ = size;
-            // invalidate();
         }
 
         void EditLayout::analyze()
@@ -1082,6 +1090,7 @@ namespace Gurigi
 
                 // TODO: text format
                 sink.addGlyphRun(
+                    textStart,
                     glyphClusters,
                     Objects::PointF((run.bidiLevel & 1) ? (x + runWidth) : x, y),
                     boost::make_iterator_range(glyphIndices_.begin() + glyphStart, glyphIndices_.begin() + glyphEnd),
