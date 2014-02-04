@@ -63,6 +63,9 @@
     <ClInclude Include="Detail\TimerThread.h">
       <Filter>Header Files\Detail</Filter>
     </ClInclude>
+    <ClInclude Include="Detail\Task.h">
+      <Filter>Header Files\Detail</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
@@ -84,6 +87,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Detail\TimerThread.cpp">
+      <Filter>Source Files\Detail</Filter>
+    </ClCompile>
+    <ClCompile Include="Detail\Task.cpp">
       <Filter>Source Files\Detail</Filter>
     </ClCompile>
   </ItemGroup>
