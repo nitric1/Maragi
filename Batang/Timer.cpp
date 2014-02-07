@@ -4,6 +4,8 @@
 
 #include "Detail/TimerThread.h"
 
+#include "Wrapper.h"
+
 namespace Batang
 {
     namespace
@@ -33,7 +35,7 @@ namespace Batang
         timerThread_->stop();
     }
 
-    size_t Timer::installRunOnceTimer(
+    Timer::TaskId Timer::installRunOnceTimer(
         std::weak_ptr<ThreadTaskPool> thread,
         const std::chrono::steady_clock::time_point &tickAt,
         const std::function<void ()> &task)
@@ -53,7 +55,7 @@ namespace Batang
         return installTimer(thread, now, tickAt, std::chrono::steady_clock::duration(), task);
     }
 
-    size_t Timer::installPeriodicTimer(
+    Timer::TaskId Timer::installPeriodicTimer(
         std::weak_ptr<ThreadTaskPool> thread,
         const std::chrono::steady_clock::duration &interval,
         const std::function<void ()> &task)
@@ -63,7 +65,7 @@ namespace Batang
         return installTimer(thread, now, now + interval, interval, task);
     }
 
-    size_t Timer::installTimer(
+    Timer::TaskId Timer::installTimer(
         std::weak_ptr<ThreadTaskPool> thread,
         const std::chrono::steady_clock::time_point &now,
         const std::chrono::steady_clock::time_point &tickAt,
@@ -82,7 +84,8 @@ namespace Batang
             auto next = nextTask();
             bool changeNextTick = (!next || (next && *timerTask < *next));
 
-            timerTask->id_ = newTaskId_ ++;
+            timerTask->id_ = newTaskId_;
+            newTaskId_ = TaskId(*newTaskId_ + 1);
             tasks_.emplace(timerTask->id_, timerTask);
             taskHeap_.emplace_back(tickAt, timerTask);
 
@@ -98,7 +101,7 @@ namespace Batang
         return timerTask->id_;
     }
 
-    void Timer::uninstallTimer(size_t timerId)
+    void Timer::uninstallTimer(TaskId timerId)
     {
         {
             std::lock_guard<std::mutex> lock(taskMutex_);
