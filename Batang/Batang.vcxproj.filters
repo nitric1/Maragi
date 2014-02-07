@@ -66,6 +66,9 @@
     <ClInclude Include="Detail\Task.h">
       <Filter>Header Files\Detail</Filter>
     </ClInclude>
+    <ClInclude Include="Wrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp">
