@@ -6,24 +6,24 @@ namespace Batang
     {
         namespace Operators
         {
-            template<typename ValueRef>
+            template<typename ProxyT>
             struct NullOperator {};
 
-            template<typename ValueRef, template<typename> class Chain>
-            struct EqualityOperator: Chain<ValueRef>, private boost::equality_comparable<ValueRef>
+            template<typename ProxyT, template<typename> class Chain>
+            struct EqualityOperator: Chain<ProxyT>, private boost::equality_comparable<ProxyT>
             {
-                bool operator ==(const ValueRef &rhs) const
+                bool operator ==(const ProxyT &rhs) const
                 {
-                    return *static_cast<const ValueRef *>(this)->wrapper() == *rhs.wrapper();
+                    return *static_cast<const ProxyT *>(this)->wrapper() == *rhs.wrapper();
                 }
             };
 
-            template<typename ValueRef, template<typename> class Chain>
-            struct OrderingOperator: Chain<ValueRef>, private boost::less_than_comparable<ValueRef>
+            template<typename ProxyT, template<typename> class Chain>
+            struct OrderingOperator: Chain<ProxyT>, private boost::less_than_comparable<ProxyT>
             {
-                bool operator <(const ValueRef &rhs) const
+                bool operator <(const ProxyT &rhs) const
                 {
-                    return *static_cast<const ValueRef *>(this)->wrapper() < *rhs.wrapper();
+                    return *static_cast<const ProxyT *>(this)->wrapper() < *rhs.wrapper();
                 }
             };
 
@@ -31,22 +31,24 @@ namespace Batang
                 template<typename> class Chain>
             struct OperatorBind
             {
-                template<typename ValueRef>
-                struct Type: Operator<ValueRef, Chain> {};
+                template<typename ProxyT>
+                struct Type: Operator<ProxyT, Chain> {};
             };
 
             template<template<typename, template<typename> class> class Operator>
             struct NullBind
             {
-                template<typename ValueRef>
-                struct Type: Operator<ValueRef, NullOperator> {};
+                template<typename ProxyT>
+                struct Type: Operator<ProxyT, NullOperator> {};
             };
         }
 
         namespace Detail
         {
             template<typename WrapperT, template<typename> class Operator = Operators::NullOperator>
-            class ValueRef;
+            class ValueProxy;
+            template<typename WrapperT, template<typename> class Operator = Operators::NullOperator>
+            class RefProxy;
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -56,12 +58,16 @@ namespace Batang
             template<typename T, typename Tag, T InvalidValue = T()>
             class Wrapper
             {
+                static_assert(!std::is_reference<T>::value, "T must not be reference type.");
+
             public:
                 typedef T ValueType;
                 struct Uninitialized {};
 
                 template<template<typename> class Operator = Operators::NullOperator>
-                using ValueRef = Detail::ValueRef<Wrapper, Operator>;
+                using ByValue = Detail::ValueProxy<Wrapper, Operator>;
+                template<template<typename> class Operator = Operators::NullOperator>
+                using ByRef = Detail::RefProxy<Wrapper, Operator>;
 
             private:
                 T value_;
@@ -90,17 +96,27 @@ namespace Batang
 #endif // _MSC_VER
 
             template<typename WrapperT, template<typename> class Operator>
-            class ValueRef: public Operator<ValueRef<WrapperT, Operator>>
+            class ValueProxy: public Operator<ValueProxy<WrapperT, Operator>>
             {
             public:
                 typedef WrapperT WrapperType;
+                typedef typename WrapperType::ValueType ValueType;
 
             private:
-                WrapperT &wrapper_;
+                WrapperT wrapper_;
 
             public:
-                ValueRef(WrapperT &wrapper)
+                ValueProxy(const WrapperT &wrapper)
                     : wrapper_(wrapper)
+                {}
+                ValueProxy(WrapperT &&wrapper)
+                    : wrapper_(std::forward<WrapperT>(wrapper))
+                {}
+                ValueProxy(const ValueProxy &proxy)
+                    : wrapper_(proxy.wrapper_)
+                {}
+                ValueProxy(ValueProxy &&proxy)
+                    : wrapper_(std::move(proxy.wrapper_))
                 {}
 
             public:
@@ -114,23 +130,74 @@ namespace Batang
                 }
 
             public:
-                ValueRef &operator =(const WrapperT &rhs)
+                ValueProxy &operator =(const WrapperT &rhs)
                 {
                     wrapper_ = rhs;
                     return *this;
                 }
-                ValueRef &operator =(const ValueRef &rhs)
+                ValueProxy &operator =(const ValueProxy &rhs)
                 {
                     wrapper_ = rhs.wrapper_;
                     return *this;
                 }
-                ValueRef &operator =(ValueRef &&rhs)
+                ValueProxy &operator =(ValueProxy &&rhs)
                 {
                     wrapper_ = std::move(rhs.wrapper_);
                     return *this;
                 }
 
-                operator typename WrapperT::ValueType() const
+                operator ValueType() const
+                {
+                    return *wrapper_;
+                }
+            };
+
+            template<typename WrapperT, template<typename> class Operator>
+            class RefProxy: public Operator<RefProxy<WrapperT, Operator>>
+            {
+            public:
+                typedef WrapperT WrapperType;
+                typedef typename WrapperType::ValueType ValueType;
+
+            private:
+                WrapperT &wrapper_;
+
+            public:
+                RefProxy(WrapperT &wrapper)
+                    : wrapper_(wrapper)
+                {}
+                RefProxy(RefProxy &proxy)
+                    : wrapper_(proxy.wrapper_)
+                {}
+
+            public:
+                WrapperT &wrapper()
+                {
+                    return wrapper_;
+                }
+                const WrapperT &wrapper() const
+                {
+                    return wrapper_;
+                }
+
+            public:
+                RefProxy &operator =(const WrapperT &rhs)
+                {
+                    wrapper_ = rhs;
+                    return *this;
+                }
+                RefProxy &operator =(const RefProxy &rhs)
+                {
+                    wrapper_ = rhs.wrapper_;
+                    return *this;
+                }
+                RefProxy &operator =(RefProxy &&rhs)
+                {
+                    wrapper_ = std::move(rhs.wrapper_);
+                    return *this;
+                }
+
+                operator const ValueType &() const
                 {
                     return *wrapper_;
                 }
@@ -144,14 +211,14 @@ namespace Batang
             }
 
             // for std::hash
-            template<typename ValueRefT, template<typename> class HashT = std::hash>
+            template<typename ValueProxyT, template<typename> class HashT = std::hash>
             struct Hash
             {
             private:
-                HashT<typename ValueRefT::WrapperType::ValueType> hash_;
+                HashT<typename ValueProxyT::ValueType> hash_;
 
             public:
-                size_t operator ()(const ValueRefT &value) const
+                size_t operator ()(const ValueProxyT &value) const
                 {
                     return hash_(*value.wrapper());
                 }
@@ -166,8 +233,8 @@ namespace Batang
 // OK, I know declaring std is devil...
 namespace std
 {
-    template<typename ValueWrapper, template<typename> class Operator>
-    struct hash<typename Batang::ValueWrapper::Detail::ValueRef<ValueWrapper, Operator>>
-        : Batang::ValueWrapper::Hash<typename Batang::ValueWrapper::Detail::ValueRef<ValueWrapper, Operator>>
+    template<typename WrapperT, template<typename> class Operator>
+    struct hash<typename Batang::ValueWrapper::Detail::ValueProxy<WrapperT, Operator>>
+        : Batang::ValueWrapper::Hash<typename Batang::ValueWrapper::Detail::ValueProxy<WrapperT, Operator>>
     {};
 }

@@ -41,7 +41,7 @@ namespace Batang
         std::mutex taskMutex_;
         TaskId newTaskId_;
         std::unordered_map<
-            TaskId::ValueRef<ValueWrapper::Operators::NullBind<ValueWrapper::Operators::EqualityOperator>::Type>,
+            TaskId::ByValue<ValueWrapper::Operators::NullBind<ValueWrapper::Operators::EqualityOperator>::Type>,
             std::shared_ptr<TimerTask>> tasks_;
         std::vector<std::pair<std::chrono::steady_clock::time_point, std::weak_ptr<TimerTask>>> taskHeap_;
 
