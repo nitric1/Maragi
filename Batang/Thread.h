@@ -15,6 +15,7 @@ namespace Batang
         Detail::TaskPool taskPool_;
         std::mutex taskPoolMutex_;
         std::condition_variable invokedCv_;
+        std::atomic_bool toQuit_;
 
     public:
         static ThreadTaskPool *current();
@@ -36,6 +37,11 @@ namespace Batang
     protected:
         bool process();
         void pump();
+        void quitProcess();
+        void postQuitProcess();
+
+    protected:
+        void onPreRun();
     };
 
     template<typename Derived>
@@ -73,6 +79,7 @@ namespace Batang
         }
 
     private:
+        using ThreadTaskPool::onPreRun;
         template<typename ...Args>
         typename RunReturnTypeDeduce<Args...>::Type runImpl(Args &&...args)
         {
@@ -89,6 +96,7 @@ namespace Batang
                 ~SetCurrent() { setter_(nullptr); }
             } setCurrent(this, &Thread::current);
 
+            onPreRun();
             return static_cast<Derived *>(this)->run(std::forward<Args>(args)...);
         }
     };
