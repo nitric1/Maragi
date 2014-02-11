@@ -85,6 +85,13 @@ namespace Batang
                 {}
 
             public:
+                template<template<typename> class Operator = Operators::NullOperator>
+                ByRef<Operator> byRef()
+                {
+                    return ByRef<Operator>(*this);
+                }
+
+            public:
                 constexpr const T &operator *() const
                 {
                     return value_;
@@ -200,6 +207,10 @@ namespace Batang
                 operator const ValueType &() const
                 {
                     return *wrapper_;
+                }
+                const ValueType *operator &() const
+                {
+                    return &*wrapper_;
                 }
             };
 

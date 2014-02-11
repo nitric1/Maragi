@@ -66,13 +66,16 @@ namespace Batang
 
         while(true)
         {
+            if(toQuit_)
+                return false;
+
             {
                 std::lock_guard<std::mutex> lock(taskPoolMutex_);
                 if(taskPool_.empty())
                 {
                     break;
                 }
-                task = taskPool_.pop(); // This sequence (empty check -> pop) is OK, because popping is done only here
+                task = taskPool_.pop();
             }
 
             task.fn_();
@@ -100,7 +103,23 @@ namespace Batang
                     invokedCv_.wait(invokedLock);
                 }
             }
-            process();
+            if(!process())
+                return;
         }
+    }
+
+    void ThreadTaskPool::quitProcess()
+    {
+        toQuit_ = true;
+    }
+
+    void ThreadTaskPool::postQuitProcess()
+    {
+        post([this]() { quitProcess(); });
+    }
+
+    void ThreadTaskPool::onPreRun()
+    {
+        toQuit_ = false;
     }
 }
