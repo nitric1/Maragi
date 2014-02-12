@@ -4,26 +4,6 @@
 
 namespace Batang
 {
-    void TaskPool::push(const Task &task)
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        queue_.push_back(task);
-    }
-
-    Task TaskPool::pop()
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        Task task = std::move(queue_.front());
-        queue_.pop_front();
-        return task;
-    }
-
-    bool TaskPool::empty()
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        return queue_.empty();
-    }
-
     namespace
     {
         void doNothing(ThreadTaskPool *) {}
@@ -47,10 +27,10 @@ namespace Batang
 
     void ThreadTaskPool::invoke(const std::function<void ()> &fn)
     {
-        Task task =
+        Detail::Task task =
         {
             fn,
-            std::shared_ptr<Task::InvokeLockTuple>(new Task::InvokeLockTuple())
+            std::shared_ptr<Detail::Task::InvokeLockTuple>(new Detail::Task::InvokeLockTuple())
         };
 
         {
@@ -71,7 +51,7 @@ namespace Batang
 
     void ThreadTaskPool::post(const std::function<void ()> &fn)
     {
-        Task task = { fn, nullptr };
+        Detail::Task task = { fn, nullptr };
         {
             std::lock_guard<std::mutex> invokedLock(taskPoolMutex_);
             taskPool_.push(task);
@@ -82,17 +62,20 @@ namespace Batang
 
     bool ThreadTaskPool::process()
     {
-        Task task;
+        Detail::Task task;
 
         while(true)
         {
+            if(toQuit_)
+                return false;
+
             {
                 std::lock_guard<std::mutex> lock(taskPoolMutex_);
                 if(taskPool_.empty())
                 {
                     break;
                 }
-                task = taskPool_.pop(); // This sequence (empty check -> pop) is OK, because popping is done only here
+                task = taskPool_.pop();
             }
 
             task.fn_();
@@ -120,7 +103,23 @@ namespace Batang
                     invokedCv_.wait(invokedLock);
                 }
             }
-            process();
+            if(!process())
+                return;
         }
+    }
+
+    void ThreadTaskPool::quitProcess()
+    {
+        toQuit_ = true;
+    }
+
+    void ThreadTaskPool::postQuitProcess()
+    {
+        post([this]() { quitProcess(); });
+    }
+
+    void ThreadTaskPool::onPreRun()
+    {
+        toQuit_ = false;
     }
 }

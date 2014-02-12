@@ -19,15 +19,18 @@ typedef unsigned long ulong64_t;
 #  endif
 
 #  if ((SIZE_MAX - 4) <= 4294967295) // 32-bit platform
-#    ifndef _W64
+#    ifndef BATANG_W64
 #      if defined(_MSC_VER) && _MSC_VER >= 1300 && !defined(__midl) && (defined(_X86_) || defined(_M_IX86))
-#        define _W64 __w64
+#        define BATANG_W64 __w64
 #      else
-#        define _W64
+#        define BATANG_W64
 #      endif
 #    endif
-typedef _W64 long32_t longptr_t;
-typedef _W64 ulong32_t ulongptr_t;
+typedef BATANG_W64 long32_t longptr_t;
+typedef BATANG_W64 ulong32_t ulongptr_t;
+#    ifdef BATANG_W64
+#      undef BATANG_W64
+#    endif
 #  else
 typedef long64_t longptr_t;
 typedef ulong64_t ulongptr_t;
