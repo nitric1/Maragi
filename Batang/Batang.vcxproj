@@ -23,6 +23,7 @@
     <ClInclude Include="CommandLineParser.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Delegate.h" />
+    <ClInclude Include="Detail\Task.h" />
     <ClInclude Include="Detail\TimerThread.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="Global.h" />
@@ -31,6 +32,7 @@
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Utility.h" />
+    <ClInclude Include="Wrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CommandLineParser.cpp" />
@@ -40,6 +42,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Detail\Task.cpp" />
     <ClCompile Include="Detail\TimerThread.cpp" />
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="Thread.cpp" />

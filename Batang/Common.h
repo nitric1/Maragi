@@ -32,6 +32,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/locale/encoding_utf.hpp>
+#include <boost/operators.hpp>
 
 #ifdef _MSC_VER
 #pragma warning(push)
