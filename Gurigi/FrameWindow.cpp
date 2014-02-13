@@ -5,6 +5,7 @@
 
 #include "FrameWindow.h"
 #include "Global.h"
+#include "Thread.h"
 #include "Utility.h"
 
 namespace Gurigi
@@ -130,45 +131,57 @@ namespace Gurigi
         bool done = false;
 
         Batang::ThreadTaskPool *thread = Batang::ThreadTaskPool::current();
-
-        HANDLE taskInvokedSemaphore = CreateSemaphoreW(nullptr, 1, 1, nullptr);
-        auto taskInvoked = [taskInvokedSemaphore]()
         {
-            ReleaseSemaphore(taskInvokedSemaphore, 1, nullptr);
-        };
-        auto conn = (thread->onTaskInvoked.connect(taskInvoked));
-
-        while(!done)
-        {
-            if(PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
-            {
-                if(msg.message == WM_QUIT)
+            Batang::ThreadTaskPool *oldUiThread = nullptr;
+            Batang::ScopedInitializer uiThreadGuard(
+                [thread, &oldUiThread]()
                 {
-                    done = true;
-                    break;
-                }
-
-                TranslateMessage(&msg);
-                DispatchMessageW(&msg);
-            }
-            else
-            {
-                if(thread)
+                    oldUiThread = UiThread::exchange(thread);
+                },
+                [&oldUiThread]()
                 {
-                    if(MsgWaitForMultipleObjects(1, &taskInvokedSemaphore, FALSE, INFINITE, QS_ALLINPUT) == WAIT_OBJECT_0)
+                    UiThread::set(oldUiThread);
+                });
+
+            HANDLE taskInvokedSemaphore = CreateSemaphoreW(nullptr, 1, 1, nullptr);
+            auto taskInvoked = [taskInvokedSemaphore]()
+            {
+                ReleaseSemaphore(taskInvokedSemaphore, 1, nullptr);
+            };
+            auto conn = (thread->onTaskInvoked.connect(taskInvoked));
+
+            while(!done)
+            {
+                if(PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
+                {
+                    if(msg.message == WM_QUIT)
                     {
-                        onTaskProcessable();
+                        done = true;
+                        break;
                     }
+
+                    TranslateMessage(&msg);
+                    DispatchMessageW(&msg);
                 }
                 else
                 {
-                    WaitMessage();
+                    if(thread)
+                    {
+                        if(MsgWaitForMultipleObjects(1, &taskInvokedSemaphore, FALSE, INFINITE, QS_ALLINPUT) == WAIT_OBJECT_0)
+                        {
+                            onTaskProcessable();
+                        }
+                    }
+                    else
+                    {
+                        WaitMessage();
+                    }
                 }
             }
-        }
 
-        thread->onTaskInvoked -= conn;
-        CloseHandle(taskInvokedSemaphore);
+            thread->onTaskInvoked -= conn;
+            CloseHandle(taskInvokedSemaphore);
+        }
 
         return true;
     }

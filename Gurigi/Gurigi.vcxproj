@@ -33,6 +33,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Forwards.h" />
     <ClInclude Include="Global.h" />
+    <ClInclude Include="Thread.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="Detail\EditLayout.h" />
@@ -56,6 +57,7 @@
     <ClCompile Include="ShortcutKey.cpp" />
     <ClCompile Include="Constants.cpp" />
     <ClCompile Include="Global.cpp" />
+    <ClCompile Include="Thread.cpp" />
     <ClCompile Include="Utility.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="Detail\EditLayout.cpp" />
