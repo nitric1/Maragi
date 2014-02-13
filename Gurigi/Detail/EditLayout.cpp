@@ -9,6 +9,63 @@ namespace Gurigi
 {
     namespace Detail
     {
+        template<typename Run>
+        RunContainer<Run>::RunContainer()
+            : runIt_(runs_.begin())
+        {}
+
+        template<typename Run>
+        Run &RunContainer<Run>::getNextRun(size_t &leftLen)
+        {
+            size_t runTextLength = runIt_->textLength;
+
+            auto it = runIt_;
+
+            if(leftLen < runTextLength)
+            {
+                runTextLength = leftLen;
+                splitCurrentRun(it->textStart + runTextLength);
+                it = runIt_;
+                -- it;
+            }
+            else
+                ++ runIt_;
+            leftLen -= runTextLength;
+
+            return *it;
+        }
+
+        template<typename Run>
+        void RunContainer<Run>::setCurrentRun(size_t pos)
+        {
+            if(runIt_ != runs_.end() && runIt_->textStart <= pos && pos < runIt_->textStart + runIt_->textLength)
+                return;
+
+            runIt_ = std::find_if(runs_.begin(), runs_.end(),
+                [pos](const Run &run) -> bool
+            {
+                return run.textStart <= pos && pos < run.textStart + run.textLength;
+            });
+        }
+
+        template<typename Run>
+        void RunContainer<Run>::splitCurrentRun(size_t pos)
+        {
+            size_t runTextStart = runIt_->textStart;
+            if(pos <= runTextStart)
+                return;
+
+            Run &frontRun = *runIt_;
+            Run backRun = frontRun;
+
+            size_t splitPoint = pos - runTextStart;
+            frontRun.textLength = splitPoint;
+
+            backRun.textStart += splitPoint;
+            backRun.textLength -= splitPoint;
+            runIt_ = runs_.insert(++ runIt_, backRun);
+        }
+
         HRESULT TextAnalysis::analyze(IDWriteTextAnalyzer *analyzer)
         {
             runs_.clear();
@@ -136,54 +193,6 @@ namespace Gurigi
         }
 
         // others
-
-        TextAnalysis::Run &TextAnalysis::getNextRun(size_t &leftLen)
-        {
-            size_t runTextLength = runIt_->textLength;
-
-            auto it = runIt_;
-
-            if(leftLen < runTextLength)
-            {
-                runTextLength = leftLen;
-                splitCurrentRun(it->textStart + runTextLength);
-            }
-            else
-                ++ runIt_;
-            leftLen -= runTextLength;
-
-            return *it;
-        }
-
-        void TextAnalysis::setCurrentRun(size_t pos)
-        {
-            if(runIt_ != runs_.end() && runIt_->textStart <= pos && pos < runIt_->textStart + runIt_->textLength)
-                return;
-
-            runIt_ = std::find_if(runs_.begin(), runs_.end(),
-                [pos](const Run &run) -> bool
-                {
-                    return run.textStart <= pos && pos < run.textStart + run.textLength;
-                });
-        }
-
-        void TextAnalysis::splitCurrentRun(size_t pos)
-        {
-            size_t runTextStart = runIt_->textStart;
-            if(pos <= runTextStart)
-                return;
-
-            Run &frontRun = *runIt_;
-            Run backRun = frontRun;
-
-            size_t splitPoint = pos - runTextStart;
-            frontRun.textLength = splitPoint;
-
-            backRun.textStart += splitPoint;
-            backRun.textLength -= splitPoint;
-            runIt_ = runs_.insert(++ runIt_, backRun);
-        }
-
         EditLayoutSource::EditLayoutSource()
             : currentY_(0.0f)
         {}
@@ -234,8 +243,11 @@ namespace Gurigi
         {
             size_t textLength = glyphClusters.size();
 
-            glyphClusters_.resize(textStartPos);
-            glyphClusters_.insert(glyphClusters_.end(), glyphClusters.begin(), glyphClusters.end());
+            if(glyphClusters_.size() < textStartPos + textLength)
+            {
+                glyphClusters_.resize(textStartPos + textLength);
+            }
+            boost::range::copy(glyphClusters, glyphClusters_.begin() + textStartPos);
 
             assert(glyphIndices.size() == glyphAdvances.size());
             assert(glyphAdvances.size() == glyphOffsets.size());
@@ -258,10 +270,23 @@ namespace Gurigi
             run.bidiLevel = bidiLevel;
             run.isSideways = isSideways;
 
-            glyphRuns_.push_back(run);
+            glyphRuns_.insert(run);
         }
 
-        void EditLayoutSink::draw(Gurigi::Drawing::Context &context, const Objects::PointF &origin, const ComPtr<ID2D1Brush> &textBrush) const
+        void EditLayoutSink::brush(const ComPtr<ID2D1Brush> &brush)
+        {
+            brush_ = brush;
+        }
+
+        void EditLayoutSink::brush(size_t start, size_t end, const ComPtr<ID2D1Brush> &brush)
+        {
+            // setCurrentRun(end);
+            // splitCurrentRun(end);
+            // setCurrentRun(start);
+            // splitCurrentRun(start);
+        }
+
+        void EditLayoutSink::draw(Gurigi::Drawing::Context &context, const Objects::PointF &origin) const
         {
             for(auto &run: glyphRuns_)
             {
@@ -282,7 +307,7 @@ namespace Gurigi
                 context->DrawGlyphRun(
                     origin + run.baselineOffset,
                     &glyphRun,
-                    textBrush,
+                    brush_,
                     DWRITE_MEASURING_MODE_GDI_CLASSIC);
             }
         }
@@ -318,23 +343,31 @@ namespace Gurigi
                     pos = it->textStartPos + it->textLength;
                 }
 
+                float accumulateSign = 1.0f;
+                if(it->bidiLevel % 2 == 1)
+                {
+                    accumulateSign *= -1.0f;
+                }
+                // TODO: LTR text in RTL base
+
                 if(pos < it->textStartPos + it->textLength) // pos is in cluster
                 {
                     offset = it->baselineOffset;
-                    offset.x = std::accumulate(
+
+                    offset.x += accumulateSign * std::accumulate(
                         glyphAdvances_.begin() + it->glyphStartPos,
                         glyphAdvances_.begin() + it->glyphStartPos + glyphClusters_[pos],
-                        offset.x);
+                        0.0f);
                     fontFace = it->fontFace;
                     fontEmSize = it->fontEmSize;
                 }
                 else if(nextIt == glyphRuns_.end() || it->baselineOffset.y == nextIt->baselineOffset.y || trailing) // line ending
                 {
                     offset = it->baselineOffset;
-                    offset.x = std::accumulate(
+                    offset.x += accumulateSign * std::accumulate(
                         glyphAdvances_.begin() + it->glyphStartPos,
                         glyphAdvances_.begin() + it->glyphStartPos + it->glyphCount,
-                        offset.x);
+                        0.0f);
                     fontFace = it->fontFace;
                     fontEmSize = it->fontEmSize;
                 }
@@ -481,7 +514,7 @@ namespace Gurigi
 
             if(!text_.empty())
             {
-                std::unordered_set<TextFormatInfo *> usedTextFormatInfos_;
+                std::unordered_set<Run::TextFormatInfo *> usedTextFormatInfos_;
 
                 for(auto &run: runs_)
                 {
@@ -539,53 +572,6 @@ namespace Gurigi
         void EditLayout::invalidate()
         {
             invalidated_ = true;
-        }
-
-        EditLayout::Run &EditLayout::getNextRun(size_t &leftLen)
-        {
-            size_t runTextLength = runIt_->textLength;
-
-            size_t i = runIt_ - runs_.begin();
-
-            if(leftLen < runTextLength)
-            {
-                runTextLength = leftLen;
-                splitCurrentRun(runIt_->textStart + runTextLength);
-            }
-            else
-                ++ runIt_;
-            leftLen -= runTextLength;
-
-            return runs_[i];
-        }
-
-        void EditLayout::setCurrentRun(size_t pos)
-        {
-            if(runIt_ != runs_.end() && runIt_->textStart <= pos && pos < runIt_->textStart + runIt_->textLength)
-                return;
-
-            runIt_ = std::find_if(runs_.begin(), runs_.end(),
-                [pos](const Run &run) -> bool
-                {
-                    return run.textStart <= pos && pos < run.textStart + run.textLength;
-                });
-        }
-
-        void EditLayout::splitCurrentRun(size_t pos)
-        {
-            size_t runTextStart = runIt_->textStart;
-            if(pos <= runTextStart)
-                return;
-
-            Run &frontRun = *runIt_;
-            Run backRun = frontRun;
-
-            size_t splitPoint = pos - runTextStart;
-            frontRun.textLength = splitPoint;
-
-            backRun.textStart += splitPoint;
-            backRun.textLength -= splitPoint;
-            runIt_ = runs_.insert(++ runIt_, backRun);
         }
 
         bool EditLayout::substituteFonts()
@@ -672,7 +658,7 @@ namespace Gurigi
                 textFormatInfo.readingDirection = readingDirection;
             }
 
-            std::map<size_t, TextFormatInfo *> splitPoints;
+            std::map<size_t, Run::TextFormatInfo *> splitPoints;
 
             for(auto &textFormatInfo: textFormatInfos_)
             {
@@ -1084,7 +1070,7 @@ namespace Gurigi
                 {
                     for(uint16_t &cluster: glyphClusters)
                     {
-                        cluster -= glyphStartDiff;
+                        cluster -= static_cast<uint16_t>(glyphStartDiff);
                     }
                 }
 
@@ -1148,7 +1134,7 @@ namespace Gurigi
 
                         if(runs_[spanIndices[-- runStart]].bidiLevel < currentLevel)
                         {
-                            prevLevel = runs_[spanIndices[-- runStart]].bidiLevel;
+                            prevLevel = runs_[spanIndices[runStart]].bidiLevel;
                             ++ runStart;
                             break;
                         }
