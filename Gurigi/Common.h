@@ -6,6 +6,7 @@
 // Standard C/C++ library & boost library inclusion
 
 #include <numeric>
+#include <set>
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
@@ -14,6 +15,7 @@
 #include <boost/format.hpp>
 #pragma warning(pop)
 
+#include <boost/range/algorithm/copy.hpp>
 #include <boost/range/any_range.hpp>
 #include <boost/range/sub_range.hpp>
 

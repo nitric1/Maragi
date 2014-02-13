@@ -154,7 +154,7 @@ namespace Gurigi
 
     private:
         std::wstring text_, placeholder_;
-        uint32_t selStart_, selEnd_;
+        size_t selStart_, selEnd_;
         Objects::ColorF colorText_, colorPlaceholder_, colorBackground_;
         ReadingDirection readingDirection_;
 
@@ -184,8 +184,8 @@ namespace Gurigi
             const Objects::ColorF & = Objects::ColorF(Objects::ColorF::DarkGray),
             const Objects::ColorF & = Objects::ColorF(Objects::ColorF::White),
             const std::wstring & = std::wstring(),
-            uint32_t = 0,
-            uint32_t = 0
+            size_t = 0,
+            size_t = 0
             );
 
     public:
@@ -202,7 +202,7 @@ namespace Gurigi
         bool updateCaret();
         bool updateSelection();
         void selectByPoint(const Objects::PointF &, bool);
-        void select(SelectMode, uint32_t, bool);
+        void select(SelectMode, size_t, bool);
 
     private:
         void onMouseMoveImpl(const ControlEventArg &);
@@ -223,9 +223,9 @@ namespace Gurigi
         virtual void text(const std::wstring &);
         virtual const std::wstring &placeholder() const;
         virtual void placeholder(const std::wstring &);
-        virtual std::pair<uint32_t, uint32_t> selection() const;
-        virtual void selection(uint32_t, bool);
-        virtual void selection(uint32_t, uint32_t, bool);
+        virtual std::pair<size_t, size_t> selection() const;
+        virtual void selection(size_t, bool);
+        virtual void selection(size_t, size_t, bool);
     };
 
     class Scrollbar : public Control

@@ -557,8 +557,8 @@ namespace Gurigi
         const Objects::ColorF &colorPlaceholder,
         const Objects::ColorF &colorBackground,
         const std::wstring &text,
-        uint32_t selStart,
-        uint32_t selEnd
+        size_t selStart,
+        size_t selEnd
         )
     {
         ControlPtr<Edit> edit(new Edit(ControlManager::instance().getNextID()));
@@ -649,7 +649,8 @@ namespace Gurigi
                 layout,
                 newRect
                 );*/
-            editLayoutSink_.draw(ctx, Objects::PointF(1.0f, 1.0f), brushText_);
+            editLayoutSink_.brush(brushText_);
+            editLayoutSink_.draw(ctx, Objects::PointF(1.0f, 1.0f));
         }
 
         ctx->SetTransform(oldTransform);
@@ -763,7 +764,7 @@ namespace Gurigi
         selectionRects_.clear();
         if(selStart_ != selEnd_)
         {
-            uint32_t min = std::min(selStart_, selEnd_), max = std::max(selStart_, selEnd_);
+            size_t min = std::min(selStart_, selEnd_), max = std::max(selStart_, selEnd_);
             /*uint32_t hitTestCount;
 
             layout->HitTestTextRange(
@@ -828,7 +829,7 @@ namespace Gurigi
             pos, dragging);
     }
 
-    void Edit::select(SelectMode mode, uint32_t pos, bool dragging)
+    void Edit::select(SelectMode mode, size_t pos, bool dragging)
     {
     }
 
@@ -915,12 +916,12 @@ namespace Gurigi
             redraw();
     }
 
-    std::pair<uint32_t, uint32_t> Edit::selection() const
+    std::pair<size_t, size_t> Edit::selection() const
     {
         return std::make_pair(selStart_, selEnd_);
     }
 
-    void Edit::selection(uint32_t selPos, bool trailing)
+    void Edit::selection(size_t selPos, bool trailing)
     {
         if(selPos > text_.size())
             selPos = text_.size();
@@ -934,7 +935,7 @@ namespace Gurigi
         updateCaret();
     }
 
-    void Edit::selection(uint32_t selStart, uint32_t selEnd, bool trailing)
+    void Edit::selection(size_t selStart, size_t selEnd, bool trailing)
     {
         selStart_ = selStart;
         selEnd_ = selEnd;

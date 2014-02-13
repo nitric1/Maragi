@@ -7,35 +7,54 @@ namespace Gurigi
 {
     namespace Detail
     {
+        template<typename Run>
+        class RunContainer
+        {
+        public:
+            RunContainer();
+
+        public:
+            Run &getNextRun(size_t &);
+            void setCurrentRun(size_t);
+            void splitCurrentRun(size_t);
+
+        protected:
+            std::vector<Run> runs_;
+            typename std::vector<Run>::iterator runIt_;
+        };
+
         // From CustomLayout in Windows SDK examples.
+
+        struct TextAnalysisRun
+        {
+            TextAnalysisRun()
+                : textStart(0)
+                , textLength(0)
+                , scriptAnalysis()
+                , bidiLevel(0)
+                , isNumberSubstituted(false)
+                , isSideways(false)
+            {}
+
+            bool contains(size_t pos) const
+            {
+                return textStart <= pos && pos < textStart + textLength;
+            }
+
+            size_t textStart;
+            size_t textLength;
+            DWRITE_SCRIPT_ANALYSIS scriptAnalysis;
+            uint8_t bidiLevel;
+            bool isNumberSubstituted;
+            bool isSideways;
+        };
 
         class TextAnalysis : public ComBase<ComBaseList<IDWriteTextAnalysisSource,
             ComBaseList<IDWriteTextAnalysisSink, ComBaseList<IUnknown>>>>
+            , public RunContainer<TextAnalysisRun>
         {
         public:
-            struct Run
-            {
-                Run()
-                    : textStart(0)
-                    , textLength(0)
-                    , scriptAnalysis()
-                    , bidiLevel(0)
-                    , isNumberSubstituted(false)
-                    , isSideways(false)
-                {}
-
-                bool contains(size_t pos) const
-                {
-                    return textStart <= pos && pos < textStart + textLength;
-                }
-
-                size_t textStart;
-                size_t textLength;
-                DWRITE_SCRIPT_ANALYSIS scriptAnalysis;
-                uint8_t bidiLevel;
-                bool isNumberSubstituted;
-                bool isSideways;
-            };
+            typedef TextAnalysisRun Run;
 
         public:
             TextAnalysis(const std::wstring &text, const std::wstring &locale,
@@ -50,7 +69,7 @@ namespace Gurigi
             HRESULT analyze(IDWriteTextAnalyzer *analyzer);
 
         public:
-            const std::list<Run> &runs() const
+            const std::vector<TextAnalysisRun> &runs() const
             {
                 return runs_;
             }
@@ -73,17 +92,10 @@ namespace Gurigi
             virtual HRESULT __stdcall SetNumberSubstitution(uint32_t, uint32_t, IDWriteNumberSubstitution *);
 
         private:
-            Run &getNextRun(size_t &);
-            void setCurrentRun(size_t);
-            void splitCurrentRun(size_t);
-
-        private:
             std::wstring text_;
             std::wstring locale_;
             IDWriteNumberSubstitution *numberSubstitution_;
             DWRITE_READING_DIRECTION readingDirection_;
-            std::list<Run> runs_;
-            std::list<Run>::iterator runIt_;
             std::vector<DWRITE_LINE_BREAKPOINT> breakpoints_;
         };
 
@@ -120,14 +132,20 @@ namespace Gurigi
                 size_t glyphCount;
                 uint8_t bidiLevel;
                 bool isSideways;
+
+                bool operator <(const GlyphRun &rhs) const
+                {
+                    return textStartPos < rhs.textStartPos;
+                }
             };
 
         private:
-            std::vector<GlyphRun> glyphRuns_;
+            std::multiset<GlyphRun> glyphRuns_;
             std::vector<uint16_t> glyphIndices_;
             std::vector<float> glyphAdvances_;
             std::vector<DWRITE_GLYPH_OFFSET> glyphOffsets_;
             std::vector<uint16_t> glyphClusters_;
+            ComPtr<ID2D1Brush> brush_;
 
         public:
             EditLayoutSink();
@@ -138,14 +156,18 @@ namespace Gurigi
                 const RandomAnyRange<uint16_t> &, const RandomAnyRange<float> &, const RandomAnyRange<DWRITE_GLYPH_OFFSET> &,
                 const ComPtr<IDWriteFontFace> &,
                 float, uint8_t, bool);
-            void draw(Gurigi::Drawing::Context &, const Objects::PointF &, const ComPtr<ID2D1Brush> &) const;
+
+            void brush(const ComPtr<ID2D1Brush> &);
+            void brush(size_t, size_t, const ComPtr<ID2D1Brush> &);
+            void draw(Gurigi::Drawing::Context &, const Objects::PointF &) const;
+
             bool getTextPosInfo(size_t, bool, Objects::PointF &, ComPtr<IDWriteFontFace> &, float &) const;
             bool hitTestTextPos(const Objects::PointF &, size_t &, bool &) const;
+            std::vector<Objects::RectangleF> getTextSelectionRects(size_t, size_t);
         };
 
-        class EditLayout
+        struct EditLayoutRun: TextAnalysisRun
         {
-        private:
             struct TextFormatInfo
             {
                 ComPtr<IDWriteFontFace> fontFace;
@@ -154,38 +176,41 @@ namespace Gurigi
                 // TODO: color, decoration, ...
             };
 
-            struct Run: TextAnalysis::Run
-            {
-                Run()
-                    : TextAnalysis::Run()
-                    , glyphStart(0)
-                    , glyphCount(0)
-                    , textFormatInfo(nullptr)
-                {}
-                Run(const TextAnalysis::Run &p)
-                    : TextAnalysis::Run(p)
-                    , glyphStart(0)
-                    , glyphCount(0)
-                    , textFormatInfo(nullptr)
-                {}
+            EditLayoutRun()
+                : TextAnalysisRun()
+                , glyphStart(0)
+                , glyphCount(0)
+                , textFormatInfo(nullptr)
+            {}
+            EditLayoutRun(const TextAnalysisRun &p)
+                : TextAnalysisRun(p)
+                , glyphStart(0)
+                , glyphCount(0)
+                , textFormatInfo(nullptr)
+            {}
 
-                size_t glyphStart;
-                size_t glyphCount;
-                TextFormatInfo *textFormatInfo;
-            };
+            size_t glyphStart;
+            size_t glyphCount;
+            TextFormatInfo *textFormatInfo;
+        };
 
-            struct ClusterPosition
-            {
-                size_t textPosition;
-                size_t runIndex;
-                size_t runEndPosition;
-            };
+        struct ClusterPosition
+        {
+            size_t textPosition;
+            size_t runIndex;
+            size_t runEndPosition;
+        };
+
+        class EditLayout : public RunContainer<EditLayoutRun>
+        {
+        private:
+            typedef EditLayoutRun Run;
 
         private:
             bool invalidated_;
             std::wstring text_;
             std::vector<ComPtr<IDWriteTextFormat>> textFormats_;
-            std::vector<TextFormatInfo> textFormatInfos_;
+            std::vector<Run::TextFormatInfo> textFormatInfos_;
             float fontEmSize_;
             float descentMax_;
             DWRITE_READING_DIRECTION defaultReadingDirection_;
@@ -193,8 +218,6 @@ namespace Gurigi
             std::wstring locale_;
             IDWriteNumberSubstitution *numberSubstitution_;
 
-            std::vector<Run> runs_;
-            std::vector<Run>::iterator runIt_;
             std::vector<DWRITE_LINE_BREAKPOINT> breakpoints_;
             std::vector<uint16_t> glyphIndices_;
             std::vector<uint16_t> glyphClusters_;
@@ -224,9 +247,6 @@ namespace Gurigi
 
         private:
             void invalidate();
-            Run &getNextRun(size_t &);
-            void setCurrentRun(size_t);
-            void splitCurrentRun(size_t);
             bool substituteFonts();
             bool setInlineTextFormats();
             bool shapeGlyphRuns(IDWriteTextAnalyzer *);
