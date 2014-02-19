@@ -321,12 +321,7 @@ namespace Gurigi
 
             GlyphRun tmp;
             tmp.textStartPos = pos;
-            auto it = std::lower_bound(glyphRuns_.begin(), glyphRuns_.end(), tmp,
-                [](const GlyphRun &lhs, const GlyphRun &rhs) -> bool
-                {
-                    return lhs.textStartPos < rhs.textStartPos;
-                });
-
+            auto it = glyphRuns_.lower_bound(tmp);
             if(it == glyphRuns_.begin())
             {
                 // maybe, pos == 0
@@ -338,36 +333,13 @@ namespace Gurigi
             {
                 auto nextIt = it;
                 -- it;
-                if(pos > it->textStartPos + it->textLength) // line break or beyond-the-end
-                {
-                    pos = it->textStartPos + it->textLength;
-                }
 
-                float accumulateSign = 1.0f;
-                if(it->bidiLevel % 2 == 1)
+                if(pos < it->textStartPos + it->textLength
+                    || (pos == it->textStartPos + it->textLength && trailing)
+                    || nextIt == glyphRuns_.end()
+                    || pos < nextIt->textStartPos) // pos is in cluster
                 {
-                    accumulateSign *= -1.0f;
-                }
-                // TODO: LTR text in RTL base
-
-                if(pos < it->textStartPos + it->textLength) // pos is in cluster
-                {
-                    offset = it->baselineOffset;
-
-                    offset.x += accumulateSign * std::accumulate(
-                        glyphAdvances_.begin() + it->glyphStartPos,
-                        glyphAdvances_.begin() + it->glyphStartPos + glyphClusters_[pos],
-                        0.0f);
-                    fontFace = it->fontFace;
-                    fontEmSize = it->fontEmSize;
-                }
-                else if(nextIt == glyphRuns_.end() || it->baselineOffset.y == nextIt->baselineOffset.y || trailing) // line ending
-                {
-                    offset = it->baselineOffset;
-                    offset.x += accumulateSign * std::accumulate(
-                        glyphAdvances_.begin() + it->glyphStartPos,
-                        glyphAdvances_.begin() + it->glyphStartPos + it->glyphCount,
-                        0.0f);
+                    offset = getRunTextPosInfo(*it, pos);
                     fontFace = it->fontFace;
                     fontEmSize = it->fontEmSize;
                 }
@@ -385,6 +357,109 @@ namespace Gurigi
         bool EditLayoutSink::hitTestTextPos(const Objects::PointF &offset, size_t &pos, bool &trailing) const
         {
             return false;
+        }
+
+        std::vector<Objects::RectangleF> EditLayoutSink::getTextSelectionRects(size_t start, size_t end) const
+        {
+            std::vector<Objects::RectangleF> rects;
+
+            if(start > end)
+            {
+                std::swap(start, end);
+            }
+            else if(start == end)
+            {
+                return rects;
+            }
+            else if(glyphRuns_.empty())
+            {
+                return rects;
+            }
+
+            GlyphRun tmp;
+            tmp.textStartPos = start;
+            auto it = glyphRuns_.upper_bound(tmp);
+            if(it != glyphRuns_.begin())
+            {
+                -- it;
+            }
+
+            tmp.textStartPos = end;
+            auto endIt = glyphRuns_.lower_bound(tmp);
+            if(it == endIt)
+            {
+                return rects;
+            }
+
+            auto addRunRect = [&rects](const GlyphRun &run, float left, float right)
+            {
+                DWRITE_FONT_METRICS fontMetrics{};
+                run.fontFace->GetMetrics(&fontMetrics);
+
+                float ascent = fontMetrics.ascent * run.fontEmSize / fontMetrics.designUnitsPerEm;
+                float descent = fontMetrics.descent * run.fontEmSize / fontMetrics.designUnitsPerEm;
+
+                float top = run.baselineOffset.y - ascent;
+                float bottom = run.baselineOffset.y + descent;
+
+                rects.emplace_back(left, top, right, bottom);
+            };
+
+            for(; it != endIt; ++ it)
+            {
+                float left = getRunTextPosInfo(*it, start).x;
+                float right = getRunTextPosInfo(*it, end).x;
+
+                DWRITE_FONT_METRICS fontMetrics{};
+                it->fontFace->GetMetrics(&fontMetrics);
+
+                float ascent = fontMetrics.ascent * it->fontEmSize / fontMetrics.designUnitsPerEm;
+                float descent = fontMetrics.descent * it->fontEmSize / fontMetrics.designUnitsPerEm;
+
+                float top = it->baselineOffset.y - ascent;
+                float bottom = it->baselineOffset.y + descent;
+
+                rects.emplace_back(left, top, right, bottom);
+            }
+
+            return rects;
+        }
+
+        Objects::PointF EditLayoutSink::getRunTextPosInfo(const GlyphRun &run, size_t pos) const
+        {
+            if(pos <= run.textStartPos)
+            {
+                return run.baselineOffset;
+            }
+
+            Objects::PointF offset = run.baselineOffset;
+            float accumulateSign = 1.0f; // TODO: LTR text in RTL base
+            if(run.bidiLevel & 1)
+            {
+                accumulateSign *= -1.0f;
+            }
+
+            if(pos >= run.textStartPos + run.textLength)
+            {
+                offset.x += accumulateSign * std::accumulate(
+                    glyphAdvances_.begin() + run.glyphStartPos,
+                    glyphAdvances_.begin() + run.glyphStartPos + run.glyphCount,
+                    0.0f);
+            }
+            else
+            {
+                offset.x += accumulateSign * std::accumulate(
+                    glyphAdvances_.begin() + run.glyphStartPos,
+                    glyphAdvances_.begin() + run.glyphStartPos + glyphClusters_[pos],
+                    0.0f);
+            }
+
+            return offset;
+        }
+
+        Objects::RectangleF EditLayoutSink::getRunTextSelectionRect(const GlyphRun &run, size_t start, size_t end) const
+        {
+            return Objects::RectangleF::Invalid;
         }
 
         namespace
