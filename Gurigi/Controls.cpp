@@ -454,13 +454,28 @@ namespace Gurigi
         {
             if(e.keyCode == VK_LEFT)
             {
-                auto sel = selection().second;
-                if(sel == 0) return;
-                selection(sel - 1, false);
+                auto sel = selection();
+                if(sel.second == 0) return;
+                if(e.shiftKey)
+                {
+                    selection(sel.first, sel.second - 1, false);
+                }
+                else
+                {
+                    selection(sel.second - 1, false);
+                }
             }
             else if(e.keyCode == VK_RIGHT)
             {
-                selection(selection().second + 1, true);
+                auto sel = selection();
+                if(e.shiftKey)
+                {
+                    selection(sel.first, sel.second + 1, false);
+                }
+                else
+                {
+                    selection(sel.second + 1, true);
+                }
             }
         };
         onFocus += Batang::delegate(this, &Edit::onFocusImpl);
@@ -764,46 +779,9 @@ namespace Gurigi
         selectionRects_.clear();
         if(selStart_ != selEnd_)
         {
-            size_t min = std::min(selStart_, selEnd_), max = std::max(selStart_, selEnd_);
-            /*uint32_t hitTestCount;
+            selectionRects_ = editLayoutSink_.getTextSelectionRects(selStart_, selEnd_);
 
-            layout->HitTestTextRange(
-                min,
-                max - min,
-                0.0f,
-                0.0f,
-                nullptr,
-                0,
-                &hitTestCount
-                );
-
-            if(hitTestCount > 0)
-            {
-                std::vector<DWRITE_HIT_TEST_METRICS> hitTestMetrics(hitTestCount);
-                layout->HitTestTextRange(
-                    min,
-                    max - min,
-                    0.0f,
-                    0.0f,
-                    hitTestMetrics.data(),
-                    static_cast<uint32_t>(hitTestMetrics.size()),
-                    &hitTestCount
-                    );
-
-                if(hitTestCount > 0)
-                {
-                    for(size_t i = 0; i < hitTestCount; ++ i)
-                    {
-                        const auto &htm = hitTestMetrics[i];
-                        selectionRects.push_back(Objects::RectangleF(
-                            Objects::PointF(htm.left, htm.top),
-                            Objects::SizeF(htm.width, htm.height)
-                            ));
-                    }
-                }
-            }
-
-            DWRITE_TEXT_RANGE range = { min, max - min };
+            /*DWRITE_TEXT_RANGE range = { min, max - min };
             layout->SetDrawingEffect(selectionEffect, range);*/
 
             ret = true;
@@ -938,7 +916,11 @@ namespace Gurigi
     void Edit::selection(size_t selStart, size_t selEnd, bool trailing)
     {
         selStart_ = selStart;
+        if(selStart_ > text_.size())
+            selStart_ = text_.size();
         selEnd_ = selEnd;
+        if(selEnd_ > text_.size())
+            selEnd_ = text_.size();
         trailing_ = trailing;
         // TODO: discard IME mode, ...
         if(updateSelection())

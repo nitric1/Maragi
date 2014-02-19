@@ -544,6 +544,9 @@ namespace Gurigi
 
         case WM_KEYDOWN:
             {
+                ev.altKey = !!HIBYTE(GetKeyState(VK_MENU));
+                ev.ctrlKey = !!HIBYTE(GetKeyState(VK_CONTROL));
+                ev.shiftKey = !!HIBYTE(GetKeyState(VK_SHIFT));
                 ev.keyCode = wParam;
                 std::vector<ControlWeakPtr<>> focuseds;
                 auto lfocused = focus().lock();

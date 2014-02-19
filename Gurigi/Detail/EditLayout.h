@@ -163,7 +163,11 @@ namespace Gurigi
 
             bool getTextPosInfo(size_t, bool, Objects::PointF &, ComPtr<IDWriteFontFace> &, float &) const;
             bool hitTestTextPos(const Objects::PointF &, size_t &, bool &) const;
-            std::vector<Objects::RectangleF> getTextSelectionRects(size_t, size_t);
+            std::vector<Objects::RectangleF> getTextSelectionRects(size_t, size_t) const;
+
+        private:
+            Objects::PointF getRunTextPosInfo(const GlyphRun &, size_t) const;
+            Objects::RectangleF getRunTextSelectionRect(const GlyphRun &, size_t, size_t) const;
         };
 
         struct EditLayoutRun: TextAnalysisRun
