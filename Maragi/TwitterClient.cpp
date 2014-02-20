@@ -413,7 +413,7 @@ namespace Maragi
     {
         post([this]()
         {
-            ConfirmDialog &cfd = ConfirmDialog::inst();
+            ConfirmDialog &cfd = ConfirmDialog::instance();
 
             Url uri = makeRequestUrl(Paths::REQUEST_TOKEN);
             uri.addOAuthParam("oauth_callback", "oob");
