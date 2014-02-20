@@ -139,13 +139,6 @@ namespace Gurigi
 
     class Edit : public Control
     {
-    private:
-        enum class SelectMode : uint8_t
-        {
-            AbsoluteLeading,
-            AbsoluteTrailing
-        };
-
     public:
         enum class ReadingDirection : uint8_t
         {
@@ -202,7 +195,7 @@ namespace Gurigi
         bool updateCaret();
         bool updateSelection();
         void selectByPoint(const Objects::PointF &, bool);
-        void select(SelectMode, size_t, bool);
+        void select(size_t, bool, bool);
 
     private:
         void onMouseMoveImpl(const ControlEventArg &);

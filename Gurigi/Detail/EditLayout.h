@@ -147,11 +147,12 @@ namespace Gurigi
             std::vector<DWRITE_GLYPH_METRICS> glyphMetrics_;
             std::vector<uint16_t> glyphClusters_;
             ComPtr<ID2D1Brush> brush_;
+            float ascentMax_, descentMax_;
 
         public:
             EditLayoutSink();
             void clear();
-            void prepare(size_t);
+            void prepare(size_t, float, float);
             void addGlyphRun(size_t, const RandomAnyRange<uint16_t> &,
                 const Objects::PointF &,
                 const RandomAnyRange<uint16_t> &, const RandomAnyRange<float> &,
@@ -163,6 +164,10 @@ namespace Gurigi
             void brush(size_t, size_t, const ComPtr<ID2D1Brush> &);
             void draw(Gurigi::Drawing::Context &, const Objects::PointF &) const;
 
+            float ascent() const;
+            float descent() const;
+            float textHeight() const;
+            float lineHeight() const;
             bool getTextPosInfo(size_t, bool, Objects::PointF &, ComPtr<IDWriteFontFace> &, float &) const;
             bool hitTestTextPos(const Objects::PointF &, size_t &, bool &) const;
             std::vector<Objects::RectangleF> getTextSelectionRects(size_t, size_t) const;
