@@ -353,6 +353,8 @@ namespace Gurigi
             return 0;
 
         case WM_PAINT:
+            HideCaret(hwnd);
+
             if(!context_)
             {
                 context_.create(hwnd, clientSize());
@@ -369,6 +371,7 @@ namespace Gurigi
             }
 
             ValidateRect(hwnd, nullptr);
+            ShowCaret(hwnd);
             return 0;
 
         case WM_ERASEBKGND:
