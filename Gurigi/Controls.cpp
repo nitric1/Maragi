@@ -742,16 +742,12 @@ namespace Gurigi
                 return false;
             }
 
-            DWRITE_FONT_METRICS metrics;
-            fontFace->GetMetrics(&metrics);
-
             uint32_t caretWidth = 2;
             SystemParametersInfoW(SPI_GETCARETWIDTH, 0, &caretWidth, FALSE);
 
             Objects::RectangleF caretRect(
-                Objects::PointF(offset.x, offset.y - (metrics.ascent * fontEmSize / metrics.designUnitsPerEm)),
-                Objects::SizeF(static_cast<float>(caretWidth),
-                    (metrics.ascent + metrics.descent) * fontEmSize / metrics.designUnitsPerEm));
+                Objects::PointF(offset.x - caretWidth / 2.0f, offset.y - editLayoutSink_.ascent()),
+                Objects::SizeF(static_cast<float>(caretWidth), editLayoutSink_.textHeight()));
 
             D2D1_POINT_2F caretPosF = transform.TransformPoint(caretRect.leftTop());
             Objects::PointI caretPosI = Objects::convertPoint(Objects::PointF(caretPosF.x, caretPosF.y));
@@ -805,12 +801,22 @@ namespace Gurigi
         if(!editLayoutSink_.hitTestTextPos(Objects::PointF(offset.x, offset.y), pos, trailing))
             return;
 
-        select(trailing ? SelectMode::AbsoluteTrailing : SelectMode::AbsoluteLeading,
-            pos, dragging);
+        select(pos, trailing, dragging);
     }
 
-    void Edit::select(SelectMode mode, size_t pos, bool dragging)
+    void Edit::select(size_t pos, bool trailing, bool dragging)
     {
+        if(selection().second == pos && trailing_ == trailing)
+            return;
+
+        if(dragging)
+        {
+            selection(selection().first, pos, trailing);
+        }
+        else
+        {
+            selection(pos, trailing);
+        }
     }
 
     void Edit::onMouseMoveImpl(const ControlEventArg &arg)

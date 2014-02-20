@@ -217,6 +217,8 @@ namespace Gurigi
         }
 
         EditLayoutSink::EditLayoutSink()
+            : ascentMax_(1.0f)
+            , descentMax_(1.0f)
         {}
 
         void EditLayoutSink::clear()
@@ -228,11 +230,14 @@ namespace Gurigi
             glyphClusters_.clear();
         }
 
-        void EditLayoutSink::prepare(size_t size)
+        void EditLayoutSink::prepare(size_t size, float ascentMax, float descentMax)
         {
             glyphIndices_.reserve(size);
             glyphAdvances_.reserve(size);
             glyphOffsets_.reserve(size);
+
+            ascentMax_ = ascentMax;
+            descentMax_ = descentMax;
         }
 
         void EditLayoutSink::addGlyphRun(size_t textStartPos, const RandomAnyRange<uint16_t> &glyphClusters,
@@ -315,6 +320,27 @@ namespace Gurigi
             }
         }
 
+        float EditLayoutSink::ascent() const
+        {
+            return ascentMax_;
+        }
+
+        float EditLayoutSink::descent() const
+        {
+            return descentMax_;
+        }
+
+        float EditLayoutSink::textHeight() const
+        {
+            return ascentMax_ + descentMax_;
+        }
+
+        float EditLayoutSink::lineHeight() const
+        {
+            // TODO: line gap
+            return textHeight();
+        }
+
         bool EditLayoutSink::getTextPosInfo(size_t pos, bool trailing, Objects::PointF &offset, ComPtr<IDWriteFontFace> &fontFace, float &fontEmSize) const
         {
             if(glyphRuns_.empty())
@@ -359,7 +385,93 @@ namespace Gurigi
 
         bool EditLayoutSink::hitTestTextPos(const Objects::PointF &offset, size_t &pos, bool &trailing) const
         {
-            return false;
+            if(glyphRuns_.empty())
+            {
+                pos = 0;
+                trailing = false;
+                return true;
+            }
+
+            const GlyphRun *shortest = nullptr;
+            float minVertDist = std::numeric_limits<float>::max();
+            float minHorzDist = std::numeric_limits<float>::max();
+
+            for(auto &run: glyphRuns_)
+            {
+                auto rect = getRunTextSelectionRect(run, run.textStartPos, run.textStartPos + run.textLength);
+                if(rect.isIn(offset))
+                {
+                    shortest = &run;
+                    break;
+                }
+                else
+                {
+                    float vertDist = 0.0f;
+                    if(offset.y < rect.top)
+                    {
+                        vertDist = std::abs(offset.y - rect.top);
+                    }
+                    else if(rect.bottom < offset.y)
+                    {
+                        vertDist = std::abs(offset.y - rect.bottom);
+                    }
+
+                    if(vertDist <= minVertDist)
+                    {
+                        float horzDist = 0.0f;
+                        if(offset.x < rect.left)
+                        {
+                            horzDist = std::abs(offset.x - rect.left);
+                        }
+                        else if(rect.right < offset.x)
+                        {
+                            horzDist = std::abs(offset.x - rect.right);
+                        }
+
+                        if(vertDist < minVertDist)
+                        {
+                            shortest = &run;
+                            minVertDist = vertDist;
+                            minHorzDist = horzDist;
+                        }
+                        else if(horzDist < minHorzDist)
+                        {
+                            shortest = &run;
+                            minHorzDist = horzDist;
+                        }
+                    }
+                }
+            }
+
+            if(!shortest)
+            {
+                return false;
+            }
+
+            // TODO: calculate pos
+
+            pos = shortest->textStartPos;
+            float minDist = std::abs(offset.x - getRunTextPosInfo(*shortest, pos).x);
+            for(size_t i = shortest->textStartPos + 1; i <= shortest->textStartPos + shortest->textLength; ++ i)
+            {
+                float dist = std::abs(offset.x - getRunTextPosInfo(*shortest, i).x);
+                if(dist < minDist)
+                {
+                    pos = i;
+                    minDist = dist;
+                }
+            }
+
+            if(pos >= shortest->textStartPos + shortest->textLength)
+            {
+                trailing = true;
+            }
+            else
+            {
+                trailing = false;
+            }
+
+            return true;
         }
 
         std::vector<Objects::RectangleF> EditLayoutSink::getTextSelectionRects(size_t start, size_t end) const
@@ -394,35 +506,11 @@ namespace Gurigi
                 return rects;
             }
 
-            auto addRunRect = [&rects](const GlyphRun &run, float left, float right)
-            {
-                DWRITE_FONT_METRICS fontMetrics{};
-                run.fontFace->GetMetrics(&fontMetrics);
-
-                float ascent = fontMetrics.ascent * run.fontEmSize / fontMetrics.designUnitsPerEm;
-                float descent = fontMetrics.descent * run.fontEmSize / fontMetrics.designUnitsPerEm;
-
-                float top = run.baselineOffset.y - ascent;
-                float bottom = run.baselineOffset.y + descent;
-
-                rects.emplace_back(left, top, right, bottom);
-            };
-
             for(; it != endIt; ++ it)
             {
-                float left = getRunTextPosInfo(*it, start).x;
-                float right = getRunTextPosInfo(*it, end).x;
-
-                DWRITE_FONT_METRICS fontMetrics{};
-                it->fontFace->GetMetrics(&fontMetrics);
-
-                float ascent = fontMetrics.ascent * it->fontEmSize / fontMetrics.designUnitsPerEm;
-                float descent = fontMetrics.descent * it->fontEmSize / fontMetrics.designUnitsPerEm;
-
-                float top = it->baselineOffset.y - ascent;
-                float bottom = it->baselineOffset.y + descent;
-
-                rects.emplace_back(left, top, right, bottom);
+                auto rect = getRunTextSelectionRect(*it, start, end);
+                if(rect.width() > 0.0f)
+                    rects.push_back(rect);
             }
 
             return rects;
@@ -470,12 +558,26 @@ namespace Gurigi
                     (glyphMetrics_[run.glyphStartPos + glyphClusters_[pos]].leftSideBearing * run.fontEmSize / fontMetrics.designUnitsPerEm) / 2;
             }
 
+            offset.x = Batang::round(offset.x); // match with caret
+
             return offset;
         }
 
         Objects::RectangleF EditLayoutSink::getRunTextSelectionRect(const GlyphRun &run, size_t start, size_t end) const
         {
-            return Objects::RectangleF::Invalid;
+            float left = getRunTextPosInfo(run, start).x;
+            float right = getRunTextPosInfo(run, end).x;
+
+            if(left > right)
+                std::swap(left, right);
+
+            DWRITE_FONT_METRICS fontMetrics{};
+            run.fontFace->GetMetrics(&fontMetrics);
+
+            float top = run.baselineOffset.y - ascentMax_;
+            float bottom = run.baselineOffset.y + descentMax_;
+
+            return Objects::RectangleF(left, top, right, bottom);
         }
 
         namespace
@@ -638,7 +740,7 @@ namespace Gurigi
 
                 float maxFontHeight = ascentMax + descentMax_;
 
-                sink.prepare(glyphIndices_.size());
+                sink.prepare(glyphIndices_.size(), ascentMax, descentMax_);
 
                 ClusterPosition cluster{}, nextCluster{};
                 setClusterPosition(cluster, 0);
