@@ -237,7 +237,8 @@ namespace Gurigi
 
         void EditLayoutSink::addGlyphRun(size_t textStartPos, const RandomAnyRange<uint16_t> &glyphClusters,
             const Objects::PointF &baselineOffset,
-            const RandomAnyRange<uint16_t> &glyphIndices, const RandomAnyRange<float> &glyphAdvances, const RandomAnyRange<DWRITE_GLYPH_OFFSET> &glyphOffsets,
+            const RandomAnyRange<uint16_t> &glyphIndices, const RandomAnyRange<float> &glyphAdvances,
+            const RandomAnyRange<DWRITE_GLYPH_OFFSET> &glyphOffsets, const RandomAnyRange<DWRITE_GLYPH_METRICS> &glyphMetrics,
             const ComPtr<IDWriteFontFace> &fontFace,
             float fontEmSize, uint8_t bidiLevel, bool isSideways)
         {
@@ -251,6 +252,7 @@ namespace Gurigi
 
             assert(glyphIndices.size() == glyphAdvances.size());
             assert(glyphAdvances.size() == glyphOffsets.size());
+            assert(glyphOffsets.size() == glyphMetrics.size());
 
             size_t glyphStartPos = glyphIndices_.size();
             size_t glyphCount = glyphIndices.size();
@@ -258,6 +260,7 @@ namespace Gurigi
             glyphIndices_.insert(glyphIndices_.end(), glyphIndices.begin(), glyphIndices.end());
             glyphAdvances_.insert(glyphAdvances_.end(), glyphAdvances.begin(), glyphAdvances.end());
             glyphOffsets_.insert(glyphOffsets_.end(), glyphOffsets.begin(), glyphOffsets.end());
+            glyphMetrics_.insert(glyphMetrics_.end(), glyphMetrics.begin(), glyphMetrics.end());
 
             GlyphRun run;
             run.textStartPos = textStartPos;
@@ -431,6 +434,10 @@ namespace Gurigi
             {
                 return run.baselineOffset;
             }
+            else if(run.glyphCount == 0)
+            {
+                return run.baselineOffset;
+            }
 
             Objects::PointF offset = run.baselineOffset;
             float accumulateSign = 1.0f; // TODO: LTR text in RTL base
@@ -439,12 +446,19 @@ namespace Gurigi
                 accumulateSign *= -1.0f;
             }
 
+            DWRITE_FONT_METRICS fontMetrics{};
+            run.fontFace->GetMetrics(&fontMetrics);
+
+            // TODO: bidi check using bearing
+
             if(pos >= run.textStartPos + run.textLength)
             {
                 offset.x += accumulateSign * std::accumulate(
                     glyphAdvances_.begin() + run.glyphStartPos,
                     glyphAdvances_.begin() + run.glyphStartPos + run.glyphCount,
                     0.0f);
+                offset.x += accumulateSign *
+                    (glyphMetrics_[run.glyphStartPos + run.glyphCount - 1].rightSideBearing * run.fontEmSize / fontMetrics.designUnitsPerEm) / 2;
             }
             else
             {
@@ -452,6 +466,8 @@ namespace Gurigi
                     glyphAdvances_.begin() + run.glyphStartPos,
                     glyphAdvances_.begin() + run.glyphStartPos + glyphClusters_[pos],
                     0.0f);
+                offset.x += accumulateSign *
+                    (glyphMetrics_[run.glyphStartPos + glyphClusters_[pos]].leftSideBearing * run.fontEmSize / fontMetrics.designUnitsPerEm) / 2;
             }
 
             return offset;
@@ -832,6 +848,7 @@ namespace Gurigi
             glyphIndices_.resize(estimatedGlyphCount);
             glyphOffsets_.resize(estimatedGlyphCount);
             glyphAdvances_.resize(estimatedGlyphCount);
+            glyphMetrics_.resize(estimatedGlyphCount);
             glyphClusters_.resize(estimatedGlyphCount);
 
             size_t glyphStart = 0;
@@ -846,6 +863,7 @@ namespace Gurigi
             glyphIndices_.resize(glyphStart);
             glyphOffsets_.resize(glyphStart);
             glyphAdvances_.resize(glyphStart);
+            glyphMetrics_.resize(glyphStart);
 
             return true;
         }
@@ -918,6 +936,7 @@ namespace Gurigi
 
             glyphAdvances_.resize(std::max(glyphStart + actualGlyphCount, glyphAdvances_.size()));
             glyphOffsets_.resize(std::max(glyphStart + actualGlyphCount, glyphOffsets_.size()));
+            glyphMetrics_.resize(std::max(glyphStart + actualGlyphCount, glyphOffsets_.size()));
 
             float dpiX = 0.0f, dpiY = 0.0f;
             Drawing::D2DFactory::instance().getD2DFactory()->GetDesktopDpi(&dpiX, &dpiY);
@@ -944,6 +963,20 @@ namespace Gurigi
                 0,
                 &glyphAdvances_[glyphStart],
                 &glyphOffsets_[glyphStart]);
+            if(FAILED(hr))
+            {
+                return false;
+            }
+
+            hr = run.textFormatInfo->fontFace->GetGdiCompatibleGlyphMetrics(
+                fontEmSize_,
+                dpiX / 96.0f,
+                nullptr,
+                FALSE,
+                &glyphIndices_[glyphStart],
+                actualGlyphCount,
+                &glyphMetrics_[glyphStart],
+                run.isSideways);
             if(FAILED(hr))
             {
                 return false;
@@ -1157,6 +1190,7 @@ namespace Gurigi
                     boost::make_iterator_range(glyphIndices_.begin() + glyphStart, glyphIndices_.begin() + glyphEnd),
                     boost::make_iterator_range(glyphAdvances_.begin() + glyphStart, glyphAdvances_.begin() + glyphEnd),
                     boost::make_iterator_range(glyphOffsets_.begin() + glyphStart, glyphOffsets_.begin() + glyphEnd),
+                    boost::make_iterator_range(glyphMetrics_.begin() + glyphStart, glyphMetrics_.begin() + glyphEnd),
                     run.textFormatInfo->fontFace,
                     fontEmSize_,
                     run.bidiLevel,
