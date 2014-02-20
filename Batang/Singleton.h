@@ -15,7 +15,6 @@ namespace Batang
             static T theInstance;
             return theInstance;
         }
-        static T &inst() { return instance(); }
     };
 
     template<typename T>
@@ -42,7 +41,6 @@ namespace Batang
             static std::shared_ptr<T> theInstance(new T(), Deleter());
             return *theInstance;
         }
-        static T &inst() { return instance(); }
     };
 
     template<typename T>
@@ -65,6 +63,5 @@ namespace Batang
                 ptr.reset(new T);
             return *ptr;
         }
-        static T &inst() { return instance(); }
     };
 }

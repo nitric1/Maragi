@@ -25,12 +25,13 @@ namespace Batang
 
     public:
         ThreadTaskPool();
-        virtual ~ThreadTaskPool() = 0 {}
+        virtual ~ThreadTaskPool();
 
     public:
         Event<void> onTaskInvoked;
 
     public:
+        virtual std::shared_ptr<ThreadTaskPool> sharedFromThis() = 0;
         virtual void invoke(const std::function<void ()> &task);
         virtual void post(const std::function<void ()> &task);
 
@@ -58,6 +59,11 @@ namespace Batang
         std::unique_ptr<std::thread> thread_;
 
     public:
+        virtual std::shared_ptr<ThreadTaskPool> sharedFromThis()
+        {
+            return shared_from_this();
+        }
+
         template<typename ...Args>
         void start(Args &&...args)
         {
