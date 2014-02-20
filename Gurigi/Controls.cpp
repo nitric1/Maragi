@@ -470,7 +470,7 @@ namespace Gurigi
                 auto sel = selection();
                 if(e.shiftKey)
                 {
-                    selection(sel.first, sel.second + 1, false);
+                    selection(sel.first, sel.second + 1, true);
                 }
                 else
                 {
@@ -642,7 +642,9 @@ namespace Gurigi
         ctx->SetTransform(clientTransform_ * paddingTransform_ * scrollTransform_);
 
         for(auto it = std::begin(selectionRects_); it != std::end(selectionRects_); ++ it)
+        {
             ctx->FillRectangle(*it, brushSelection_);
+        }
 
         if(text_.empty())
         {
@@ -747,7 +749,7 @@ namespace Gurigi
             SystemParametersInfoW(SPI_GETCARETWIDTH, 0, &caretWidth, FALSE);
 
             Objects::RectangleF caretRect(
-                Objects::PointF(offset.x + 1.0f, offset.y - (metrics.ascent * fontEmSize / metrics.designUnitsPerEm)),
+                Objects::PointF(offset.x, offset.y - (metrics.ascent * fontEmSize / metrics.designUnitsPerEm)),
                 Objects::SizeF(static_cast<float>(caretWidth),
                     (metrics.ascent + metrics.descent) * fontEmSize / metrics.designUnitsPerEm));
 

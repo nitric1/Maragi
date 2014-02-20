@@ -144,6 +144,7 @@ namespace Gurigi
             std::vector<uint16_t> glyphIndices_;
             std::vector<float> glyphAdvances_;
             std::vector<DWRITE_GLYPH_OFFSET> glyphOffsets_;
+            std::vector<DWRITE_GLYPH_METRICS> glyphMetrics_;
             std::vector<uint16_t> glyphClusters_;
             ComPtr<ID2D1Brush> brush_;
 
@@ -153,7 +154,8 @@ namespace Gurigi
             void prepare(size_t);
             void addGlyphRun(size_t, const RandomAnyRange<uint16_t> &,
                 const Objects::PointF &,
-                const RandomAnyRange<uint16_t> &, const RandomAnyRange<float> &, const RandomAnyRange<DWRITE_GLYPH_OFFSET> &,
+                const RandomAnyRange<uint16_t> &, const RandomAnyRange<float> &,
+                const RandomAnyRange<DWRITE_GLYPH_OFFSET> &, const RandomAnyRange<DWRITE_GLYPH_METRICS> &,
                 const ComPtr<IDWriteFontFace> &,
                 float, uint8_t, bool);
 
@@ -227,6 +229,7 @@ namespace Gurigi
             std::vector<uint16_t> glyphClusters_;
             std::vector<float> glyphAdvances_;
             std::vector<DWRITE_GLYPH_OFFSET> glyphOffsets_;
+            std::vector<DWRITE_GLYPH_METRICS> glyphMetrics_;
 
         public:
             EditLayout();
