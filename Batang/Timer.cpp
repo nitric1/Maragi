@@ -136,6 +136,7 @@ namespace Batang
 
     void Timer::uninstallAllThreadTimers(const std::shared_ptr<ThreadTaskPool> &thread)
     {
+        if(thread)
         {
             std::lock_guard<std::mutex> lock(taskMutex_);
 

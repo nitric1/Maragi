@@ -1,6 +1,7 @@
 #include "Common.h"
 
 #include "Thread.h"
+#include "Timer.h"
 
 namespace Batang
 {
@@ -18,6 +19,11 @@ namespace Batang
 
     ThreadTaskPool::ThreadTaskPool()
     {
+    }
+
+    ThreadTaskPool::~ThreadTaskPool()
+    {
+        Timer::instance().uninstallAllThreadTimers(sharedFromThis());
     }
 
     void ThreadTaskPool::invoke(const std::function<void ()> &fn)
