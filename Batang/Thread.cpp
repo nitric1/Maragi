@@ -4,21 +4,16 @@
 
 namespace Batang
 {
-    namespace
+    boost::thread_specific_ptr<std::weak_ptr<ThreadTaskPool>> ThreadTaskPool::currentTaskPool_;
+
+    const std::weak_ptr<ThreadTaskPool> &ThreadTaskPool::current()
     {
-        void doNothing(ThreadTaskPool *) {}
+        return *currentTaskPool_.get();
     }
 
-    boost::thread_specific_ptr<ThreadTaskPool> ThreadTaskPool::currentTaskPool_(doNothing);
-
-    ThreadTaskPool *ThreadTaskPool::current()
+    void ThreadTaskPool::current(const std::weak_ptr<ThreadTaskPool> &current)
     {
-        return currentTaskPool_.get();
-    }
-
-    void ThreadTaskPool::current(ThreadTaskPool *current)
-    {
-        currentTaskPool_.reset(current);
+        currentTaskPool_.reset(new std::weak_ptr<ThreadTaskPool>(current));
     }
 
     ThreadTaskPool::ThreadTaskPool()
