@@ -9,7 +9,7 @@ namespace Batang
     class ThreadTaskPool
     {
     private:
-        static boost::thread_specific_ptr<ThreadTaskPool> currentTaskPool_;
+        static boost::thread_specific_ptr<std::weak_ptr<ThreadTaskPool>> currentTaskPool_;
 
     private:
         Detail::TaskPool taskPool_;
@@ -18,10 +18,10 @@ namespace Batang
         std::atomic_bool toQuit_;
 
     public:
-        static ThreadTaskPool *current();
+        static const std::weak_ptr<ThreadTaskPool> &current();
 
     protected:
-        static void current(ThreadTaskPool *);
+        static void current(const std::weak_ptr<ThreadTaskPool> &);
 
     public:
         ThreadTaskPool();
@@ -85,16 +85,14 @@ namespace Batang
         {
             struct SetCurrent
             {
-            	ThreadTaskPool *thread_;
-                void (* setter_)(ThreadTaskPool *);
-                SetCurrent(ThreadTaskPool *thread, void (* setter)(ThreadTaskPool *))
-                    : thread_(thread)
-                    , setter_(setter)
+                void (* setter_)(const std::weak_ptr<ThreadTaskPool> &);
+                SetCurrent(const std::weak_ptr<ThreadTaskPool> &thread, void (* setter)(const std::weak_ptr<ThreadTaskPool> &))
+                    : setter_(setter)
                 {
                     setter(thread);
                 }
-                ~SetCurrent() { setter_(nullptr); }
-            } setCurrent(this, &Thread::current);
+                ~SetCurrent() { setter_(std::weak_ptr<ThreadTaskPool>()); }
+            } setCurrent(shared_from_this(), &Thread::current);
 
             onPreRun();
             return static_cast<Derived *>(this)->run(std::forward<Args>(args)...);

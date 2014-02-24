@@ -9,25 +9,42 @@ namespace Gurigi
     public:
         static bool post(const std::function<void ()> &task)
         {
-            uiThread_.load(std::memory_order_relaxed)->post(task);
+            std::shared_ptr<Batang::ThreadTaskPool> luiThread;
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                luiThread = uiThread_.lock();
+            }
+            if(luiThread)
+                luiThread->post(task);
         }
         static bool invoke(const std::function<void ()> &task)
         {
-            uiThread_.load(std::memory_order_relaxed)->invoke(task);
+            std::shared_ptr<Batang::ThreadTaskPool> luiThread;
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                luiThread = uiThread_.lock();
+            }
+            if(luiThread)
+                luiThread->invoke(task);
         }
 
     private:
-        static void set(Batang::ThreadTaskPool *uiThread)
+        static void set(const std::weak_ptr<Batang::ThreadTaskPool> &uiThread)
         {
-            uiThread_.store(uiThread, std::memory_order_relaxed);
+            std::lock_guard<std::mutex> lock(mutex_);
+            uiThread_ = uiThread;
         }
-        static Batang::ThreadTaskPool *exchange(Batang::ThreadTaskPool *uiThread)
+        static std::weak_ptr<Batang::ThreadTaskPool> exchange(const std::weak_ptr<Batang::ThreadTaskPool> &uiThread)
         {
-            return uiThread_.exchange(uiThread, std::memory_order_relaxed);
+            std::lock_guard<std::mutex> lock(mutex_);
+            auto oldUiThread = uiThread_;
+            uiThread_ = uiThread;
+            return oldUiThread;
         }
 
     private:
-        static std::atomic<Batang::ThreadTaskPool *> uiThread_;
+        static std::weak_ptr<Batang::ThreadTaskPool> uiThread_;
+        static std::mutex mutex_;
 
         friend class FrameWindow;
     };

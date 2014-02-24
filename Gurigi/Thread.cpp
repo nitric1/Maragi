@@ -4,5 +4,6 @@
 
 namespace Gurigi
 {
-    std::atomic<Batang::ThreadTaskPool *> UiThread::uiThread_;
+    std::weak_ptr<Batang::ThreadTaskPool> UiThread::uiThread_;
+    std::mutex UiThread::mutex_;
 }

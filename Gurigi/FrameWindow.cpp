@@ -92,6 +92,12 @@ namespace Gurigi
 
     bool FrameWindow::show(int32_t showCommand)
     {
+        std::shared_ptr<Batang::ThreadTaskPool> thread = Batang::ThreadTaskPool::current().lock();
+        if(!thread)
+        {
+            return false;
+        }
+
         // TODO: menu
         Objects::SizeI windowSize;
 
@@ -130,9 +136,8 @@ namespace Gurigi
         MSG msg;
         bool done = false;
 
-        Batang::ThreadTaskPool *thread = Batang::ThreadTaskPool::current();
         {
-            Batang::ThreadTaskPool *oldUiThread = nullptr;
+            std::weak_ptr<Batang::ThreadTaskPool> oldUiThread;
             Batang::ScopedInitializer uiThreadGuard(
                 [thread, &oldUiThread]()
                 {
