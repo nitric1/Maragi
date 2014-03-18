@@ -134,7 +134,7 @@ namespace Batang
         }
     }
 
-    void Timer::uninstallAllThreadTimers(const std::shared_ptr<ThreadTaskPool> &thread)
+    void Timer::uninstallAllThreadTimers(const ThreadTaskPool *thread)
     {
         if(thread)
         {
@@ -146,7 +146,7 @@ namespace Batang
             for(auto it = tasks_.begin(); it != tasks_.end();)
             {
                 auto taskThread = it->second->thread_.lock();
-                if(!taskThread || (taskThread && taskThread == thread))
+                if(!taskThread || (taskThread && taskThread.get() == thread))
                 {
                     if(!changeNextTick && it->second == next)
                     {
