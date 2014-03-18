@@ -6,7 +6,7 @@
 
 namespace Gurigi
 {
-    Label::Label(const ControlID &id)
+    Label::Label(const ControlId &id)
         : Control(id)
         , color_(Objects::ColorF::Black)
     {
@@ -149,7 +149,7 @@ namespace Gurigi
         return false;
     }
 
-    Button::Button(const ControlID &id)
+    Button::Button(const ControlId &id)
         : Control(id)
         , clicked_(false)
         , hovered_(false)
@@ -420,7 +420,7 @@ namespace Gurigi
         return S_OK;
     }
 
-    Edit::Edit(const ControlID &id)
+    Edit::Edit(const ControlId &id)
         : Control(id)
         , colorText_(Objects::ColorF::Black)
         , colorPlaceholder_(Objects::ColorF::DarkGray)

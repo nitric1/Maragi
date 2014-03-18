@@ -9,7 +9,7 @@ namespace Gurigi
     class Layout : public Control
     {
     protected:
-        Layout(const ControlID &);
+        Layout(const ControlId &);
 
     public:
         virtual ControlWeakPtr<> findByPoint(const Objects::PointF &) = 0;
@@ -23,7 +23,7 @@ namespace Gurigi
         ComPtr<ID2D1SolidColorBrush> brush_;
 
     protected:
-        ShellLayout(const ShellWeakPtr<> &, const ControlID &);
+        ShellLayout(const ShellWeakPtr<> &, const ControlId &);
         virtual ~ShellLayout();
 
     public:
@@ -96,7 +96,7 @@ namespace Gurigi
 
     protected:
         // TODO: elegant passing array (initializer list will make C++ world elegant...)
-        GridLayout(const ControlID &id, const std::vector<GridSize> &rowsSize, const std::vector<GridSize> &colsSize)
+        GridLayout(const ControlId &id, const std::vector<GridSize> &rowsSize, const std::vector<GridSize> &colsSize)
             : Layout(id)
         {
             if(rowsSize.size() != Rows || colsSize.size() != Cols)
@@ -526,7 +526,7 @@ namespace Gurigi
         float padLeft_, padTop_, padRight_, padBottom_;
 
     protected:
-        PaddingLayout(const ControlID &);
+        PaddingLayout(const ControlId &);
         virtual ~PaddingLayout();
 
     public:
