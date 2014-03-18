@@ -12,7 +12,7 @@ namespace Batang
         class TimerThread;
     }
 
-    class Timer : public Singleton<Timer>
+    class Timer : public Singleton<Timer, DestructPriority::Latest>
     {
     public:
         struct TaskIdTag {};
@@ -41,7 +41,7 @@ namespace Batang
         std::mutex taskMutex_;
         TaskId newTaskId_;
         std::unordered_map<
-            TaskId::ByValue<ValueWrapper::Operators::NullBind<ValueWrapper::Operators::EqualityOperator>::Type>,
+            TaskId::ByValue<ValueWrapper::Operators::SingleBind<ValueWrapper::Operators::EqualityOperator>::Type>,
             std::shared_ptr<TimerTask>> tasks_;
         std::vector<std::pair<std::chrono::steady_clock::time_point, std::weak_ptr<TimerTask>>> taskHeap_;
 
@@ -59,7 +59,7 @@ namespace Batang
             const std::chrono::steady_clock::duration &interval,
             const std::function<void ()> &task);
         void uninstallTimer(TaskId taskId);
-        void uninstallAllThreadTimers(const std::shared_ptr<ThreadTaskPool> &thread);
+        void uninstallAllThreadTimers(const ThreadTaskPool *thread);
 
     private:
         TaskId installTimer(
@@ -73,7 +73,7 @@ namespace Batang
     private:
         void onTimerTick();
 
-        friend class Singleton<Timer>;
+        friend class Singleton<Timer, DestructPriority::Latest>;
         friend class Detail::TimerThread;
     };
 }

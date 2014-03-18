@@ -6,7 +6,7 @@
 
 namespace Maragi
 {
-    class MainController : public Batang::Thread<MainController>, public Batang::SingletonShared<MainController>
+    class MainController : public Batang::Thread<MainController>, public Batang::Singleton<MainController>
     {
     private:
         Batang::CommandLineParser cmdLine_;
@@ -27,6 +27,6 @@ namespace Maragi
         void parseCommandLine(const std::wstring &);
 
         friend class Batang::Thread<MainController>;
-        friend class Batang::SingletonShared<MainController>;
+        friend class Batang::Singleton<MainController>;
     };
 }
