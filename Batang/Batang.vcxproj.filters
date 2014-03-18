@@ -95,5 +95,8 @@
     <ClCompile Include="Detail\Task.cpp">
       <Filter>Source Files\Detail</Filter>
     </ClCompile>
+    <ClCompile Include="Singleton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
