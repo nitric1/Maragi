@@ -29,14 +29,14 @@ namespace Batang
 
             template<template<typename, template<typename> class> class Operator,
                 template<typename> class Chain>
-            struct OperatorBind
+            struct ChainBind
             {
                 template<typename ProxyT>
                 struct Type: Operator<ProxyT, Chain> {};
             };
 
             template<template<typename, template<typename> class> class Operator>
-            struct NullBind
+            struct SingleBind
             {
                 template<typename ProxyT>
                 struct Type: Operator<ProxyT, NullOperator> {};
