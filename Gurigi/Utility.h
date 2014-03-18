@@ -355,19 +355,21 @@ namespace Gurigi
     class ControlManager : public Batang::Singleton<ControlManager>
     {
     private:
-        std::map<ControlID, ControlWeakPtr<>> controls_;
+        std::unordered_map<
+            ControlId::ByValue<Batang::ValueWrapper::Operators::SingleBind<Batang::ValueWrapper::Operators::EqualityOperator>::Type>,
+            ControlWeakPtr<>> controls_;
 
-        ControlID nextID_;
+        ControlId nextId_;
 
     private:
         ControlManager();
         ~ControlManager();
 
     public:
-        ControlID getNextID();
-        void add(const ControlID &, const ControlWeakPtr<> &);
-        ControlWeakPtr<> find(ControlID);
-        void remove(ControlID);
+        ControlId getNextID();
+        void add(const ControlId &, const ControlWeakPtr<> &);
+        ControlWeakPtr<> find(ControlId);
+        void remove(ControlId);
 
         friend class Batang::Singleton<ControlManager>;
     };
@@ -377,7 +379,7 @@ namespace Gurigi
     private:
         std::map<HWND, ShellWeakPtr<>> shells_;
 
-        uint32_t nextID_;
+        uint32_t nextId_;
 
     private:
         ShellManager();

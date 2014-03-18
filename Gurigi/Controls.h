@@ -34,7 +34,7 @@ namespace Gurigi
         ComPtr<IDWriteRenderingParams> renderParams_;
 
     protected:
-        Label(const ControlID &);
+        Label(const ControlId &);
         virtual ~Label();
 
     public:
@@ -70,7 +70,7 @@ namespace Gurigi
         Objects::PointF pt_;
 
     protected:
-        Button(const ControlID &);
+        Button(const ControlId &);
         virtual ~Button();
 
     public:
@@ -167,7 +167,7 @@ namespace Gurigi
         bool focused_, dragging_, trailing_;
 
     protected:
-        Edit(const ControlID &);
+        Edit(const ControlId &);
         virtual ~Edit();
 
     public:
@@ -227,7 +227,7 @@ namespace Gurigi
         double scrollMin_, scrollMax_, pageSize_; // [scrollMin, scrollMax - pageSize]
 
     protected:
-        Scrollbar(const ControlID &);
+        Scrollbar(const ControlId &);
         virtual ~Scrollbar();
 
     public:

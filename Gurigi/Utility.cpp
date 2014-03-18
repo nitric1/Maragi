@@ -17,7 +17,7 @@ namespace Gurigi
     }
 
     ControlManager::ControlManager()
-        : nextID_()
+        : nextId_()
     {
     }
 
@@ -25,18 +25,18 @@ namespace Gurigi
     {
     }
 
-    ControlID ControlManager::getNextID()
+    ControlId ControlManager::getNextID()
     {
-        ++ nextID_.id;
-        return nextID_;
+        nextId_ = ControlId(*nextId_ + 1);
+        return nextId_;
     }
 
-    void ControlManager::add(const ControlID &id, const ControlWeakPtr<> &control)
+    void ControlManager::add(const ControlId &id, const ControlWeakPtr<> &control)
     {
         controls_.insert(std::make_pair(id, control));
     }
 
-    ControlWeakPtr<> ControlManager::find(ControlID id)
+    ControlWeakPtr<> ControlManager::find(ControlId id)
     {
         auto it = controls_.find(id);
         if(it == std::end(controls_))
@@ -44,13 +44,13 @@ namespace Gurigi
         return it->second;
     }
 
-    void ControlManager::remove(ControlID id)
+    void ControlManager::remove(ControlId id)
     {
         controls_.erase(id);
     }
 
     ShellManager::ShellManager()
-        : nextID_()
+        : nextId_()
     {
     }
 
@@ -118,8 +118,8 @@ namespace Gurigi
 
     std::wstring ShellManager::getNextClassName()
     {
-        ++ nextID_;
-        return (boost::wformat(Constants::SHELL_CLASSNAME_TEMPLATE) % nextID_).str();
+        ++ nextId_;
+        return (boost::wformat(Constants::SHELL_CLASSNAME_TEMPLATE) % nextId_).str();
     }
 
     void ShellManager::add(HWND hwnd, const ShellWeakPtr<> &shell)

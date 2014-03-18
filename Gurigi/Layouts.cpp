@@ -4,12 +4,12 @@
 
 namespace Gurigi
 {
-    Layout::Layout(const ControlID &id)
+    Layout::Layout(const ControlId &id)
         : Control(id)
     {
     }
 
-    ShellLayout::ShellLayout(const ShellWeakPtr<> &ishell, const ControlID &id)
+    ShellLayout::ShellLayout(const ShellWeakPtr<> &ishell, const ControlId &id)
         : Layout(id)
     {
         shell(ishell);
@@ -122,7 +122,7 @@ namespace Gurigi
         return &slot_;
     }
 
-    PaddingLayout::PaddingLayout(const ControlID &id)
+    PaddingLayout::PaddingLayout(const ControlId &id)
         : Layout(id)
     {}
 

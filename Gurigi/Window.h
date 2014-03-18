@@ -134,12 +134,12 @@ namespace Gurigi
     private:
         ShellWeakPtr<> shell_;
         Slot *parent_;
-        ControlID id_;
+        ControlId id_;
         Objects::RectangleF rect_;
         Resources::ResourcePtr<Resources::Cursor> cursor_;
 
     protected:
-        Control(const ControlID &);
+        Control(const ControlId &);
         virtual ~Control() = 0;
 
     private: // no implementation
@@ -185,7 +185,7 @@ namespace Gurigi
     public:
         virtual const ShellWeakPtr<> &shell() const;
         virtual Slot *parent() const;
-        virtual const ControlID &id() const;
+        virtual const ControlId &id() const;
         virtual const Objects::RectangleF &rect() const;
         virtual void rect(const Objects::RectangleF &);
         virtual bool hasFocus();
