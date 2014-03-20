@@ -7,7 +7,7 @@ namespace Gurigi
 {
     namespace Resources
     {
-        class ResourceID
+        class ResourceId
         {
         private:
             union
@@ -18,27 +18,27 @@ namespace Gurigi
             bool allocated_;
 
         public:
-            ResourceID(uint16_t iid)
-                : id_(iid), allocated_(false)
+            ResourceId(uint16_t id)
+                : id_(id), allocated_(false)
             {}
 
-            ResourceID(const wchar_t *iname)
-                : name_(iname), allocated_(false)
+            ResourceId(const wchar_t *name)
+                : name_(name), allocated_(false)
             {}
 
-            ResourceID(const std::wstring &);
-            ResourceID(const ResourceID &);
-            ResourceID(ResourceID &&);
+            ResourceId(const std::wstring &);
+            ResourceId(const ResourceId &);
+            ResourceId(ResourceId &&);
 
-            ~ResourceID()
+            ~ResourceId()
             {
                 if(allocated_)
                     delete [] name_;
             }
 
         public:
-            ResourceID &operator =(const ResourceID &);
-            ResourceID &operator =(ResourceID &&);
+            ResourceId &operator =(const ResourceId &);
+            ResourceId &operator =(ResourceId &&);
 
             operator uint16_t() const
             {
@@ -50,8 +50,8 @@ namespace Gurigi
                 return name_;
             }
 
-            friend bool operator ==(const ResourceID &, const ResourceID &);
-            friend bool operator !=(const ResourceID &, const ResourceID &);
+            friend bool operator ==(const ResourceId &, const ResourceId &);
+            friend bool operator !=(const ResourceId &, const ResourceId &);
         };
 
         class ResourceHelper
@@ -60,7 +60,7 @@ namespace Gurigi
             ~ResourceHelper() = delete;
 
         public:
-            static HINSTANCE findInstanceByResourceID(const ResourceID &, const ResourceID &);
+            static HINSTANCE findInstanceByResourceId(const ResourceId &, const ResourceId &);
         };
 
         class Resource;
@@ -161,10 +161,10 @@ namespace Gurigi
             virtual ~Icon();
 
         public:
-            static ResourcePtr<Icon> fromResource(const ResourceID &);
-            static ResourcePtr<Icon> fromResource(const ResourceID &, const Objects::SizeI &);
-            static ResourcePtr<Icon> fromSharedResource(const ResourceID &);
-            static ResourcePtr<Icon> fromSharedResource(const ResourceID &, const Objects::SizeI &);
+            static ResourcePtr<Icon> fromResource(const ResourceId &);
+            static ResourcePtr<Icon> fromResource(const ResourceId &, const Objects::SizeI &);
+            static ResourcePtr<Icon> fromSharedResource(const ResourceId &);
+            static ResourcePtr<Icon> fromSharedResource(const ResourceId &, const Objects::SizeI &);
             static ResourcePtr<Icon> fromFile(const std::wstring &);
             static ResourcePtr<Icon> fromFile(const std::wstring &, const Objects::SizeI &);
 
@@ -201,7 +201,7 @@ namespace Gurigi
             virtual ~Cursor();
 
         public:
-            static ResourcePtr<Cursor> fromResource(const ResourceID &);
+            static ResourcePtr<Cursor> fromResource(const ResourceId &);
             static ResourcePtr<Cursor> fromFile(const std::wstring &);
 
         public:
