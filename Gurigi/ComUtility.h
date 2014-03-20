@@ -126,7 +126,7 @@ namespace Gurigi
         ComPtr(const ComPtr<U> &that)
             : ptr(that.ptr)
         {
-            static_assert(std::is_convertible<U *, T *>::value, "Type of pointer in argument must be a subclass of T.");
+            static_assert(std::is_convertible<U *, T *>::value, "Type of pointer in argument must be T or a subclass of T.");
             ptr->AddRef();
         }
 
@@ -140,7 +140,7 @@ namespace Gurigi
         ComPtr(ComPtr<U> &&that)
             : ptr(that.ptr)
         {
-            static_assert(std::is_convertible<U *, T *>::value, "Type of pointer in argument must be a subclass of T.");
+            static_assert(std::is_convertible<U *, T *>::value, "Type of pointer in argument must be T or a subclass of T.");
             that.ptr = nullptr;
         }
 
