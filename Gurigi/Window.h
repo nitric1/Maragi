@@ -93,7 +93,7 @@ namespace Gurigi
         bool ctrlKey;
         bool shiftKey;
         char keyCode; // Not in Char, ImeChar?
-        wchar_t charCode; // Char, ImeChar?
+        char32_t charCode; // Char, ImeChar?
         uint32_t repeated;
 
         ControlEventArg()
@@ -178,6 +178,7 @@ namespace Gurigi
 
         ControlEvent onKeyDown;
         ControlEvent onKeyUp;
+        ControlEvent onChar;
 
         ControlEvent onFocus;
         ControlEvent onBlur;
