@@ -429,6 +429,7 @@ namespace Gurigi
         , focused_(false)
         , dragging_(false)
         , trailing_(false)
+        , firstSurrogatePair_(L'\0')
     {
         formatPlaceholder_ = Drawing::FontFactory::instance().createFont(
             16.0f,
@@ -450,34 +451,8 @@ namespace Gurigi
         onMouseMove += Batang::delegate(this, &Edit::onMouseMoveImpl);
         onMouseButtonDown += Batang::delegate(this, &Edit::onMouseButtonDownImpl);
         onMouseButtonUp += Batang::delegate(this, &Edit::onMouseButtonUpImpl);
-        onKeyDown += [this](const ControlEventArg &e)
-        {
-            if(e.keyCode == VK_LEFT)
-            {
-                auto sel = selection();
-                if(sel.second == 0) return;
-                if(e.shiftKey)
-                {
-                    selection(sel.first, sel.second - 1, false);
-                }
-                else
-                {
-                    selection(sel.second - 1, false);
-                }
-            }
-            else if(e.keyCode == VK_RIGHT)
-            {
-                auto sel = selection();
-                if(e.shiftKey)
-                {
-                    selection(sel.first, sel.second + 1, true);
-                }
-                else
-                {
-                    selection(sel.second + 1, true);
-                }
-            }
-        };
+        onKeyDown += Batang::delegate(this, &Edit::onKeyDownImpl);
+        onChar += Batang::delegate(this, &Edit::onCharImpl);
         onFocus += Batang::delegate(this, &Edit::onFocusImpl);
         onBlur += Batang::delegate(this, &Edit::onBlurImpl);
 
@@ -859,6 +834,87 @@ namespace Gurigi
         {
             dragging_ = false;
         }
+    }
+
+    void Edit::onKeyDownImpl(const ControlEventArg &e)
+    {
+        if(e.keyCode == VK_LEFT)
+        {
+            auto sel = selection();
+            if(sel.second == 0) return;
+            if(e.shiftKey)
+            {
+                selection(sel.first, sel.second - 1, false);
+            }
+            else
+            {
+                selection(sel.second - 1, false);
+            }
+        }
+        else if(e.keyCode == VK_RIGHT)
+        {
+            auto sel = selection();
+            if(e.shiftKey)
+            {
+                selection(sel.first, sel.second + 1, true);
+            }
+            else
+            {
+                selection(sel.second + 1, true);
+            }
+        }
+    }
+
+    void Edit::onCharImpl(const ControlEventArg &e)
+    {
+        // TODO: split function
+
+        e.stopPropagation();
+
+        char32_t charCode = e.charCode;
+
+        if(0xD800 <= charCode && charCode <= 0xDFFF)
+        {
+            if(firstSurrogatePair_)
+            {
+                if(charCode <= 0xDBFF) // high-surrogate, which must not be here
+                {
+                    return;
+                }
+
+                charCode = (static_cast<char32_t>(firstSurrogatePair_ & 0x03FF) << 10);
+                charCode += 0x00010000;
+                charCode |= (e.charCode & 0x03FF);
+            }
+            else
+            {
+                if(0xDC00 <= charCode) // low-surrogate, which must not be here
+                {
+                    return;
+                }
+
+                firstSurrogatePair_ = static_cast<wchar_t>(charCode);
+                return;
+            }
+        }
+
+        auto sel = selection();
+        if(sel.first > sel.second)
+        {
+            std::swap(sel.first, sel.second);
+        }
+
+        if(sel.first < sel.second)
+        {
+            text_.erase(text_.begin() + sel.first, text_.begin() + sel.second);
+        }
+
+        std::wstring toInsert = boost::locale::conv::utf_to_utf<wchar_t>(std::u32string(1, charCode));
+        text_.insert(text_.begin() + sel.first, toInsert.begin(), toInsert.end());
+
+        textRefresh();
+        selection(sel.first + toInsert.size(), true);
+        redraw();
     }
 
     void Edit::onFocusImpl(const ControlEventArg &)

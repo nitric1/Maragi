@@ -550,12 +550,49 @@ namespace Gurigi
             }
             return 0;
 
+        case WM_CHAR:
+            {
+                ev.altKey = !!HIBYTE(GetKeyState(VK_MENU));
+                ev.ctrlKey = !!HIBYTE(GetKeyState(VK_CONTROL));
+                ev.shiftKey = !!HIBYTE(GetKeyState(VK_SHIFT));
+                ev.charCode = static_cast<char32_t>(static_cast<wchar_t>(wParam));
+                std::vector<ControlWeakPtr<>> focuseds;
+                auto lfocused = focus().lock();
+                if(lfocused)
+                {
+                    focuseds.push_back(lfocused);
+                }
+                fireEvent(focuseds, &Control::onChar, ev);
+            }
+            return 0;
+
+        case WM_UNICHAR:
+            {
+                if(wParam == UNICODE_NOCHAR)
+                {
+                    return 1;
+                }
+
+                ev.altKey = !!HIBYTE(GetKeyState(VK_MENU));
+                ev.ctrlKey = !!HIBYTE(GetKeyState(VK_CONTROL));
+                ev.shiftKey = !!HIBYTE(GetKeyState(VK_SHIFT));
+                ev.charCode = static_cast<char32_t>(wParam);
+                std::vector<ControlWeakPtr<>> focuseds;
+                auto lfocused = focus().lock();
+                if(lfocused)
+                {
+                    focuseds.push_back(lfocused);
+                }
+                fireEvent(focuseds, &Control::onChar, ev);
+            }
+            return 0;
+
         case WM_KEYDOWN:
             {
                 ev.altKey = !!HIBYTE(GetKeyState(VK_MENU));
                 ev.ctrlKey = !!HIBYTE(GetKeyState(VK_CONTROL));
                 ev.shiftKey = !!HIBYTE(GetKeyState(VK_SHIFT));
-                ev.keyCode = wParam;
+                ev.keyCode = static_cast<char>(wParam);
                 std::vector<ControlWeakPtr<>> focuseds;
                 auto lfocused = focus().lock();
                 while(lfocused)

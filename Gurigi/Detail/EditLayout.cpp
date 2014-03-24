@@ -966,6 +966,7 @@ namespace Gurigi
             glyphOffsets_.resize(glyphStart);
             glyphAdvances_.resize(glyphStart);
             glyphMetrics_.resize(glyphStart);
+            glyphClusters_.resize(glyphStart);
 
             return true;
         }

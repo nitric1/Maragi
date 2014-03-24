@@ -165,6 +165,7 @@ namespace Gurigi
 
         D2D1::Matrix3x2F clientTransform_, paddingTransform_, scrollTransform_;
         bool focused_, dragging_, trailing_;
+        wchar_t firstSurrogatePair_;
 
     protected:
         Edit(const ControlId &);
@@ -201,6 +202,7 @@ namespace Gurigi
         void onMouseMoveImpl(const ControlEventArg &);
         void onMouseButtonDownImpl(const ControlEventArg &);
         void onMouseButtonUpImpl(const ControlEventArg &);
+        void onKeyDownImpl(const ControlEventArg &);
         void onCharImpl(const ControlEventArg &);
         void onImeEndCompositionImpl(const ControlEventArg &);
         void onImeCompositionImpl(const ControlEventArg &);
