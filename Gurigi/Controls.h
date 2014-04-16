@@ -225,17 +225,44 @@ namespace Gurigi
 
     class Scrollbar : public Control
     {
+    public:
+        enum class Orientation : uint8_t
+        {
+            Vertical, Horizontal
+        };
+
     private:
         double scrollMin_, scrollMax_, pageSize_; // [scrollMin, scrollMax - pageSize]
+        double current_;
+        Orientation orientation_;
+        Objects::ColorF colorThumb_, colorBackground_;
+
+        ComPtr<ID2D1SolidColorBrush> brushThumb_, brushBackground_;
 
     protected:
         Scrollbar(const ControlId &);
         virtual ~Scrollbar();
 
     public:
+        static ControlPtr<Scrollbar> create(
+            Orientation,
+            double, double, double,
+            const Objects::ColorF & = Objects::ColorF(Objects::ColorF::Black),
+            const Objects::ColorF & = Objects::ColorF(Objects::ColorF::LightGray)
+            );
+
+    public:
+        virtual void createDrawingResources(Drawing::Context &);
+        virtual void discardDrawingResources(Drawing::Context &);
+        virtual void draw(Drawing::Context &);
+        virtual Objects::SizeF computeSize();
+
+    public:
         virtual std::pair<double, double> range() const;
         virtual void range(double, double);
         virtual double pageSize() const;
         virtual void pageSize(double);
+        virtual double current() const;
+        virtual void current(double);
     };
 }

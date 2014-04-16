@@ -25,7 +25,7 @@ namespace Gurigi
     {
     }
 
-    ControlId ControlManager::getNextID()
+    ControlId ControlManager::getNextId()
     {
         nextId_ = ControlId(*nextId_ + 1);
         return nextId_;

@@ -63,15 +63,16 @@ namespace Maragi
             frm->onTaskProcessable += delegate(this, &MainController::process);
 
             using Gurigi::GridSize;
-            Gurigi::ControlPtr<Gurigi::GridLayout<2, 2>> layout = Gurigi::GridLayout<2, 2>::create(
+            auto layout = Gurigi::GridLayout<2, 3>::create(
                 { GridSize(20.0f), GridSize(1) },
-                { GridSize(120.0f), GridSize(1) }
+                { GridSize(120.0f), GridSize(1), GridSize(10.0f) }
                 );
             frm->client()->slot()->attach(layout);
 
             Gurigi::ControlPtr<Gurigi::Label> label;
             Gurigi::ControlPtr<Gurigi::Button> button;
             Gurigi::ControlPtr<Gurigi::Edit> edit;
+            Gurigi::ControlPtr<Gurigi::Scrollbar> scrollbar;
 
             label = Gurigi::Label::create(L"Label Text", Gurigi::Objects::ColorF(Gurigi::Objects::ColorF::White));
             layout->slot(0, 0)->attach(label);
@@ -94,6 +95,11 @@ namespace Maragi
 
             edit = Gurigi::Edit::create(L"Placeholder Now");
             layout->slot(1, 1)->attach(edit);
+
+            scrollbar = Gurigi::Scrollbar::create(Gurigi::Scrollbar::Orientation::Vertical,
+                0.0, 100.0, 10.0);
+            scrollbar->current(30.0);
+            layout->slot(1, 2)->attach(scrollbar);
 
             /*std::thread t([this]()
             {

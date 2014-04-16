@@ -366,7 +366,7 @@ namespace Gurigi
         ~ControlManager();
 
     public:
-        ControlId getNextID();
+        ControlId getNextId();
         void add(const ControlId &, const ControlWeakPtr<> &);
         ControlWeakPtr<> find(ControlId);
         void remove(ControlId);

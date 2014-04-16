@@ -23,7 +23,7 @@ namespace Gurigi
         const ShellWeakPtr<> &shell
         )
     {
-        ControlPtr<ShellLayout> layout(new ShellLayout(shell, ControlManager::instance().getNextID()));
+        ControlPtr<ShellLayout> layout(new ShellLayout(shell, ControlManager::instance().getNextId()));
         layout->slot_.parent(layout);
         return layout;
     }
@@ -142,7 +142,7 @@ namespace Gurigi
 
     ControlPtr<PaddingLayout> PaddingLayout::create(float padLeft, float padTop, float padRight, float padBottom)
     {
-        ControlPtr<PaddingLayout> layout(new PaddingLayout(ControlManager::instance().getNextID()));
+        ControlPtr<PaddingLayout> layout(new PaddingLayout(ControlManager::instance().getNextId()));
         layout->padding(padLeft, padTop, padRight, padBottom);
         return layout;
     }
