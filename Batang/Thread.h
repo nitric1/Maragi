@@ -98,7 +98,7 @@ namespace Batang
                     setter(thread);
                 }
                 ~SetCurrent() { setter_(std::weak_ptr<ThreadTaskPool>()); }
-            } setCurrent(shared_from_this(), &Thread::current);
+            } setCurrent(sharedFromThis(), &Thread::current);
 
             onPreRun();
             return static_cast<Derived *>(this)->run(std::forward<Args>(args)...);
