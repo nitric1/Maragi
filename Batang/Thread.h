@@ -61,7 +61,7 @@ namespace Batang
     public:
         virtual std::shared_ptr<ThreadTaskPool> sharedFromThis()
         {
-            return shared_from_this();
+            return this->shared_from_this();
         }
 
         template<typename ...Args>
