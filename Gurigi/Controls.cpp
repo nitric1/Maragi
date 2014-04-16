@@ -33,7 +33,7 @@ namespace Gurigi
         uint32_t align
         )
     {
-        ControlPtr<Label> lbl(new Label(ControlManager::instance().getNextID()));
+        ControlPtr<Label> lbl(new Label(ControlManager::instance().getNextId()));
         lbl->text_ = text;
         lbl->color_ = color;
         lbl->align(align);
@@ -180,7 +180,7 @@ namespace Gurigi
         const std::wstring &text
         )
     {
-        ControlPtr<Button> btn(new Button(ControlManager::instance().getNextID()));
+        ControlPtr<Button> btn(new Button(ControlManager::instance().getNextId()));
         btn->text_ = text;
         return btn;
     }
@@ -424,7 +424,7 @@ namespace Gurigi
         : Control(id)
         , colorText_(Objects::ColorF::Black)
         , colorPlaceholder_(Objects::ColorF::DarkGray)
-        , colorBackground_(Objects::ColorF::Black)
+        , colorBackground_(Objects::ColorF::White)
         // , renderer(new (std::nothrow) EditRenderer())
         , focused_(false)
         , dragging_(false)
@@ -551,7 +551,7 @@ namespace Gurigi
         size_t selEnd
         )
     {
-        ControlPtr<Edit> edit(new Edit(ControlManager::instance().getNextID()));
+        ControlPtr<Edit> edit(new Edit(ControlManager::instance().getNextId()));
         edit->placeholder_ = placeholder;
         edit->colorText_ = colorText;
         edit->colorPlaceholder_ = colorPlaceholder;
@@ -863,6 +863,33 @@ namespace Gurigi
                 selection(sel.second + 1, true);
             }
         }
+        else if(e.keyCode == VK_DELETE)
+        {
+            // TODO: split function
+            auto sel = selection();
+            if(sel.first != sel.second)
+            {
+                if(sel.first > sel.second)
+                {
+                    std::swap(sel.first, sel.second);
+                }
+                text_.erase(text_.begin() + sel.first, text_.begin() + sel.second);
+            }
+            else if(sel.first > 0 && sel.first < text_.size())
+            {
+                // TODO: consider surrogate pair
+                text_.erase(text_.begin() + sel.first, text_.begin() + sel.first + 1);
+            }
+            else
+            {
+                return;
+            }
+
+            textRefresh();
+            selection(sel.first, false);
+            redraw();
+            return;
+        }
     }
 
     void Edit::onCharImpl(const ControlEventArg &e)
@@ -873,7 +900,38 @@ namespace Gurigi
 
         char32_t charCode = e.charCode;
 
-        if(0xD800 <= charCode && charCode <= 0xDFFF)
+        if(charCode == VK_BACK)
+        {
+            // TODO: split function
+            auto sel = selection();
+            size_t selAfter = 0;
+            if(sel.first != sel.second)
+            {
+                if(sel.first > sel.second)
+                {
+                    std::swap(sel.first, sel.second);
+                }
+                text_.erase(text_.begin() + sel.first, text_.begin() + sel.second);
+                selAfter = sel.first;
+            }
+            else if(sel.first > 0)
+            {
+                // TODO: consider surrogate pair
+                text_.erase(text_.begin() + sel.first - 1, text_.begin() + sel.first);
+                selAfter = sel.first - 1;
+            }
+            else
+            {
+                return;
+            }
+
+            textRefresh();
+            selection(selAfter, false);
+            redraw();
+            return;
+        }
+
+        if(0xD800 <= charCode && charCode <= 0xDFFF) // surrogate pair
         {
             if(firstSurrogatePair_)
             {
@@ -909,7 +967,7 @@ namespace Gurigi
             text_.erase(text_.begin() + sel.first, text_.begin() + sel.second);
         }
 
-        std::wstring toInsert = boost::locale::conv::utf_to_utf<wchar_t>(std::u32string(1, charCode));
+        std::wstring toInsert = Batang::decodeUtf32(std::u32string(1, charCode));
         text_.insert(text_.begin() + sel.first, toInsert.begin(), toInsert.end());
 
         textRefresh();
@@ -992,5 +1050,150 @@ namespace Gurigi
             redraw();
         }
         updateCaret();
+    }
+
+    Scrollbar::Scrollbar(const ControlId &id)
+        : Control(id)
+        , orientation_(Orientation::Vertical)
+        , scrollMin_(0.0)
+        , scrollMax_(0.0)
+        , pageSize_(0.0)
+        , current_(0.0)
+        , colorThumb_(Objects::ColorF::Black)
+        , colorBackground_(Objects::ColorF::LightGray)
+    {
+    }
+
+    Scrollbar::~Scrollbar()
+    {}
+
+    ControlPtr<Scrollbar> Scrollbar::create(
+        Orientation orientation,
+        double scrollMin, double scrollMax, double pageSize,
+        const Objects::ColorF &colorThumb,
+        const Objects::ColorF &colorBackground
+        )
+    {
+        ControlPtr<Scrollbar> scrollbar(new Scrollbar(ControlManager::instance().getNextId()));
+        scrollbar->orientation_ = orientation;
+        scrollbar->scrollMin_ = scrollMin;
+        scrollbar->scrollMax_ = scrollMax;
+        scrollbar->pageSize_ = pageSize;
+        scrollbar->colorThumb_ = colorThumb;
+        scrollbar->colorBackground_ = colorBackground;
+        return scrollbar;
+    }
+
+    void Scrollbar::createDrawingResources(Drawing::Context &ctx)
+    {
+    }
+
+    void Scrollbar::discardDrawingResources(Drawing::Context &ctx)
+    {
+        brushThumb_.release();
+        brushBackground_.release();
+    }
+
+    void Scrollbar::draw(Drawing::Context &ctx)
+    {
+        HRESULT hr;
+        if(!brushThumb_)
+        {
+            hr = ctx->CreateSolidColorBrush(colorThumb_, &brushThumb_);
+            if(FAILED(hr))
+                throw(UIException("CreateSolidColorBrush failed in Edit::draw."));
+        }
+        if(!brushBackground_)
+        {
+            hr = ctx->CreateSolidColorBrush(colorBackground_, &brushBackground_);
+            if(FAILED(hr))
+                throw(UIException("CreateSolidColorBrush failed in Edit::draw."));
+        }
+
+        // TODO: hover
+
+        auto rc = rect();
+
+        ctx->FillRectangle(
+            rc,
+            brushBackground_
+            );
+
+        if(scrollMax_ > scrollMin_ && pageSize_ > 0.0)
+        {
+            // TODO: padding
+
+            if(orientation_ == Orientation::Vertical)
+            {
+                float height = rc.height();
+                float pos = static_cast<float>(height * current_ / (scrollMax_ - scrollMin_));
+                float length = static_cast<float>(height * pageSize_ / (scrollMax_ - scrollMin_));
+                // TODO: min length
+
+                ctx->FillRoundedRectangle(
+                    D2D1::RoundedRect(Objects::RectangleF(rc.left, rc.top + pos, rc.right, rc.top + pos + length), rc.width() / 2, rc.width() / 2),
+                    brushThumb_
+                    );
+            }
+            else
+            {
+                // TODO: rtl
+
+                float width = rc.width();
+                float pos = static_cast<float>(width * current_ / (scrollMax_ - scrollMin_));
+                float length = static_cast<float>(width * pageSize_ / (scrollMax_ - scrollMin_));
+                // TODO: min length
+
+                ctx->FillRoundedRectangle(
+                    D2D1::RoundedRect(Objects::RectangleF(rc.left + pos, rc.top, rc.right + pos + length, rc.top), rc.height() / 2, rc.height() / 2),
+                    brushThumb_
+                    );
+            }
+        }
+    }
+
+    Objects::SizeF Scrollbar::computeSize()
+    {
+        // TODO: implement
+        if(orientation_ == Orientation::Vertical)
+        {
+            return Objects::SizeF(16.0f, 64.0f);
+        }
+        else
+        {
+            return Objects::SizeF(64.0f, 16.0f);
+        }
+    }
+
+    std::pair<double, double> Scrollbar::range() const
+    {
+        return { scrollMin_, scrollMax_ };
+    }
+
+    void Scrollbar::range(double scrollMin, double scrollMax)
+    {
+        scrollMin_ = scrollMin;
+        scrollMax_ = scrollMax;
+    }
+
+    double Scrollbar::pageSize() const
+    {
+        return pageSize_;
+    }
+
+    void Scrollbar::pageSize(double pageSize)
+    {
+        pageSize_ = pageSize;
+    }
+
+    double Scrollbar::current() const
+    {
+        return current_;
+    }
+
+    void Scrollbar::current(double current)
+    {
+        current_ = current;
+        // TODO: adjust
     }
 }

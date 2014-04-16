@@ -114,7 +114,7 @@ namespace Gurigi
             const std::vector<GridSize> &colsSize
             )
         {
-            ControlPtr<GridLayout> layout(new GridLayout(ControlManager::instance().getNextID(), rowsSize, colsSize));
+            ControlPtr<GridLayout> layout(new GridLayout(ControlManager::instance().getNextId(), rowsSize, colsSize));
             for(size_t i = 0; i < Rows; ++ i)
             {
                 for(size_t j = 0; j < Cols; ++ j)
