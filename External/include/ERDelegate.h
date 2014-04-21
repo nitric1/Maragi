@@ -179,17 +179,17 @@ public:
     }
 
 public:
-    virtual Return invoke(Args ...args)
+    virtual Return invoke(Args ...args) override
     {
         return fn(args...);
     }
 
-    virtual Return operator ()(Args ...args)
+    virtual Return operator ()(Args ...args) override
     {
         return fn(args...);
     }
 
-    virtual operator bool()
+    virtual operator bool() override
     {
         return static_cast<bool>(fn);
     }
@@ -256,21 +256,21 @@ public:
     }
 
 public:
-    virtual Return invoke(Args ...args)
+    virtual Return invoke(Args ...args) override
     {
         if(!dg)
             throw(std::bad_function_call());
         return dg->invoke(args...);
     }
 
-    virtual Return operator ()(Args ...args)
+    virtual Return operator ()(Args ...args) override
     {
         if(!dg)
             throw(std::bad_function_call());
         return (*dg)(args...);
     }
 
-    virtual operator bool()
+    virtual operator bool() override
     {
         return dg && *dg;
     }

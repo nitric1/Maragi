@@ -484,7 +484,7 @@ namespace Gurigi
             else
             {
                 *str = &text_[pos];
-                *len = text_.size() - pos;
+                *len = static_cast<uint32_t>(text_.size() - pos);
             }
             return S_OK;
         }
