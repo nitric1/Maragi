@@ -59,7 +59,7 @@ namespace Batang
         std::unique_ptr<std::thread> thread_;
 
     public:
-        virtual std::shared_ptr<ThreadTaskPool> sharedFromThis()
+        virtual std::shared_ptr<ThreadTaskPool> sharedFromThis() override
         {
             return this->shared_from_this();
         }
@@ -91,7 +91,7 @@ namespace Batang
         {
             struct SetCurrent
             {
-            	ThreadTaskPool *thread_;
+                ThreadTaskPool *thread_;
                 void (* setter_)(ThreadTaskPool *);
                 SetCurrent(ThreadTaskPool *thread, void (* setter)(ThreadTaskPool *))
                     : thread_(thread)

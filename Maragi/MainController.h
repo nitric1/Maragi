@@ -6,7 +6,7 @@
 
 namespace Maragi
 {
-    class MainController : public Batang::Thread<MainController>, public Batang::Singleton<MainController>
+    class MainController final : public Batang::Thread<MainController>, public Batang::Singleton<MainController>
     {
     private:
         Batang::CommandLineParser cmdLine_;

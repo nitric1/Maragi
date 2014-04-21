@@ -4,7 +4,7 @@
 
 namespace Gurigi
 {
-    class ComInitializer : public Batang::Singleton<ComInitializer>
+    class ComInitializer final : public Batang::Singleton<ComInitializer>
     {
     private:
         ComInitializer();
@@ -96,7 +96,7 @@ namespace Gurigi
     };
 
     template<typename T>
-    class ComPtr
+    class ComPtr final
     {
         static_assert(std::is_convertible<T *, IUnknown *>::value, "T must be a COM class.");
 

@@ -47,12 +47,12 @@ namespace Gurigi
             ); // TODO: menu
 
     public:
-        virtual bool show();
+        virtual bool show() override;
         virtual bool show(int32_t);
         virtual Objects::SizeI adjustWindowSize(const Objects::SizeF &) const;
         virtual Objects::PointF screenToClient(const Objects::PointI &) const;
         virtual Objects::PointI clientToScreen(const Objects::PointF &) const;
-        virtual void redraw();
+        virtual void redraw() override;
 
     public: // external event handlers
         CommonEvent onTaskProcessable;
@@ -65,7 +65,7 @@ namespace Gurigi
         virtual void iconSmall(const Resources::ResourcePtr<Resources::Icon> &);
         virtual const Objects::ColorF &bgColor() const;
         virtual void bgColor(const Objects::ColorF &);
-        virtual Objects::SizeF clientSize() const;
+        virtual Objects::SizeF clientSize() const override;
         virtual void clientSize(const Objects::SizeF &);
         virtual Objects::SizeI windowSize() const;
         virtual void windowSize(const Objects::SizeI &);

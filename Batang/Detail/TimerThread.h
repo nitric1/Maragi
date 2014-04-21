@@ -8,7 +8,7 @@ namespace Batang
 
     namespace Detail
     {
-        class TimerThread : public Thread<TimerThread>
+        class TimerThread final : public Thread<TimerThread>
         {
         private:
             std::condition_variable timerCv_;

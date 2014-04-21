@@ -56,7 +56,7 @@ namespace Batang
 #endif // _MSC_VER
 
             template<typename T, typename Tag, T InvalidValue = T()>
-            class Wrapper
+            class Wrapper final
             {
                 static_assert(!std::is_reference<T>::value, "T must not be reference type.");
 
@@ -103,7 +103,7 @@ namespace Batang
 #endif // _MSC_VER
 
             template<typename WrapperT, template<typename> class Operator>
-            class ValueProxy: public Operator<ValueProxy<WrapperT, Operator>>
+            class ValueProxy final: public Operator<ValueProxy<WrapperT, Operator>>
             {
             public:
                 typedef WrapperT WrapperType;
@@ -160,7 +160,7 @@ namespace Batang
             };
 
             template<typename WrapperT, template<typename> class Operator>
-            class RefProxy: public Operator<RefProxy<WrapperT, Operator>>
+            class RefProxy final: public Operator<RefProxy<WrapperT, Operator>>
             {
             public:
                 typedef WrapperT WrapperType;

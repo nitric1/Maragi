@@ -8,7 +8,7 @@ namespace Gurigi
 {
     namespace Drawing
     {
-        class D2DFactory : public Batang::Singleton<D2DFactory>
+        class D2DFactory final : public Batang::Singleton<D2DFactory>
         {
         private:
             ComPtr<ID2D1Factory> d2dfac_;
@@ -32,7 +32,7 @@ namespace Gurigi
             friend class Batang::Singleton<D2DFactory>;
         };
 
-        class Context
+        class Context final
         {
         private:
             ComPtr<ID2D1HwndRenderTarget> rt_;
@@ -72,7 +72,7 @@ namespace Gurigi
             Context &operator =(const Context &) = delete;
         };
 
-        class FontFactory : public Batang::Singleton<FontFactory>
+        class FontFactory final : public Batang::Singleton<FontFactory>
         {
         private:
             FontFactory();
