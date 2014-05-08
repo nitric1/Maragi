@@ -3,10 +3,11 @@ setlocal
 
 if "%1" == "" goto end
 
-set PreBuildPath=###%1###
-set PreBuildPath=%PreBuildPath:"###=%
-set PreBuildPath=%PreBuildPath:###"=%
-set PreBuildPath=%PreBuildPath:###=%
+set PreBuildPath=(((%1)))
+set PreBuildPath=%PreBuildPath:((("=%
+set PreBuildPath=%PreBuildPath:")))=%
+set PreBuildPath=%PreBuildPath:(((=%
+set PreBuildPath=%PreBuildPath:)))=%
 
 if not exist %PreBuildPath%\Tokens.txt goto create
 goto process
