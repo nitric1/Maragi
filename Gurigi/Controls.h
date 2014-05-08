@@ -45,10 +45,10 @@ namespace Gurigi
             );
 
     public:
-        virtual void createDrawingResources(Drawing::Context &);
-        virtual void discardDrawingResources(Drawing::Context &);
-        virtual void draw(Drawing::Context &);
-        virtual Objects::SizeF computeSize();
+        virtual void createDrawingResources(Drawing::Context &) override;
+        virtual void discardDrawingResources(Drawing::Context &) override;
+        virtual void draw(Drawing::Context &) override;
+        virtual Objects::SizeF computeSize() override;
 
     public:
         virtual const std::wstring &text() const;
@@ -79,10 +79,10 @@ namespace Gurigi
             );
 
     public:
-        virtual void createDrawingResources(Drawing::Context &);
-        virtual void discardDrawingResources(Drawing::Context &);
-        virtual void draw(Drawing::Context &);
-        virtual Objects::SizeF computeSize();
+        virtual void createDrawingResources(Drawing::Context &) override;
+        virtual void discardDrawingResources(Drawing::Context &) override;
+        virtual void draw(Drawing::Context &) override;
+        virtual Objects::SizeF computeSize() override;
 
     private:
         void onMouseButtonDownImpl(const ControlEventArg &);
@@ -183,10 +183,10 @@ namespace Gurigi
             );
 
     public:
-        virtual void createDrawingResources(Drawing::Context &);
-        virtual void discardDrawingResources(Drawing::Context &);
-        virtual void draw(Drawing::Context &);
-        virtual Objects::SizeF computeSize();
+        virtual void createDrawingResources(Drawing::Context &) override;
+        virtual void discardDrawingResources(Drawing::Context &) override;
+        virtual void draw(Drawing::Context &) override;
+        virtual Objects::SizeF computeSize() override;
 
     public:
         virtual void onResizeInternal(const Objects::RectangleF &);

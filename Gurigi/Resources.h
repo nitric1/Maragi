@@ -103,7 +103,7 @@ namespace Gurigi
         };*/
 
         template<typename T>
-        class ResourcePtr : public SharedPtr<Resource, ResourcePtrDeleter, T>
+        class ResourcePtr final : public SharedPtr<Resource, ResourcePtrDeleter, T>
         {
         public:
             ResourcePtr()

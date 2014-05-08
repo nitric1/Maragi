@@ -4,7 +4,7 @@
 
 namespace Maragi
 {
-    class Configure : public Batang::Singleton<Configure>
+    class Configure final : public Batang::Singleton<Configure>
     {
     private:
         std::map<std::wstring, std::wstring> confMap;

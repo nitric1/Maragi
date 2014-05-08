@@ -209,7 +209,7 @@ namespace Gurigi
     class ControlWeakPtr;
 
     template<typename T>
-    class ControlPtr : public SharedPtr<Control, ControlPtrDeleter, T>
+    class ControlPtr final : public SharedPtr<Control, ControlPtrDeleter, T>
     {
     public:
         ControlPtr()
@@ -246,7 +246,7 @@ namespace Gurigi
     };
 
     template<typename T>
-    class ControlWeakPtr : public WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>
+    class ControlWeakPtr final : public WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>
     {
     public:
         ControlWeakPtr()
@@ -286,7 +286,7 @@ namespace Gurigi
     class ShellWeakPtr;
 
     template<typename T>
-    class ShellPtr : public SharedPtr<Shell, ShellPtrDeleter, T>
+    class ShellPtr final : public SharedPtr<Shell, ShellPtrDeleter, T>
     {
     public:
         ShellPtr()
@@ -323,7 +323,7 @@ namespace Gurigi
     };
 
     template<typename T>
-    class ShellWeakPtr : public WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>
+    class ShellWeakPtr final : public WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>
     {
     public:
         ShellWeakPtr()
@@ -352,7 +352,7 @@ namespace Gurigi
         friend class ShellWeakPtr;
     };
 
-    class ControlManager : public Batang::Singleton<ControlManager>
+    class ControlManager final : public Batang::Singleton<ControlManager>
     {
     private:
         std::unordered_map<
@@ -374,7 +374,7 @@ namespace Gurigi
         friend class Batang::Singleton<ControlManager>;
     };
 
-    class ShellManager : public Batang::Singleton<ShellManager>
+    class ShellManager final : public Batang::Singleton<ShellManager>
     {
     private:
         std::map<HWND, ShellWeakPtr<>> shells_;

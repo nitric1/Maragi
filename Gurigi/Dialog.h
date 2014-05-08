@@ -22,9 +22,9 @@ namespace Gurigi
         virtual ~Dialog() = 0;
 
     protected:
-        virtual const wchar_t *getDialogName() = 0;
-        virtual const void *getDialogTemplateWithSystemFont();
-        virtual HWND getItemHandle(int32_t);
+        virtual const wchar_t *dialogName() = 0;
+        virtual const void *dialogTemplateWithSystemFont();
+        virtual HWND itemHandle(int32_t);
 
         intptr_t showModal(const ERDelegateWrapper<intptr_t (HWND, unsigned, uintptr_t, longptr_t)> &, int = SW_SHOW);
         bool endDialog(intptr_t);

@@ -5,7 +5,7 @@
 namespace Batang
 {
     template<typename Arg>
-    class Event
+    class Event final
     {
     private:
         boost::signals2::signal<void (const Arg &)> sig_;
@@ -61,7 +61,7 @@ namespace Batang
     };
 
     template<>
-    class Event<void>
+    class Event<void> final
     {
     private:
         boost::signals2::signal<void ()> sig_;

@@ -12,7 +12,7 @@ namespace Batang
         class TimerThread;
     }
 
-    class Timer : public Singleton<Timer, DestructPriority::Latest>
+    class Timer final : public Singleton<Timer, DestructPriority::Latest>
     {
     public:
         struct TaskIdTag {};
