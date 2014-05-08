@@ -199,6 +199,7 @@
     <ClInclude Include="..\External\include\openssl\buffer.h" />
     <ClInclude Include="..\External\include\openssl\camellia.h" />
     <ClInclude Include="..\External\include\openssl\cast.h" />
+    <ClInclude Include="..\External\include\openssl\cmac.h" />
     <ClInclude Include="..\External\include\openssl\cms.h" />
     <ClInclude Include="..\External\include\openssl\comp.h" />
     <ClInclude Include="..\External\include\openssl\conf.h" />
@@ -245,6 +246,8 @@
     <ClInclude Include="..\External\include\openssl\safestack.h" />
     <ClInclude Include="..\External\include\openssl\seed.h" />
     <ClInclude Include="..\External\include\openssl\sha.h" />
+    <ClInclude Include="..\External\include\openssl\srp.h" />
+    <ClInclude Include="..\External\include\openssl\srtp.h" />
     <ClInclude Include="..\External\include\openssl\ssl.h" />
     <ClInclude Include="..\External\include\openssl\ssl2.h" />
     <ClInclude Include="..\External\include\openssl\ssl23.h" />
