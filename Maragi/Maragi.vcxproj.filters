@@ -341,6 +341,15 @@
     <ClInclude Include="Url.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\External\include\openssl\cmac.h">
+      <Filter>External Files\openssl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\openssl\srp.h">
+      <Filter>External Files\openssl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\openssl\srtp.h">
+      <Filter>External Files\openssl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Tokens.h.in" />
