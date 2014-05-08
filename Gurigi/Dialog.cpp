@@ -24,7 +24,7 @@ namespace Gurigi
     {
     }
 
-    const void *Dialog::getDialogTemplateWithSystemFont()
+    const void *Dialog::dialogTemplateWithSystemFont()
     {
         dlgData_.clear();
 
@@ -33,7 +33,7 @@ namespace Gurigi
         SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, 0, &ncm, 0);
 
         HINSTANCE inst = Batang::Win32Environment::instance().getInstance();
-        HRSRC rsrc = FindResourceW(inst, getDialogName(), RT_DIALOG);
+        HRSRC rsrc = FindResourceW(inst, dialogName(), RT_DIALOG);
         size_t size = SizeofResource(inst, rsrc);
         HGLOBAL mem = LoadResource(inst, rsrc);
         uint8_t *ptr = static_cast<uint8_t *>(LockResource(mem));
@@ -127,7 +127,7 @@ namespace Gurigi
         return &*dlgData_.begin();
     }
 
-    HWND Dialog::getItemHandle(int32_t id)
+    HWND Dialog::itemHandle(int32_t id)
     {
         return GetDlgItem(hwnd(), id);
     }
@@ -162,7 +162,7 @@ namespace Gurigi
         if(lparent)
             parentWin = lparent->hwnd();
 
-        const DLGTEMPLATE *tpl = static_cast<const DLGTEMPLATE *>(getDialogTemplateWithSystemFont());
+        const DLGTEMPLATE *tpl = static_cast<const DLGTEMPLATE *>(dialogTemplateWithSystemFont());
         bool parentEnabled = false;
         if(parentWin != nullptr && IsWindowEnabled(parentWin))
         {
