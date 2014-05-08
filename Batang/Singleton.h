@@ -16,7 +16,7 @@ namespace Batang
         };
     }
 
-    class SingletonManager
+    class SingletonManager final
     {
     private:
         std::multimap<uint32_t, std::shared_ptr<void>, std::greater<uint32_t>> instances_;

@@ -334,17 +334,17 @@ namespace Maragi
             ConfirmDialog() : Dialog(nullptr) {}
 
         private:
-            std::wstring text;
+            std::wstring text_;
 
         public:
-            virtual const wchar_t *getDialogName()
+            virtual const wchar_t *dialogName() override
             {
                 return MAKEINTRESOURCEW(IDD_CONFIRM);
             }
 
-            const std::wstring &getText()
+            const std::wstring &text()
             {
-                return text;
+                return text_;
             }
 
             bool show()
@@ -386,7 +386,7 @@ namespace Maragi
                             int len = GetWindowTextLengthW(text) + 1;
                             std::vector<wchar_t> buf(static_cast<size_t>(len));
                             GetWindowTextW(text, &*buf.begin(), len);
-                            self.text = &*buf.begin();
+                            self.text_ = &*buf.begin();
                             self.endDialog(IDOK);
                         }
                         return 1;
@@ -433,7 +433,7 @@ namespace Maragi
 
             uri = makeRequestUrl(Paths::ACCESS_TOKEN);
             uri.addOAuthParam("oauth_token", token);
-            uri.addOAuthParam("oauth_verifier", Batang::encodeUtf8(cfd.getText()));
+            uri.addOAuthParam("oauth_verifier", Batang::encodeUtf8(cfd.text()));
             signRequestUrl(uri, tokenSecret);
             sendRequest(uri);
 

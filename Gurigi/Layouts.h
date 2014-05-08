@@ -32,18 +32,18 @@ namespace Gurigi
             );
 
     public:
-        virtual void createDrawingResources(Drawing::Context &);
-        virtual void discardDrawingResources(Drawing::Context &);
-        virtual void draw(Drawing::Context &);
-        virtual Objects::SizeF computeSize();
-        virtual ControlWeakPtr<> findByPoint(const Objects::PointF &);
+        virtual void createDrawingResources(Drawing::Context &) override;
+        virtual void discardDrawingResources(Drawing::Context &) override;
+        virtual void draw(Drawing::Context &) override;
+        virtual Objects::SizeF computeSize() override;
+        virtual ControlWeakPtr<> findByPoint(const Objects::PointF &) override;
         virtual std::vector<ControlWeakPtr<>> findTreeByPoint(const Objects::PointF &);
         virtual std::vector<ControlWeakPtr<>> findReverseTreeByPoint(const Objects::PointF &);
         virtual void walk(const std::function<void (const ControlWeakPtr<> &)> &);
         virtual void walkReverse(const std::function<void (const ControlWeakPtr<> &)> &);
 
     public:
-        virtual void onResizeInternal(const Objects::RectangleF &);
+        virtual void onResizeInternal(const Objects::RectangleF &) override;
 
     public:
         virtual Slot *slot();
@@ -124,7 +124,7 @@ namespace Gurigi
         }
 
     public:
-        void createDrawingResources(Drawing::Context &ctx)
+        void createDrawingResources(Drawing::Context &ctx) override
         {
             for(size_t i = 0; i < Rows; ++ i)
             {
@@ -137,7 +137,7 @@ namespace Gurigi
             }
         }
 
-        void discardDrawingResources(Drawing::Context &ctx)
+        void discardDrawingResources(Drawing::Context &ctx) override
         {
             for(size_t i = 0; i < Rows; ++ i)
             {
@@ -150,7 +150,7 @@ namespace Gurigi
             }
         }
 
-        virtual void draw(Drawing::Context &ctx)
+        virtual void draw(Drawing::Context &ctx) override
         {
             for(size_t i = 0; i < Rows; ++ i)
             {
@@ -163,7 +163,7 @@ namespace Gurigi
             }
         }
 
-        virtual Objects::SizeF computeSize()
+        virtual Objects::SizeF computeSize() override
         {
             float widths[Cols] = {0.0f, }, heights[Rows] = {0.0f, };
             Objects::SizeF gridSize;
@@ -188,7 +188,7 @@ namespace Gurigi
                 );
         }
 
-        virtual ControlWeakPtr<> findByPoint(const Objects::PointF &pt)
+        virtual ControlWeakPtr<> findByPoint(const Objects::PointF &pt) override
         {
             for(size_t i = 0; i < Rows; ++ i)
             {
@@ -498,7 +498,7 @@ namespace Gurigi
         }
 
     protected:
-        virtual void onResizeInternal(const Objects::RectangleF &rect)
+        virtual void onResizeInternal(const Objects::RectangleF &rect) override
         {
             calculateSizes(rect);
 
@@ -535,18 +535,18 @@ namespace Gurigi
         static ControlPtr<PaddingLayout> create(float, float, float, float); // l, t, r, b
 
     public:
-        virtual void createDrawingResources(Drawing::Context &);
-        virtual void discardDrawingResources(Drawing::Context &);
-        virtual void draw(Drawing::Context &);
-        virtual Objects::SizeF computeSize();
-        virtual ControlWeakPtr<> findByPoint(const Objects::PointF &);
+        virtual void createDrawingResources(Drawing::Context &) override;
+        virtual void discardDrawingResources(Drawing::Context &) override;
+        virtual void draw(Drawing::Context &) override;
+        virtual Objects::SizeF computeSize() override;
+        virtual ControlWeakPtr<> findByPoint(const Objects::PointF &) override;
         virtual std::vector<ControlWeakPtr<>> findTreeByPoint(const Objects::PointF &);
         virtual std::vector<ControlWeakPtr<>> findReverseTreeByPoint(const Objects::PointF &);
         virtual void walk(const std::function<void (const ControlWeakPtr<> &)> &);
         virtual void walkReverse(const std::function<void (const ControlWeakPtr<> &)> &);
 
     public:
-        virtual void onResizeInternal(const Objects::RectangleF &);
+        virtual void onResizeInternal(const Objects::RectangleF &) override;
 
     public:
         virtual std::tuple<float, float, float, float> padding() const;

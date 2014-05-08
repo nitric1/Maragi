@@ -5,7 +5,7 @@
 
 namespace Gurigi
 {
-    class ShortcutKey : public Batang::Singleton<ShortcutKey>
+    class ShortcutKey final : public Batang::Singleton<ShortcutKey>
     {
     public:
         enum class Modifier : uint8_t

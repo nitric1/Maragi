@@ -2,7 +2,7 @@
 
 namespace Maragi
 {
-    class Url
+    class Url final
     {
     private:
         std::string baseUrl_;

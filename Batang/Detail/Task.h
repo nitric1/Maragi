@@ -4,7 +4,7 @@ namespace Batang
 {
     namespace Detail
     {
-        struct Task
+        struct Task final
         {
             typedef std::tuple<std::mutex, std::condition_variable, bool> InvokeLockTuple;
 
@@ -12,7 +12,7 @@ namespace Batang
             std::shared_ptr<InvokeLockTuple> invokeWaiter_;
         };
 
-        class TaskPool
+        class TaskPool final
         {
         private:
             std::deque<Task> queue_;

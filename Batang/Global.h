@@ -5,7 +5,7 @@
 namespace Batang
 {
 #ifdef _WIN32
-    class Win32Environment : public Singleton<Win32Environment>
+    class Win32Environment final : public Singleton<Win32Environment>
     {
     private:
         HINSTANCE inst_; // Main instance
@@ -62,17 +62,17 @@ namespace Batang
             : name_(name), initFn_(initFn), uninitFn_(uninitFn)
         {}
 
-        virtual std::string getName() const
+        virtual std::string getName() const override
         {
             return name_;
         }
 
-        virtual void init()
+        virtual void init() override
         {
             initFn_();
         }
 
-        virtual void uninit()
+        virtual void uninit() override
         {
             uninitFn_();
         }
@@ -108,7 +108,7 @@ namespace Batang
         }
     };
 
-    class GlobalInitializerManager : public Batang::Singleton<GlobalInitializerManager>
+    class GlobalInitializerManager final : public Batang::Singleton<GlobalInitializerManager>
     {
     private:
         std::map<std::string, std::shared_ptr<Initializer>> inits_;
