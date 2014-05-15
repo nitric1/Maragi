@@ -25,6 +25,7 @@
 #include <curl/curl.h>
 #include <json/json.h>
 #include <openssl/sha.h>
+#include <twitcurl/twitcurl.h>
 
 // Windows API inclusion; <windows.h> should be first.
 
