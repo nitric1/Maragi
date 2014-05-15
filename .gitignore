@@ -13,3 +13,6 @@ Debug
 Release
 x64
 ipch
+
+!External/*/Debug
+!External/*/Release

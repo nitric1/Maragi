@@ -6,8 +6,8 @@
     <IncludePath>$(SolutionDir)External\include64;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup>
-    <LibraryPath>$(SolutionDir)External\bin64;$(LibraryPath)</LibraryPath>
-    <ReferencePath>$(SolutionDir)External\bin64;$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(SolutionDir)External\bin64;$(SolutionDir)External\bin64\$(Configuration);$(LibraryPath)</LibraryPath>
+    <ReferencePath>$(SolutionDir)External\bin64;$(SolutionDir)External\bin64\$(Configuration);$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup />
