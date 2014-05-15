@@ -34,9 +34,10 @@ namespace Maragi
 
     public:
         void authorize();
-        const std::string &screenName();
-        const std::string &accessToken();
-        const std::string &accessTokenSecret();
+        bool authorized() const;
+        const std::string &screenName() const;
+        const std::string &accessToken() const;
+        const std::string &accessTokenSecret() const;
 
     private:
         bool sendRequest(const Url &uri);

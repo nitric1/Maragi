@@ -23,9 +23,10 @@
 // External library inclusion
 
 #include <curl/curl.h>
-#include <json/json.h>
 #include <openssl/sha.h>
 #include <twitcurl/twitcurl.h>
+#define RAPIDJSON_SSE2
+#include <rapidjson/rapidjson.h>
 
 // Windows API inclusion; <windows.h> should be first.
 
