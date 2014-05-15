@@ -21,12 +21,15 @@
     <Filter Include="External Files\zlib">
       <UniqueIdentifier>{e27b415a-5778-4784-95e8-b136cbe25f25}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External Files\jsoncpp">
-      <UniqueIdentifier>{5f55805d-74a6-4380-b3ef-db5418769b91}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="External Files\twitcurl">
+      <UniqueIdentifier>{f576551d-2e93-49e8-9f3a-4efede3c9c3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External Files\rapidjson">
+      <UniqueIdentifier>{c994db2f-7a00-4f5d-a0a3-fe313f7e352f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -38,9 +41,6 @@
     </ClCompile>
     <ClCompile Include="Constants.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\External\src\json\jsoncpp.cpp">
-      <Filter>External Files\jsoncpp</Filter>
     </ClCompile>
     <ClCompile Include="Tokens.cpp">
       <Filter>Source Files</Filter>
@@ -314,12 +314,6 @@
     <ClInclude Include="..\External\include\zlib.h">
       <Filter>External Files\zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\External\include\json\json.h">
-      <Filter>External Files\jsoncpp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\External\include\json\json-forwards.h">
-      <Filter>External Files\jsoncpp</Filter>
-    </ClInclude>
     <ClInclude Include="Tokens.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -349,6 +343,42 @@
     </ClInclude>
     <ClInclude Include="..\External\include\openssl\srtp.h">
       <Filter>External Files\openssl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\twitcurl\oauthlib.h">
+      <Filter>External Files\twitcurl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\twitcurl\twitcurl.h">
+      <Filter>External Files\twitcurl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\rapidjson\document.h">
+      <Filter>External Files\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\rapidjson\filestream.h">
+      <Filter>External Files\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\rapidjson\prettywriter.h">
+      <Filter>External Files\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\rapidjson\rapidjson.h">
+      <Filter>External Files\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\rapidjson\reader.h">
+      <Filter>External Files\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\rapidjson\stringbuffer.h">
+      <Filter>External Files\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\rapidjson\writer.h">
+      <Filter>External Files\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\rapidjson\internal\pow10.h">
+      <Filter>External Files\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\rapidjson\internal\stack.h">
+      <Filter>External Files\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\External\include\rapidjson\internal\strfunc.h">
+      <Filter>External Files\rapidjson</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

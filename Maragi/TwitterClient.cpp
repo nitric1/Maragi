@@ -442,17 +442,22 @@ namespace Maragi
         });
     }
 
-    const std::string &TwitterClient::screenName()
+    bool TwitterClient::authorized() const
+    {
+        return !accessToken_.empty() && !accessTokenSecret_.empty();
+    }
+
+    const std::string &TwitterClient::screenName() const
     {
         return screenName_;
     }
 
-    const std::string &TwitterClient::accessToken()
+    const std::string &TwitterClient::accessToken() const
     {
         return accessToken_;
     }
 
-    const std::string &TwitterClient::accessTokenSecret()
+    const std::string &TwitterClient::accessTokenSecret() const
     {
         return accessTokenSecret_;
     }
