@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Batang/Event.h"
 #include "Batang/Thread.h"
 
 #include "Url.h"
@@ -9,7 +10,16 @@ namespace Maragi
 {
     class TwitterClient : public Batang::Thread<TwitterClient>
     {
+    public:
+        struct TwitterEventArg
+        {
+            std::wstring authorId_;
+            std::wstring authorName_;
+            std::wstring text_;
+        };
+
     private:
+        typedef Batang::Event<TwitterEventArg> TwitterEvent;
         struct CurlWriteCallbackData
         {
             TwitterClient *client;
@@ -25,11 +35,10 @@ namespace Maragi
     public:
         TwitterClient();
         TwitterClient(const std::string &, const std::string &, const std::string &);
-        TwitterClient(const TwitterClient &);
+        TwitterClient(const TwitterClient &) = delete;
         ~TwitterClient();
 
     private:
-        static bool initializeCurl();
         static size_t curlWriteCallback(void *, size_t, size_t, void *);
 
     public:
@@ -39,7 +48,15 @@ namespace Maragi
         const std::string &accessToken() const;
         const std::string &accessTokenSecret() const;
 
+    public:
+        TwitterEvent onStreamAdd;
+
+    private:
+        void run();
+
     private:
         bool sendRequest(const Url &uri);
+
+        friend class Batang::Thread<TwitterClient>;
     };
 }

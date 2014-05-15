@@ -51,8 +51,25 @@ namespace Maragi
     }
 
     TwitterClient::TwitterClient()
+        : TwitterClient({}, {}, {})
+    {}
+
+    TwitterClient::TwitterClient(const std::string &iscreenName, const std::string &iaccessToken, const std::string &iaccessTokenSecret)
+        : screenName_(iscreenName), accessToken_(iaccessToken), accessTokenSecret_(iaccessTokenSecret)
     {
-        initializeCurl();
+        struct CurlInitializer : Batang::Singleton<CurlInitializer>
+        {
+            CurlInitializer()
+            {
+                if(curl_global_init(CURL_GLOBAL_ALL) != 0)
+                {
+                    // TODO: error
+                }
+            }
+            ~CurlInitializer() { curl_global_cleanup(); }
+        };
+
+        CurlInitializer::instance();
 
         curl_ = curl_easy_init();
         if(curl_ == nullptr)
@@ -69,28 +86,9 @@ namespace Maragi
         curl_easy_setopt(curl_, CURLOPT_SSL_VERIFYHOST, 0l);
     }
 
-    TwitterClient::TwitterClient(const std::string &iscreenName, const std::string &iaccessToken, const std::string &iaccessTokenSecret)
-        : screenName_(iscreenName), accessToken_(iaccessToken), accessTokenSecret_(iaccessTokenSecret)
-    {
-    }
-
-    TwitterClient::TwitterClient(const TwitterClient &)
-    {
-    }
-
     TwitterClient::~TwitterClient()
     {
         curl_easy_cleanup(curl_);
-    }
-
-    bool TwitterClient::initializeCurl()
-    {
-        static bool initialized = false;
-
-        if(!initialized && curl_global_init(CURL_GLOBAL_ALL) == 0)
-            initialized = true;
-
-        return initialized;
     }
 
     size_t TwitterClient::curlWriteCallback(void *data, size_t size, size_t nmemb, void *param)
@@ -460,6 +458,11 @@ namespace Maragi
     const std::string &TwitterClient::accessTokenSecret() const
     {
         return accessTokenSecret_;
+    }
+
+    void TwitterClient::run()
+    {
+        // TODO: twitter stream
     }
 
     bool TwitterClient::sendRequest(const Url &uri)
