@@ -63,15 +63,16 @@ namespace Maragi
             frm->onTaskProcessable += delegate(this, &MainController::process);
 
             using Gurigi::GridSize;
-            Gurigi::ControlPtr<Gurigi::GridLayout<2, 2>> layout = Gurigi::GridLayout<2, 2>::create(
+            auto layout = Gurigi::GridLayout<2, 3>::create(
                 { GridSize(20.0f), GridSize(1) },
-                { GridSize(120.0f), GridSize(1) }
+                { GridSize(120.0f), GridSize(1), GridSize(10.0f) }
                 );
             frm->client()->slot()->attach(layout);
 
             Gurigi::ControlPtr<Gurigi::Label> label;
             Gurigi::ControlPtr<Gurigi::Button> button;
             Gurigi::ControlPtr<Gurigi::Edit> edit;
+            Gurigi::ControlPtr<Gurigi::Scrollbar> scrollbar;
 
             label = Gurigi::Label::create(L"Label Text", Gurigi::Objects::ColorF(Gurigi::Objects::ColorF::White));
             layout->slot(0, 0)->attach(label);
@@ -81,10 +82,11 @@ namespace Maragi
             {
                 if(edit->text().empty())
                 {
-                    edit->text(L"한글 시험 World Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ac lectus lacus. Integer ac nisi a augue fringilla porttitor. Suspendisse id lorem mauris. Nulla vestibulum, enim quis malesuada euismod, ipsum urna dictum ligula, sed placerat ipsum diam vitae ante. Cras condimentum blandit sollicitudin. Aenean vitae nibh nisl, ac iaculis odio. Nullam ut urna risus. Vivamus nec ipsum dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus nulla neque, tempor a pharetra a, bibendum vitae lacus. 한글 워드랩도 테스트하고 싶습니다. 한글 워드랩은 어떻게 생겨먹었습니까?");
-                    // edit->selection(0, 587, true);
-                    //edit->text(L"الديباجة한글 한글 English");
-                    //edit->selection(2, 13, true);
+                    edit->text(
+                        L"ABC가나다라あいうえおالديباجة桜咲言語谢谢 "
+                        L"World Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ac lectus lacus. Integer ac nisi a augue fringilla porttitor. Suspendisse id lorem mauris. Nulla vestibulum, enim quis malesuada euismod, ipsum urna dictum ligula, sed placerat ipsum diam vitae ante. Cras condimentum blandit sollicitudin. Aenean vitae nibh nisl, ac iaculis odio. Nullam ut urna risus. Vivamus nec ipsum dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus nulla neque, tempor a pharetra a, bibendum vitae lacus. "
+                        L"인류 가족 모든 구성원의 고유한 존엄성과 평등하고 양도할 수 없는 권리를 인정하는 것이 세계의 자유, 정의, 평화의 기초가 됨을 인정하며, 인권에 대한 무시와 경멸은 인류의 양심을 짓밟는 야만적 행위를 결과하였으며, 인류가 언론의 자유, 신념의 자유, 공포와 궁핍으로부터의 자유를 향유하는 세계의 도래가 일반인의 지고한 열망으로 천명되었으며, 사람들이 폭정과 억압에 대항하는 마지막 수단으로서 반란에 호소하도록 강요받지 않으려면, 인권이 법에 의한 지배에 의하여 보호되어야 함이 필수적이며, 국가간의 친선관계의 발전을 촉진시키는 것이 긴요하며,");
+                    edit->selection(4, 15, false);
                 }
                 else
                     edit->text(L"");
@@ -93,6 +95,11 @@ namespace Maragi
 
             edit = Gurigi::Edit::create(L"Placeholder Now");
             layout->slot(1, 1)->attach(edit);
+
+            scrollbar = Gurigi::Scrollbar::create(Gurigi::Scrollbar::Orientation::Vertical,
+                0.0, 100.0, 10.0);
+            scrollbar->current(30.0);
+            layout->slot(1, 2)->attach(scrollbar);
 
             /*std::thread t([this]()
             {
@@ -105,7 +112,7 @@ namespace Maragi
             t.detach();*/
 
             Batang::Timer::instance().installRunOnceTimer(shared_from_this(),
-                std::chrono::steady_clock::now() + std::chrono::seconds(1),
+                std::chrono::steady_clock::now(),
                 [&button]()
                 {
                     button->onClick(Gurigi::ControlEventArg());

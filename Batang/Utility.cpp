@@ -75,6 +75,16 @@ namespace Batang
         return boost::locale::conv::utf_to_utf<wchar_t>(str);
     }
 
+    std::u32string encodeUtf32(const std::wstring &str)
+    {
+        return boost::locale::conv::utf_to_utf<char32_t>(str);
+    }
+
+    std::wstring decodeUtf32(const std::u32string &str)
+    {
+        return boost::locale::conv::utf_to_utf<wchar_t>(str);
+    }
+
     std::string base64Encode(const std::vector<uint8_t> &data)
     {
         static const char hashChar[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";

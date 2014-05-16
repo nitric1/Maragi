@@ -5,12 +5,19 @@
 // All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ library & boost library inclusion
 
+#include <numeric>
+#include <set>
+
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
 #pragma warning(push)
 #pragma warning(disable: 4819) // The file contains a character that cannot be represented in the current code page
 #include <boost/format.hpp>
 #pragma warning(pop)
+
+#include <boost/range/algorithm/copy.hpp>
+#include <boost/range/any_range.hpp>
+#include <boost/range/sub_range.hpp>
 
 // External library inclusion
 

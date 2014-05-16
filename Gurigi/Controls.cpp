@@ -6,7 +6,7 @@
 
 namespace Gurigi
 {
-    Label::Label(const ControlID &id)
+    Label::Label(const ControlId &id)
         : Control(id)
         , color_(Objects::ColorF::Black)
     {
@@ -33,7 +33,7 @@ namespace Gurigi
         uint32_t align
         )
     {
-        ControlPtr<Label> lbl(new Label(ControlManager::instance().getNextID()));
+        ControlPtr<Label> lbl(new Label(ControlManager::instance().getNextId()));
         lbl->text_ = text;
         lbl->color_ = color;
         lbl->align(align);
@@ -149,7 +149,7 @@ namespace Gurigi
         return false;
     }
 
-    Button::Button(const ControlID &id)
+    Button::Button(const ControlId &id)
         : Control(id)
         , clicked_(false)
         , hovered_(false)
@@ -180,7 +180,7 @@ namespace Gurigi
         const std::wstring &text
         )
     {
-        ControlPtr<Button> btn(new Button(ControlManager::instance().getNextID()));
+        ControlPtr<Button> btn(new Button(ControlManager::instance().getNextId()));
         btn->text_ = text;
         return btn;
     }
@@ -420,156 +420,18 @@ namespace Gurigi
         return S_OK;
     }
 
-    namespace
-    {
-        class TextAnalyzer : public ComBase<ComBaseList<IDWriteTextAnalysisSource, ComBaseList<IDWriteTextAnalysisSink, ComBaseList<IUnknown>>>>
-        {
-        public:
-            struct Run
-            {
-                size_t textStart;
-                size_t textLength;
-                size_t glyphStart;
-                size_t glyphCount;
-                DWRITE_SCRIPT_ANALYSIS scriptAnalysis;
-                uint8_t bidiLevel; // TODO: type
-                bool isNumberSubstituted;
-                bool isSideways;
-            };
-
-        public:
-            TextAnalyzer(const std::wstring &text, IDWriteNumberSubstitution *numberSubstitution, DWRITE_READING_DIRECTION readingDirection)
-                : text_(text)
-                , numberSubstitution_(numberSubstitution)
-                , readingDirection_(readingDirection)
-            {}
-
-        public:
-            void analyze(IDWriteTextAnalyzer *analyzer);
-
-        public:
-            const std::vector<Run> &runs() const
-            {
-                return runs_;
-            }
-            const std::vector<DWRITE_LINE_BREAKPOINT> &breakpoints() const
-            {
-                return breakpoints_;
-            }
-
-        public:
-            virtual HRESULT __stdcall GetTextAtPosition(uint32_t, const wchar_t **, uint32_t *);
-            virtual HRESULT __stdcall GetTextBeforePosition(uint32_t, const wchar_t **, uint32_t *);
-
-        private:
-            std::wstring text_;
-            IDWriteNumberSubstitution *numberSubstitution_;
-            DWRITE_READING_DIRECTION readingDirection_;
-            std::vector<Run> runs_;
-            std::vector<DWRITE_LINE_BREAKPOINT> breakpoints_;
-        };
-
-        void TextAnalyzer::analyze(IDWriteTextAnalyzer *analyzer)
-        {
-            runs_.resize(1);
-        }
-
-        HRESULT __stdcall TextAnalyzer::GetTextAtPosition(uint32_t pos, const wchar_t **str, uint32_t *len)
-        {
-            if(pos >= text_.size())
-            {
-                *str = nullptr;
-                *len = 0;
-            }
-            else
-            {
-                *str = &text_[pos];
-                *len = static_cast<uint32_t>(text_.size() - pos);
-            }
-            return S_OK;
-        }
-
-        HRESULT __stdcall TextAnalyzer::GetTextBeforePosition(uint32_t pos, const wchar_t **str, uint32_t *len)
-        {
-            if(pos == 0 || pos > text_.size())
-            {
-                *str = nullptr;
-                *len = 0;
-            }
-            else
-            {
-                *str = text_.c_str();
-                *len = pos;
-            }
-            return S_OK;
-        }
-    }
-
-    EditLayout::EditLayout()
-    {}
-
-    EditLayout::~EditLayout()
-    {}
-
-    void EditLayout::draw(void *clientDrawingContext, IDWriteTextRenderer *renderer, const Objects::PointF &origin)
-    {
-    }
-
-    const std::wstring &EditLayout::text() const
-    {
-        return text_;
-    }
-
-    void EditLayout::text(const std::wstring &itext)
-    {
-        text_ = itext;
-        // TODO: reanalyze
-    }
-
-    const std::vector<ComPtr<IDWriteTextFormat>> &EditLayout::textFormats() const
-    {
-        return textFormats_;
-    }
-
-    void EditLayout::textFormats(const std::vector<ComPtr<IDWriteTextFormat>> &itextFormats)
-    {
-        textFormats_ = itextFormats;
-        // TODO: reanalyze
-    }
-
-    void EditLayout::textFormats(std::vector<ComPtr<IDWriteTextFormat>> &&itextFormats)
-    {
-        textFormats_ = std::move(itextFormats);
-        // TODO: reanalyze
-    }
-
-    DWRITE_READING_DIRECTION EditLayout::readingDirection() const
-    {
-        return readingDirection_;
-    }
-
-    void EditLayout::readingDirection(DWRITE_READING_DIRECTION readingDirection)
-    {
-        readingDirection_ = readingDirection;
-    }
-
-
-    void EditLayout::analyze()
-    {
-    }
-
-    Edit::Edit(const ControlID &id)
+    Edit::Edit(const ControlId &id)
         : Control(id)
         , colorText_(Objects::ColorF::Black)
         , colorPlaceholder_(Objects::ColorF::DarkGray)
-        , colorBackground_(Objects::ColorF::Black)
-        , renderer(new (std::nothrow) EditRenderer())
-        , focused(false)
-        , dragging(false)
-        , trailing(false)
+        , colorBackground_(Objects::ColorF::White)
+        // , renderer(new (std::nothrow) EditRenderer())
+        , focused_(false)
+        , dragging_(false)
+        , trailing_(false)
+        , firstSurrogatePair_(L'\0')
     {
-        formatText = Drawing::FontFactory::instance().createFont(16.0f); // TODO: font size customization?
-        formatPlaceholder = Drawing::FontFactory::instance().createFont(
+        formatPlaceholder_ = Drawing::FontFactory::instance().createFont(
             16.0f,
             DWRITE_FONT_WEIGHT_BOLD
             );
@@ -583,16 +445,97 @@ namespace Gurigi
             renderParamsTemp->GetClearTypeLevel(),
             renderParamsTemp->GetPixelGeometry(),
             DWRITE_RENDERING_MODE_CLEARTYPE_GDI_CLASSIC,
-            &renderParams
+            &renderParams_
             );
 
         onMouseMove += Batang::delegate(this, &Edit::onMouseMoveImpl);
         onMouseButtonDown += Batang::delegate(this, &Edit::onMouseButtonDownImpl);
         onMouseButtonUp += Batang::delegate(this, &Edit::onMouseButtonUpImpl);
+        onKeyDown += Batang::delegate(this, &Edit::onKeyDownImpl);
+        onChar += Batang::delegate(this, &Edit::onCharImpl);
         onFocus += Batang::delegate(this, &Edit::onFocusImpl);
         onBlur += Batang::delegate(this, &Edit::onBlurImpl);
 
-        selectionEffect = ComPtr<EditDrawingEffect>(new EditDrawingEffect(GetSysColor(COLOR_HIGHLIGHTTEXT)));
+        selectionEffect_ = ComPtr<EditDrawingEffect>(new EditDrawingEffect(GetSysColor(COLOR_HIGHLIGHTTEXT)));
+
+        // TODO: temp
+        editLayout_.fontEmSize(16.0f);
+        editLayout_.size(Gurigi::Objects::SizeF(100.0f, 100.0f));
+        editLayout_.defaultReadingDirection(DWRITE_READING_DIRECTION_LEFT_TO_RIGHT);
+
+        std::vector<Gurigi::ComPtr<IDWriteTextFormat>> textFormats;
+
+        {
+            textFormats.emplace_back();
+            Gurigi::ComPtr<IDWriteTextFormat> &textFormat = textFormats.back();
+            dwfac->CreateTextFormat(
+                L"Segoe UI",
+                nullptr,
+                DWRITE_FONT_WEIGHT_REGULAR,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                16.0f,
+                L"",
+                &textFormat);
+        }
+
+        {
+            textFormats.emplace_back();
+            Gurigi::ComPtr<IDWriteTextFormat> &textFormat = textFormats.back();
+            dwfac->CreateTextFormat(
+                L"Meiryo",
+                nullptr,
+                DWRITE_FONT_WEIGHT_REGULAR,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                16.0f,
+                L"",
+                &textFormat);
+        }
+
+        {
+            textFormats.emplace_back();
+            Gurigi::ComPtr<IDWriteTextFormat> &textFormat = textFormats.back();
+            dwfac->CreateTextFormat(
+                L"Microsoft JhengHei",
+                nullptr,
+                DWRITE_FONT_WEIGHT_REGULAR,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                16.0f,
+                L"",
+                &textFormat);
+        }
+
+        {
+            textFormats.emplace_back();
+            Gurigi::ComPtr<IDWriteTextFormat> &textFormat = textFormats.back();
+            dwfac->CreateTextFormat(
+                L"Microsoft YaHei",
+                nullptr,
+                DWRITE_FONT_WEIGHT_REGULAR,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                16.0f,
+                L"",
+                &textFormat);
+        }
+
+        {
+            textFormats.emplace_back();
+            Gurigi::ComPtr<IDWriteTextFormat> &textFormat = textFormats.back();
+            dwfac->CreateTextFormat(
+                L"Malgun Gothic",
+                nullptr,
+                DWRITE_FONT_WEIGHT_REGULAR,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                16.0f,
+                L"",
+                &textFormat);
+        }
+
+        editLayout_.textFormats(std::move(textFormats));
     }
 
     Edit::~Edit()
@@ -604,11 +547,11 @@ namespace Gurigi
         const Objects::ColorF &colorPlaceholder,
         const Objects::ColorF &colorBackground,
         const std::wstring &text,
-        uint32_t selStart,
-        uint32_t selEnd
+        size_t selStart,
+        size_t selEnd
         )
     {
-        ControlPtr<Edit> edit(new Edit(ControlManager::instance().getNextID()));
+        ControlPtr<Edit> edit(new Edit(ControlManager::instance().getNextId()));
         edit->placeholder_ = placeholder;
         edit->colorText_ = colorText;
         edit->colorPlaceholder_ = colorPlaceholder;
@@ -621,81 +564,85 @@ namespace Gurigi
 
     void Edit::createDrawingResources(Drawing::Context &ctx)
     {
-        ctx->CreateSolidColorBrush(Objects::ColorF(GetSysColor(COLOR_HIGHLIGHT)), &brushSelection);
+        ctx->CreateSolidColorBrush(Objects::ColorF(GetSysColor(COLOR_HIGHLIGHT)), &brushSelection_);
     }
 
     void Edit::discardDrawingResources(Drawing::Context &ctx)
     {
-        brushText.release();
-        brushPlaceholder.release();
-        brushBackground.release();
-        brushSelection.release();
+        brushText_.release();
+        brushPlaceholder_.release();
+        brushBackground_.release();
+        brushSelection_.release();
     }
 
     void Edit::draw(Drawing::Context &ctx)
     {
         HRESULT hr;
-        if(!brushText)
+        if(!brushText_)
         {
-            hr = ctx->CreateSolidColorBrush(colorText_, &brushText);
+            hr = ctx->CreateSolidColorBrush(colorText_, &brushText_);
             if(FAILED(hr))
                 throw(UIException("CreateSolidColorBrush failed in Edit::draw."));
         }
-        if(!brushPlaceholder)
+        if(!brushPlaceholder_)
         {
-            hr = ctx->CreateSolidColorBrush(colorPlaceholder_, &brushPlaceholder);
+            hr = ctx->CreateSolidColorBrush(colorPlaceholder_, &brushPlaceholder_);
             if(FAILED(hr))
                 throw(UIException("CreateSolidColorBrush failed in Edit::draw."));
         }
-        if(!brushBackground)
+        if(!brushBackground_)
         {
-            hr = ctx->CreateSolidColorBrush(colorBackground_, &brushBackground);
+            hr = ctx->CreateSolidColorBrush(colorBackground_, &brushBackground_);
             if(FAILED(hr))
                 throw(UIException("CreateSolidColorBrush failed in Edit::draw."));
         }
 
         ComPtr<IDWriteRenderingParams> oldRenderParams;
         ctx->GetTextRenderingParams(&oldRenderParams);
-        ctx->SetTextRenderingParams(renderParams);
+        ctx->SetTextRenderingParams(renderParams_);
 
         D2D1_MATRIX_3X2_F oldTransform;
         ctx->GetTransform(&oldTransform);
-        ctx->SetTransform(clientTransform);
+        ctx->SetTransform(clientTransform_);
         Objects::RectangleF newRect(Objects::PointF(0.0f, 0.0f), rect().size());
         ctx->FillRectangle(
             newRect,
-            brushBackground
+            brushBackground_
             );
 
         // TODO: scroll clip layer or geometry
 
         // TODO: border
 
-        ctx->SetTransform(clientTransform * paddingTransform * scrollTransform);
+        ctx->SetTransform(clientTransform_ * paddingTransform_ * scrollTransform_);
 
-        for(auto it = std::begin(selectionRects); it != std::end(selectionRects); ++ it)
-            ctx->FillRectangle(*it, brushSelection);
+        for(auto it = std::begin(selectionRects_); it != std::end(selectionRects_); ++ it)
+        {
+            ctx->FillRectangle(*it, brushSelection_);
+        }
 
         if(text_.empty())
         {
             ctx->DrawTextW(
                 placeholder_.c_str(),
                 static_cast<unsigned>(placeholder_.size()),
-                formatPlaceholder,
+                formatPlaceholder_,
                 newRect,
-                brushPlaceholder,
+                brushPlaceholder_,
                 D2D1_DRAW_TEXT_OPTIONS_NONE,
                 DWRITE_MEASURING_MODE_GDI_CLASSIC
                 );
         }
         else
         {
-            renderer->drawLayout(
+            /*renderer->drawLayout(
                 ctx,
                 EditDrawingEffect(colorText_),
                 layout,
                 newRect
-                );
+                );*/
+            editLayoutSink_.brush(brushText_);
+            editLayoutSink_.draw(ctx, Objects::PointF(1.0f, 1.0f));
         }
 
         ctx->SetTransform(oldTransform);
@@ -710,21 +657,28 @@ namespace Gurigi
 
     void Edit::onResizeInternal(const Objects::RectangleF &rect)
     {
-        clientTransform = D2D1::Matrix3x2F::Translation(rect.left, rect.top);
-        paddingTransform = D2D1::Matrix3x2F::Translation(1.0f, 1.0f); // TODO: padding implementation by design
-        scrollTransform = D2D1::Matrix3x2F::Identity(); // TODO: scroll
+        clientTransform_ = D2D1::Matrix3x2F::Translation(rect.left, rect.top);
+        paddingTransform_ = D2D1::Matrix3x2F::Translation(1.0f, 1.0f); // TODO: padding implementation by design
+        scrollTransform_ = D2D1::Matrix3x2F::Identity(); // TODO: scroll
 
-        if(layout)
-        {
-            layout->SetMaxWidth(rect.width());
-            layout->SetMaxHeight(rect.height());
-        }
+        Objects::SizeF size = rect.size();
+
+        editLayout_.size(Objects::SizeF(size.width - 2.0f, size.height - 2.0f));
+        editLayout_.flow(editLayoutSource_, editLayoutSink_);
+
         updateSelection();
         updateCaret();
     }
 
     void Edit::textRefresh()
     {
+        editLayout_.text(text_);
+        editLayout_.analyze();
+        if(editLayout_.size().width > 0.0f)
+        {
+            editLayout_.flow(editLayoutSource_, editLayoutSink_);
+        }
+        /*
         layout.release();
 
         Objects::SizeF size = rect().size();
@@ -742,7 +696,7 @@ namespace Gurigi
         if(FAILED(hr))
             throw(UIException("CreateTextLayout failed in Edit::textRefresh"));
 
-        layout->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);
+        layout->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);*/
 
         updateSelection();
         updateCaret();
@@ -751,36 +705,33 @@ namespace Gurigi
     bool Edit::updateCaret()
     {
         ShellPtr<> lshell = shell().lock();
-        if(layout && lshell)
+        if(lshell)
         {
-            D2D1::Matrix3x2F transform = clientTransform * paddingTransform * scrollTransform;
+            D2D1::Matrix3x2F transform = clientTransform_ * paddingTransform_ * scrollTransform_;
 
-            DWRITE_HIT_TEST_METRICS htm;
-            float x, y;
-            layout->HitTestTextPosition(
-                selEnd_,
-                !!trailing,
-                &x,
-                &y,
-                &htm
-                );
+            Objects::PointF offset;
+            ComPtr<IDWriteFontFace> fontFace;
+            float fontEmSize;
+            if(!editLayoutSink_.getTextPosInfo(selEnd_, trailing_, offset, fontFace, fontEmSize))
+            {
+                return false;
+            }
 
             uint32_t caretWidth = 2;
             SystemParametersInfoW(SPI_GETCARETWIDTH, 0, &caretWidth, FALSE);
 
             Objects::RectangleF caretRect(
-                Objects::PointF(x - static_cast<float>(caretWidth) / 2.0f, static_cast<float>(y)),
-                Objects::SizeF(static_cast<float>(caretWidth), htm.height)
-                );
+                Objects::PointF(offset.x - caretWidth / 2.0f, offset.y - editLayoutSink_.ascent()),
+                Objects::SizeF(static_cast<float>(caretWidth), editLayoutSink_.textHeight()));
 
-            D2D1_POINT_2F caretPos = transform.TransformPoint(caretRect.leftTop());
+            D2D1_POINT_2F caretPosF = transform.TransformPoint(caretRect.leftTop());
+            Objects::PointI caretPosI = Objects::convertPoint(Objects::PointF(caretPosF.x, caretPosF.y));
+            Objects::SizeI caretSize = Objects::convertSize(caretRect.size());
 
-            // TODO: consider dpi
+            CreateCaret(lshell->hwnd(), nullptr, caretWidth, caretSize.height);
+            SetCaretPos(caretPosI.x, caretPosI.y);
 
-            CreateCaret(lshell->hwnd(), nullptr, static_cast<int>(Batang::round(caretRect.width())), static_cast<int>(Batang::round(caretRect.height())));
-            SetCaretPos(static_cast<int>(Batang::round(caretPos.x)), static_cast<int>(Batang::round(caretPos.y)));
-
-            if(focused)
+            if(focused_)
                 ShowCaret(lshell->hwnd());
 
             return true;
@@ -789,100 +740,73 @@ namespace Gurigi
         return false;
     }
 
-    void Edit::updateSelection()
+    bool Edit::updateSelection()
     {
-        selectionRects.clear();
+        bool ret = false;
+
+        if(selStart_ == selEnd_ && !selectionRects_.empty())
+        {
+            ret = true;
+        }
+
+        selectionRects_.clear();
         if(selStart_ != selEnd_)
         {
-            uint32_t min = std::min(selStart_, selEnd_), max = std::max(selStart_, selEnd_);
-            uint32_t hitTestCount;
+            selectionRects_ = editLayoutSink_.getTextSelectionRects(selStart_, selEnd_);
 
-            layout->HitTestTextRange(
-                min,
-                max - min,
-                0.0f,
-                0.0f,
-                nullptr,
-                0,
-                &hitTestCount
-                );
+            /*DWRITE_TEXT_RANGE range = { min, max - min };
+            layout->SetDrawingEffect(selectionEffect, range);*/
 
-            if(hitTestCount > 0)
-            {
-                std::vector<DWRITE_HIT_TEST_METRICS> hitTestMetrics(hitTestCount);
-                layout->HitTestTextRange(
-                    min,
-                    max - min,
-                    0.0f,
-                    0.0f,
-                    hitTestMetrics.data(),
-                    static_cast<uint32_t>(hitTestMetrics.size()),
-                    &hitTestCount
-                    );
-
-                if(hitTestCount > 0)
-                {
-                    for(size_t i = 0; i < hitTestCount; ++ i)
-                    {
-                        const auto &htm = hitTestMetrics[i];
-                        selectionRects.push_back(Objects::RectangleF(
-                            Objects::PointF(htm.left, htm.top),
-                            Objects::SizeF(htm.width, htm.height)
-                            ));
-                    }
-                }
-            }
-
-            DWRITE_TEXT_RANGE range = { min, max - min };
-            layout->SetDrawingEffect(selectionEffect, range);
+            ret = true;
         }
+
+        return ret;
     }
 
     void Edit::selectByPoint(const Objects::PointF &pt, bool dragging)
     {
-        if(layout)
-        {
-            D2D1::Matrix3x2F inverseTransform = paddingTransform * scrollTransform;
-            inverseTransform.Invert();
+        D2D1::Matrix3x2F inverseTransform = paddingTransform_ * scrollTransform_;
+        inverseTransform.Invert();
 
-            D2D1_POINT_2F pos = inverseTransform.TransformPoint(pt);
+        D2D1_POINT_2F offset = inverseTransform.TransformPoint(pt);
 
-            BOOL trailing, inside;
-            DWRITE_HIT_TEST_METRICS htm;
+        bool trailing;
+        size_t pos;
 
-            layout->HitTestPoint(
-                pos.x,
-                pos.y,
-                &trailing,
-                &inside,
-                &htm
-                );
+        if(!editLayoutSink_.hitTestTextPos(Objects::PointF(offset.x, offset.y), pos, trailing))
+            return;
 
-            select(
-                trailing ? SelectMode::AbsoluteTrailing : SelectMode::AbsoluteLeading,
-                htm.textPosition,
-                dragging
-                );
-        }
+        select(pos, trailing, dragging);
     }
 
-    void Edit::select(SelectMode mode, uint32_t pos, bool dragging)
+    void Edit::select(size_t pos, bool trailing, bool dragging)
     {
+        if(selection().second == pos && trailing_ == trailing)
+            return;
+
+        if(dragging)
+        {
+            selection(selection().first, pos, trailing);
+        }
+        else
+        {
+            selection(pos, trailing);
+        }
     }
 
     void Edit::onMouseMoveImpl(const ControlEventArg &arg)
     {
-        if(!dragging)
+        if(!dragging_)
         {
-            D2D1::Matrix3x2F inverseTransform = paddingTransform * scrollTransform;
+            D2D1::Matrix3x2F inverseTransform = paddingTransform_ * scrollTransform_;
             inverseTransform.Invert();
 
             D2D1_POINT_2F posTemp = inverseTransform.TransformPoint(arg.controlPoint);
             Objects::PointF pos(posTemp.x, posTemp.y);
 
-            for(auto it = std::begin(selectionRects); it != std::end(selectionRects); ++ it)
+            for(auto &rect: selectionRects_)
             {
-                if(it->isIn(pos))
+                if(rect.isIn(pos))
                 {
                     cursor(Resources::Cursor::Predefined::arrow());
                     return;
@@ -900,7 +824,7 @@ namespace Gurigi
         if(arg.buttonNum == 1)
         {
             selectByPoint(arg.controlPoint, false);
-            dragging = true;
+            dragging_ = true;
         }
     }
 
@@ -908,25 +832,158 @@ namespace Gurigi
     {
         if(arg.buttonNum == 1)
         {
-            dragging = false;
+            dragging_ = false;
         }
+    }
+
+    void Edit::onKeyDownImpl(const ControlEventArg &e)
+    {
+        if(e.keyCode == VK_LEFT)
+        {
+            auto sel = selection();
+            if(sel.second == 0) return;
+            if(e.shiftKey)
+            {
+                selection(sel.first, sel.second - 1, false);
+            }
+            else
+            {
+                selection(sel.second - 1, false);
+            }
+        }
+        else if(e.keyCode == VK_RIGHT)
+        {
+            auto sel = selection();
+            if(e.shiftKey)
+            {
+                selection(sel.first, sel.second + 1, true);
+            }
+            else
+            {
+                selection(sel.second + 1, true);
+            }
+        }
+        else if(e.keyCode == VK_DELETE)
+        {
+            // TODO: split function
+            auto sel = selection();
+            if(sel.first != sel.second)
+            {
+                if(sel.first > sel.second)
+                {
+                    std::swap(sel.first, sel.second);
+                }
+                text_.erase(text_.begin() + sel.first, text_.begin() + sel.second);
+            }
+            else if(sel.first > 0 && sel.first < text_.size())
+            {
+                // TODO: consider surrogate pair
+                text_.erase(text_.begin() + sel.first, text_.begin() + sel.first + 1);
+            }
+            else
+            {
+                return;
+            }
+
+            textRefresh();
+            selection(sel.first, false);
+            redraw();
+            return;
+        }
+    }
+
+    void Edit::onCharImpl(const ControlEventArg &e)
+    {
+        // TODO: split function
+
+        e.stopPropagation();
+
+        char32_t charCode = e.charCode;
+
+        if(charCode == VK_BACK)
+        {
+            // TODO: split function
+            auto sel = selection();
+            size_t selAfter = 0;
+            if(sel.first != sel.second)
+            {
+                if(sel.first > sel.second)
+                {
+                    std::swap(sel.first, sel.second);
+                }
+                text_.erase(text_.begin() + sel.first, text_.begin() + sel.second);
+                selAfter = sel.first;
+            }
+            else if(sel.first > 0)
+            {
+                // TODO: consider surrogate pair
+                text_.erase(text_.begin() + sel.first - 1, text_.begin() + sel.first);
+                selAfter = sel.first - 1;
+            }
+            else
+            {
+                return;
+            }
+
+            textRefresh();
+            selection(selAfter, false);
+            redraw();
+            return;
+        }
+
+        if(0xD800 <= charCode && charCode <= 0xDFFF) // surrogate pair
+        {
+            if(firstSurrogatePair_)
+            {
+                if(charCode <= 0xDBFF) // high-surrogate, which must not be here
+                {
+                    return;
+                }
+
+                charCode = (static_cast<char32_t>(firstSurrogatePair_ & 0x03FF) << 10);
+                charCode += 0x00010000;
+                charCode |= (e.charCode & 0x03FF);
+            }
+            else
+            {
+                if(0xDC00 <= charCode) // low-surrogate, which must not be here
+                {
+                    return;
+                }
+
+                firstSurrogatePair_ = static_cast<wchar_t>(charCode);
+                return;
+            }
+        }
+
+        auto sel = selection();
+        if(sel.first > sel.second)
+        {
+            std::swap(sel.first, sel.second);
+        }
+
+        if(sel.first < sel.second)
+        {
+            text_.erase(text_.begin() + sel.first, text_.begin() + sel.second);
+        }
+
+        std::wstring toInsert = Batang::decodeUtf32(std::u32string(1, charCode));
+        text_.insert(text_.begin() + sel.first, toInsert.begin(), toInsert.end());
+
+        textRefresh();
+        selection(sel.first + toInsert.size(), true);
+        redraw();
     }
 
     void Edit::onFocusImpl(const ControlEventArg &)
     {
-        if(updateCaret())
-        {
-            ShellPtr<> lshell = shell().lock();
-            if(lshell)
-                ShowCaret(lshell->hwnd());
-        }
-
-        focused = true;
+        focused_ = true;
+        updateCaret();
     }
 
     void Edit::onBlurImpl(const ControlEventArg &)
     {
-        focused = false;
+        focused_ = false;
 
         DestroyCaret();
     }
@@ -940,7 +997,11 @@ namespace Gurigi
     {
         text_ = itext;
         // TODO: discard IME mode, ...
-        selection(0, false);
+        textRefresh();
+        if(selStart_ != 0 || selEnd_ != 0)
+            selection(0, false);
+        else
+            redraw();
     }
 
     const std::wstring &Edit::placeholder() const
@@ -948,34 +1009,191 @@ namespace Gurigi
         return placeholder_;
     }
 
-    void Edit::placeholder(const std::wstring &iplaceholder)
+    void Edit::placeholder(const std::wstring &placeholder)
     {
-        placeholder_ = iplaceholder;
+        placeholder_ = placeholder;
         if(text_.empty())
             redraw();
     }
 
-    std::pair<uint32_t, uint32_t> Edit::selection() const
+    std::pair<size_t, size_t> Edit::selection() const
     {
         return std::make_pair(selStart_, selEnd_);
     }
 
-    void Edit::selection(uint32_t selPos, bool itrailing)
+    void Edit::selection(size_t selPos, bool trailing)
     {
+        if(selPos > text_.size())
+            selPos = text_.size();
         selStart_ = selEnd_ = selPos;
-        trailing = itrailing;
+        trailing_ = trailing;
         // TODO: discard IME mode, ...
-        textRefresh();
-        redraw();
+        if(updateSelection())
+        {
+            redraw();
+        }
+        updateCaret();
     }
 
-    void Edit::selection(uint32_t iselStart, uint32_t iselEnd, bool itrailing)
+    void Edit::selection(size_t selStart, size_t selEnd, bool trailing)
     {
-        selStart_ = iselStart;
-        selEnd_ = iselEnd;
-        trailing = itrailing;
+        selStart_ = selStart;
+        if(selStart_ > text_.size())
+            selStart_ = text_.size();
+        selEnd_ = selEnd;
+        if(selEnd_ > text_.size())
+            selEnd_ = text_.size();
+        trailing_ = trailing;
         // TODO: discard IME mode, ...
-        textRefresh();
-        redraw();
+        if(updateSelection())
+        {
+            redraw();
+        }
+        updateCaret();
+    }
+
+    Scrollbar::Scrollbar(const ControlId &id)
+        : Control(id)
+        , orientation_(Orientation::Vertical)
+        , scrollMin_(0.0)
+        , scrollMax_(0.0)
+        , pageSize_(0.0)
+        , current_(0.0)
+        , colorThumb_(Objects::ColorF::Black)
+        , colorBackground_(Objects::ColorF::LightGray)
+    {
+    }
+
+    Scrollbar::~Scrollbar()
+    {}
+
+    ControlPtr<Scrollbar> Scrollbar::create(
+        Orientation orientation,
+        double scrollMin, double scrollMax, double pageSize,
+        const Objects::ColorF &colorThumb,
+        const Objects::ColorF &colorBackground
+        )
+    {
+        ControlPtr<Scrollbar> scrollbar(new Scrollbar(ControlManager::instance().getNextId()));
+        scrollbar->orientation_ = orientation;
+        scrollbar->scrollMin_ = scrollMin;
+        scrollbar->scrollMax_ = scrollMax;
+        scrollbar->pageSize_ = pageSize;
+        scrollbar->colorThumb_ = colorThumb;
+        scrollbar->colorBackground_ = colorBackground;
+        return scrollbar;
+    }
+
+    void Scrollbar::createDrawingResources(Drawing::Context &ctx)
+    {
+    }
+
+    void Scrollbar::discardDrawingResources(Drawing::Context &ctx)
+    {
+        brushThumb_.release();
+        brushBackground_.release();
+    }
+
+    void Scrollbar::draw(Drawing::Context &ctx)
+    {
+        HRESULT hr;
+        if(!brushThumb_)
+        {
+            hr = ctx->CreateSolidColorBrush(colorThumb_, &brushThumb_);
+            if(FAILED(hr))
+                throw(UIException("CreateSolidColorBrush failed in Edit::draw."));
+        }
+        if(!brushBackground_)
+        {
+            hr = ctx->CreateSolidColorBrush(colorBackground_, &brushBackground_);
+            if(FAILED(hr))
+                throw(UIException("CreateSolidColorBrush failed in Edit::draw."));
+        }
+
+        // TODO: hover
+
+        auto rc = rect();
+
+        ctx->FillRectangle(
+            rc,
+            brushBackground_
+            );
+
+        if(scrollMax_ > scrollMin_ && pageSize_ > 0.0)
+        {
+            // TODO: padding
+
+            if(orientation_ == Orientation::Vertical)
+            {
+                float height = rc.height();
+                float pos = static_cast<float>(height * current_ / (scrollMax_ - scrollMin_));
+                float length = static_cast<float>(height * pageSize_ / (scrollMax_ - scrollMin_));
+                // TODO: min length
+
+                ctx->FillRoundedRectangle(
+                    D2D1::RoundedRect(Objects::RectangleF(rc.left, rc.top + pos, rc.right, rc.top + pos + length), rc.width() / 2, rc.width() / 2),
+                    brushThumb_
+                    );
+            }
+            else
+            {
+                // TODO: rtl
+
+                float width = rc.width();
+                float pos = static_cast<float>(width * current_ / (scrollMax_ - scrollMin_));
+                float length = static_cast<float>(width * pageSize_ / (scrollMax_ - scrollMin_));
+                // TODO: min length
+
+                ctx->FillRoundedRectangle(
+                    D2D1::RoundedRect(Objects::RectangleF(rc.left + pos, rc.top, rc.right + pos + length, rc.top), rc.height() / 2, rc.height() / 2),
+                    brushThumb_
+                    );
+            }
+        }
+    }
+
+    Objects::SizeF Scrollbar::computeSize()
+    {
+        // TODO: implement
+        if(orientation_ == Orientation::Vertical)
+        {
+            return Objects::SizeF(16.0f, 64.0f);
+        }
+        else
+        {
+            return Objects::SizeF(64.0f, 16.0f);
+        }
+    }
+
+    std::pair<double, double> Scrollbar::range() const
+    {
+        return { scrollMin_, scrollMax_ };
+    }
+
+    void Scrollbar::range(double scrollMin, double scrollMax)
+    {
+        scrollMin_ = scrollMin;
+        scrollMax_ = scrollMax;
+    }
+
+    double Scrollbar::pageSize() const
+    {
+        return pageSize_;
+    }
+
+    void Scrollbar::pageSize(double pageSize)
+    {
+        pageSize_ = pageSize;
+    }
+
+    double Scrollbar::current() const
+    {
+        return current_;
+    }
+
+    void Scrollbar::current(double current)
+    {
+        current_ = current;
+        // TODO: adjust
     }
 }

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Window.h"
+#include "Detail/EditLayout.h"
 
 namespace Gurigi
 {
@@ -33,7 +34,7 @@ namespace Gurigi
         ComPtr<IDWriteRenderingParams> renderParams_;
 
     protected:
-        Label(const ControlID &);
+        Label(const ControlId &);
         virtual ~Label();
 
     public:
@@ -69,7 +70,7 @@ namespace Gurigi
         Objects::PointF pt_;
 
     protected:
-        Button(const ControlID &);
+        Button(const ControlId &);
         virtual ~Button();
 
     public:
@@ -95,6 +96,7 @@ namespace Gurigi
         virtual void text(const std::wstring &);
     };
 
+    // TODO: Move to Detail or some other namespace
     class DECLSPEC_UUID("809B62F5-ABC3-4FF2-B9F8-7CDC8F78D790") EditDrawingEffect
         : public ComBase<ComBaseListSelf<EditDrawingEffect, ComBaseList<IUnknown>>>
     {
@@ -135,46 +137,8 @@ namespace Gurigi
         virtual HRESULT __stdcall IsPixelSnappingDisabled(void *, BOOL *);
     };
 
-    class EditLayout
-    {
-    private:
-        std::wstring text_;
-        std::vector<ComPtr<IDWriteTextFormat>> textFormats_;
-        std::vector<ComPtr<IDWriteFont>> fonts;
-        std::vector<ComPtr<IDWriteFontFace>> fontFaces;
-        DWRITE_READING_DIRECTION readingDirection_;
-
-    public:
-        EditLayout();
-        ~EditLayout();
-
-    public:
-        void draw(void *, IDWriteTextRenderer *, const Objects::PointF &);
-
-    private:
-
-    public:
-        const std::wstring &text() const;
-        void text(const std::wstring &);
-        const std::vector<ComPtr<IDWriteTextFormat>> &textFormats() const;
-        void textFormats(const std::vector<ComPtr<IDWriteTextFormat>> &);
-        void textFormats(std::vector<ComPtr<IDWriteTextFormat>> &&);
-        DWRITE_READING_DIRECTION readingDirection() const;
-        void readingDirection(DWRITE_READING_DIRECTION);
-
-    private:
-        void analyze();
-    };
-
     class Edit : public Control
     {
-    private:
-        enum class SelectMode : uint8_t
-        {
-            AbsoluteLeading,
-            AbsoluteTrailing
-        };
-
     public:
         enum class ReadingDirection : uint8_t
         {
@@ -183,24 +147,28 @@ namespace Gurigi
 
     private:
         std::wstring text_, placeholder_;
-        uint32_t selStart_, selEnd_;
+        size_t selStart_, selEnd_;
         Objects::ColorF colorText_, colorPlaceholder_, colorBackground_;
         ReadingDirection readingDirection_;
 
-        ComPtr<ID2D1SolidColorBrush> brushText, brushPlaceholder, brushBackground, brushSelection;
-        ComPtr<IDWriteTextFormat> formatText, formatPlaceholder;
-        ComPtr<IDWriteTextLayout> layout;
-        ComPtr<EditRenderer> renderer;
-        ComPtr<EditDrawingEffect> selectionEffect;
-        ComPtr<IDWriteRenderingParams> renderParams;
+        Detail::EditLayout editLayout_;
+        Detail::EditLayoutSource editLayoutSource_;
+        Detail::EditLayoutSink editLayoutSink_;
 
-        std::vector<Objects::RectangleF> selectionRects;
+        ComPtr<ID2D1SolidColorBrush> brushText_, brushPlaceholder_, brushBackground_, brushSelection_;
+        ComPtr<IDWriteTextFormat> formatPlaceholder_;
+        ComPtr<EditRenderer> renderer_;
+        ComPtr<EditDrawingEffect> selectionEffect_;
+        ComPtr<IDWriteRenderingParams> renderParams_;
 
-        D2D1::Matrix3x2F clientTransform, paddingTransform, scrollTransform;
-        bool focused, dragging, trailing;
+        std::vector<Objects::RectangleF> selectionRects_;
+
+        D2D1::Matrix3x2F clientTransform_, paddingTransform_, scrollTransform_;
+        bool focused_, dragging_, trailing_;
+        wchar_t firstSurrogatePair_;
 
     protected:
-        Edit(const ControlID &);
+        Edit(const ControlId &);
         virtual ~Edit();
 
     public:
@@ -210,8 +178,8 @@ namespace Gurigi
             const Objects::ColorF & = Objects::ColorF(Objects::ColorF::DarkGray),
             const Objects::ColorF & = Objects::ColorF(Objects::ColorF::White),
             const std::wstring & = std::wstring(),
-            uint32_t = 0,
-            uint32_t = 0
+            size_t = 0,
+            size_t = 0
             );
 
     public:
@@ -226,14 +194,15 @@ namespace Gurigi
     private:
         void textRefresh();
         bool updateCaret();
-        void updateSelection();
+        bool updateSelection();
         void selectByPoint(const Objects::PointF &, bool);
-        void select(SelectMode, uint32_t, bool);
+        void select(size_t, bool, bool);
 
     private:
         void onMouseMoveImpl(const ControlEventArg &);
         void onMouseButtonDownImpl(const ControlEventArg &);
         void onMouseButtonUpImpl(const ControlEventArg &);
+        void onKeyDownImpl(const ControlEventArg &);
         void onCharImpl(const ControlEventArg &);
         void onImeEndCompositionImpl(const ControlEventArg &);
         void onImeCompositionImpl(const ControlEventArg &);
@@ -249,24 +218,51 @@ namespace Gurigi
         virtual void text(const std::wstring &);
         virtual const std::wstring &placeholder() const;
         virtual void placeholder(const std::wstring &);
-        virtual std::pair<uint32_t, uint32_t> selection() const;
-        virtual void selection(uint32_t, bool);
-        virtual void selection(uint32_t, uint32_t, bool);
+        virtual std::pair<size_t, size_t> selection() const;
+        virtual void selection(size_t, bool);
+        virtual void selection(size_t, size_t, bool);
     };
 
     class Scrollbar : public Control
     {
+    public:
+        enum class Orientation : uint8_t
+        {
+            Vertical, Horizontal
+        };
+
     private:
         double scrollMin_, scrollMax_, pageSize_; // [scrollMin, scrollMax - pageSize]
+        double current_;
+        Orientation orientation_;
+        Objects::ColorF colorThumb_, colorBackground_;
+
+        ComPtr<ID2D1SolidColorBrush> brushThumb_, brushBackground_;
 
     protected:
-        Scrollbar(const ControlID &);
+        Scrollbar(const ControlId &);
         virtual ~Scrollbar();
+
+    public:
+        static ControlPtr<Scrollbar> create(
+            Orientation,
+            double, double, double,
+            const Objects::ColorF & = Objects::ColorF(Objects::ColorF::Black),
+            const Objects::ColorF & = Objects::ColorF(Objects::ColorF::LightGray)
+            );
+
+    public:
+        virtual void createDrawingResources(Drawing::Context &);
+        virtual void discardDrawingResources(Drawing::Context &);
+        virtual void draw(Drawing::Context &);
+        virtual Objects::SizeF computeSize();
 
     public:
         virtual std::pair<double, double> range() const;
         virtual void range(double, double);
         virtual double pageSize() const;
         virtual void pageSize(double);
+        virtual double current() const;
+        virtual void current(double);
     };
 }
