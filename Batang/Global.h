@@ -58,8 +58,8 @@ namespace Batang
         std::function<void ()> initFn_, uninitFn_;
 
     public:
-        SimpleInitializer(const std::string &iname, const std::function<void ()> &iinitFn, const std::function<void ()> &iuninitFn)
-            : name_(iname), initFn_(iinitFn), uninitFn_(iuninitFn)
+        SimpleInitializer(const std::string &name, const std::function<void ()> &initFn, const std::function<void ()> &uninitFn)
+            : name_(name), initFn_(initFn), uninitFn_(uninitFn)
         {}
 
         virtual std::string getName() const override
@@ -75,6 +75,36 @@ namespace Batang
         virtual void uninit() override
         {
             uninitFn_();
+        }
+    };
+
+    class ScopedInitializer
+    {
+    private:
+        bool uninitialized_;
+        std::function<void()> uninitFn_;
+
+    public:
+        template<typename InitFn>
+        ScopedInitializer(InitFn &&initFn, const std::function<void()> &uninitFn)
+            : uninitFn_(uninitFn)
+            , uninitialized_(false)
+        {
+            initFn();
+        }
+
+        ~ScopedInitializer()
+        {
+            uninit();
+        }
+
+        void uninit()
+        {
+            if(!uninitialized_)
+            {
+                uninitFn_();
+                uninitialized_ = true;
+            }
         }
     };
 

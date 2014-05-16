@@ -93,7 +93,7 @@ namespace Gurigi
         bool ctrlKey;
         bool shiftKey;
         char keyCode; // Not in Char, ImeChar?
-        wchar_t charCode; // Char, ImeChar?
+        char32_t charCode; // Char, ImeChar?
         uint32_t repeated;
 
         ControlEventArg()
@@ -134,12 +134,12 @@ namespace Gurigi
     private:
         ShellWeakPtr<> shell_;
         Slot *parent_;
-        ControlID id_;
+        ControlId id_;
         Objects::RectangleF rect_;
         Resources::ResourcePtr<Resources::Cursor> cursor_;
 
     protected:
-        Control(const ControlID &);
+        Control(const ControlId &);
         virtual ~Control() = 0;
 
     private: // no implementation
@@ -178,6 +178,7 @@ namespace Gurigi
 
         ControlEvent onKeyDown;
         ControlEvent onKeyUp;
+        ControlEvent onChar;
 
         ControlEvent onFocus;
         ControlEvent onBlur;
@@ -185,7 +186,7 @@ namespace Gurigi
     public:
         virtual const ShellWeakPtr<> &shell() const;
         virtual Slot *parent() const;
-        virtual const ControlID &id() const;
+        virtual const ControlId &id() const;
         virtual const Objects::RectangleF &rect() const;
         virtual void rect(const Objects::RectangleF &);
         virtual bool hasFocus();

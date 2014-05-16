@@ -4,5 +4,4 @@
 
 namespace Gurigi
 {
-    const ControlID ControlID::Undefined(0);
 }

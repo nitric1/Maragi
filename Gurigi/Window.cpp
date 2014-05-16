@@ -76,7 +76,7 @@ namespace Gurigi
         return child_;
     }
 
-    Control::Control(const ControlID &iid)
+    Control::Control(const ControlId &iid)
         : parent_(nullptr)
         , id_(iid)
     {
@@ -175,7 +175,7 @@ namespace Gurigi
         return parent_;
     }
 
-    const ControlID &Control::id() const
+    const ControlId &Control::id() const
     {
         return id_;
     }

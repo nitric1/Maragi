@@ -9,7 +9,7 @@ namespace Gurigi
 {
     namespace Resources
     {
-        ResourceID::ResourceID(const std::wstring &iname)
+        ResourceId::ResourceId(const std::wstring &iname)
         {
             wchar_t *namep = new wchar_t[iname.size() + 1];
             wcscpy_s(namep, iname.size() + 1, iname.c_str());
@@ -17,7 +17,7 @@ namespace Gurigi
             allocated_ = true;
         }
 
-        ResourceID::ResourceID(const ResourceID &that)
+        ResourceId::ResourceId(const ResourceId &that)
         {
             if(that.allocated_)
             {
@@ -34,7 +34,7 @@ namespace Gurigi
             }
         }
 
-        ResourceID::ResourceID(ResourceID &&that)
+        ResourceId::ResourceId(ResourceId &&that)
         {
             name_ = that.name_;
             allocated_ = that.allocated_;
@@ -43,7 +43,7 @@ namespace Gurigi
             that.allocated_ = false;
         }
 
-        ResourceID &ResourceID::operator =(const ResourceID &rhs)
+        ResourceId &ResourceId::operator =(const ResourceId &rhs)
         {
             if(&rhs != this)
             {
@@ -67,7 +67,7 @@ namespace Gurigi
             return *this;
         }
 
-        ResourceID &ResourceID::operator =(ResourceID &&rhs)
+        ResourceId &ResourceId::operator =(ResourceId &&rhs)
         {
             if(&rhs != this)
             {
@@ -83,7 +83,7 @@ namespace Gurigi
             return *this;
         }
 
-        bool operator ==(const ResourceID &lhs, const ResourceID &rhs)
+        bool operator ==(const ResourceId &lhs, const ResourceId &rhs)
         {
             if(lhs.allocated_ == rhs.allocated_)
             {
@@ -96,16 +96,20 @@ namespace Gurigi
             return false;
         }
 
-        bool operator !=(const ResourceID &lhs, const ResourceID &rhs)
+        bool operator !=(const ResourceId &lhs, const ResourceId &rhs)
         {
             return !(lhs == rhs);
         }
 
-        HINSTANCE ResourceHelper::findInstanceByResourceID(const ResourceID &id, const ResourceID &type)
+        HINSTANCE ResourceHelper::findInstanceByResourceId(const ResourceId &id, const ResourceId &type)
         {
+            auto &env = Batang::Win32Environment::instance();
+
             std::vector<HINSTANCE> instances;
-            instances.push_back(Batang::Win32Environment::instance().getInstance());
-            // TODO: DLL instances
+            instances.push_back(env.getInstance());
+
+            const auto &dllInstances = env.getDllInstances();
+            instances.insert(instances.end(), dllInstances.begin(), dllInstances.end());
 
             for(auto it = std::begin(instances); it != std::end(instances); ++ it)
             {
@@ -137,27 +141,27 @@ namespace Gurigi
                 DestroyIcon(icon_);
         }
 
-        ResourcePtr<Icon> Icon::fromResource(const ResourceID &id)
+        ResourcePtr<Icon> Icon::fromResource(const ResourceId &id)
         {
-            HICON icon = static_cast<HICON>(LoadImageW(ResourceHelper::findInstanceByResourceID(id, RT_ICON), id, IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_DEFAULTCOLOR));
+            HICON icon = static_cast<HICON>(LoadImageW(ResourceHelper::findInstanceByResourceId(id, RT_ICON), id, IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_DEFAULTCOLOR));
             return ResourcePtr<Icon>(new Icon(icon, false));
         }
 
-        ResourcePtr<Icon> Icon::fromResource(const ResourceID &id, const Objects::SizeI &desiredSize)
+        ResourcePtr<Icon> Icon::fromResource(const ResourceId &id, const Objects::SizeI &desiredSize)
         {
-            HICON icon = static_cast<HICON>(LoadImageW(ResourceHelper::findInstanceByResourceID(id, RT_ICON), id, IMAGE_ICON, desiredSize.width, desiredSize.height, LR_DEFAULTCOLOR));
+            HICON icon = static_cast<HICON>(LoadImageW(ResourceHelper::findInstanceByResourceId(id, RT_ICON), id, IMAGE_ICON, desiredSize.width, desiredSize.height, LR_DEFAULTCOLOR));
             return ResourcePtr<Icon>(new Icon(icon, false));
         }
 
-        ResourcePtr<Icon> Icon::fromSharedResource(const ResourceID &id)
+        ResourcePtr<Icon> Icon::fromSharedResource(const ResourceId &id)
         {
-            HICON icon = static_cast<HICON>(LoadImageW(ResourceHelper::findInstanceByResourceID(id, RT_ICON), id, IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_DEFAULTCOLOR | LR_SHARED));
+            HICON icon = static_cast<HICON>(LoadImageW(ResourceHelper::findInstanceByResourceId(id, RT_ICON), id, IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_DEFAULTCOLOR | LR_SHARED));
             return ResourcePtr<Icon>(new Icon(icon, true));
         }
 
-        ResourcePtr<Icon> Icon::fromSharedResource(const ResourceID &id, const Objects::SizeI &desiredSize)
+        ResourcePtr<Icon> Icon::fromSharedResource(const ResourceId &id, const Objects::SizeI &desiredSize)
         {
-            HICON icon = static_cast<HICON>(LoadImageW(ResourceHelper::findInstanceByResourceID(id, RT_ICON), id, IMAGE_ICON, desiredSize.width, desiredSize.height, LR_DEFAULTCOLOR | LR_SHARED));
+            HICON icon = static_cast<HICON>(LoadImageW(ResourceHelper::findInstanceByResourceId(id, RT_ICON), id, IMAGE_ICON, desiredSize.width, desiredSize.height, LR_DEFAULTCOLOR | LR_SHARED));
             return ResourcePtr<Icon>(new Icon(icon, true));
         }
 
@@ -217,9 +221,9 @@ namespace Gurigi
         {
         }
 
-        ResourcePtr<Cursor> Cursor::fromResource(const ResourceID &id)
+        ResourcePtr<Cursor> Cursor::fromResource(const ResourceId &id)
         {
-            HCURSOR cursor = static_cast<HCURSOR>(LoadCursorW(ResourceHelper::findInstanceByResourceID(id, RT_CURSOR), id));
+            HCURSOR cursor = static_cast<HCURSOR>(LoadCursorW(ResourceHelper::findInstanceByResourceId(id, RT_CURSOR), id));
             return ResourcePtr<Cursor>(new Cursor(cursor));
         }
 

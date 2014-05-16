@@ -5,6 +5,7 @@
 
 #include "FrameWindow.h"
 #include "Global.h"
+#include "Thread.h"
 #include "Utility.h"
 
 namespace Gurigi
@@ -91,6 +92,12 @@ namespace Gurigi
 
     bool FrameWindow::show(int32_t showCommand)
     {
+        std::shared_ptr<Batang::ThreadTaskPool> thread = Batang::ThreadTaskPool::current().lock();
+        if(!thread)
+        {
+            return false;
+        }
+
         // TODO: menu
         Objects::SizeI windowSize;
 
@@ -129,46 +136,57 @@ namespace Gurigi
         MSG msg;
         bool done = false;
 
-        Batang::ThreadTaskPool *thread = Batang::ThreadTaskPool::current();
-
-        HANDLE taskInvokedSemaphore = CreateSemaphoreW(nullptr, 1, 1, nullptr);
-        auto taskInvoked = [taskInvokedSemaphore]()
         {
-            ReleaseSemaphore(taskInvokedSemaphore, 1, nullptr);
-        };
-        auto conn = (thread->onTaskInvoked.connect(taskInvoked));
-
-        while(!done)
-        {
-            if(PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
-            {
-                if(msg.message == WM_QUIT)
+            std::weak_ptr<Batang::ThreadTaskPool> oldUiThread;
+            Batang::ScopedInitializer uiThreadGuard(
+                [thread, &oldUiThread]()
                 {
-                    done = true;
-                    break;
-                }
-
-                TranslateMessage(&msg);
-                DispatchMessageW(&msg);
-            }
-            else
-            {
-                if(thread)
+                    oldUiThread = UiThread::exchange(thread);
+                },
+                [&oldUiThread]()
                 {
-                    if(MsgWaitForMultipleObjects(1, &taskInvokedSemaphore, FALSE, INFINITE, QS_ALLINPUT) == WAIT_OBJECT_0)
+                    UiThread::set(oldUiThread);
+                });
+
+            HANDLE taskInvokedSemaphore = CreateSemaphoreW(nullptr, 1, 1, nullptr);
+            auto taskInvoked = [taskInvokedSemaphore]()
+            {
+                ReleaseSemaphore(taskInvokedSemaphore, 1, nullptr);
+            };
+            auto conn = (thread->onTaskInvoked.connect(taskInvoked));
+
+            while(!done)
+            {
+                if(PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
+                {
+                    if(msg.message == WM_QUIT)
                     {
-                        onTaskProcessable();
+                        done = true;
+                        break;
                     }
+
+                    TranslateMessage(&msg);
+                    DispatchMessageW(&msg);
                 }
                 else
                 {
-                    WaitMessage();
+                    if(thread)
+                    {
+                        if(MsgWaitForMultipleObjects(1, &taskInvokedSemaphore, FALSE, INFINITE, QS_ALLINPUT) == WAIT_OBJECT_0)
+                        {
+                            onTaskProcessable();
+                        }
+                    }
+                    else
+                    {
+                        WaitMessage();
+                    }
                 }
             }
-        }
 
-        thread->onTaskInvoked -= conn;
-        CloseHandle(taskInvokedSemaphore);
+            thread->onTaskInvoked -= conn;
+            CloseHandle(taskInvokedSemaphore);
+        }
 
         return true;
     }
@@ -340,6 +358,8 @@ namespace Gurigi
             return 0;
 
         case WM_PAINT:
+            HideCaret(hwnd);
+
             if(!context_)
             {
                 context_.create(hwnd, clientSize());
@@ -356,6 +376,7 @@ namespace Gurigi
             }
 
             ValidateRect(hwnd, nullptr);
+            ShowCaret(hwnd);
             return 0;
 
         case WM_ERASEBKGND:
@@ -526,6 +547,63 @@ namespace Gurigi
                     if(message == WM_LBUTTONDOWN)
                         focus(hovereds[0]);
                 }
+            }
+            return 0;
+
+        case WM_CHAR:
+            {
+                ev.altKey = !!HIBYTE(GetKeyState(VK_MENU));
+                ev.ctrlKey = !!HIBYTE(GetKeyState(VK_CONTROL));
+                ev.shiftKey = !!HIBYTE(GetKeyState(VK_SHIFT));
+                ev.charCode = static_cast<char32_t>(static_cast<wchar_t>(wParam));
+                std::vector<ControlWeakPtr<>> focuseds;
+                auto lfocused = focus().lock();
+                if(lfocused)
+                {
+                    focuseds.push_back(lfocused);
+                }
+                fireEvent(focuseds, &Control::onChar, ev);
+            }
+            return 0;
+
+        case WM_UNICHAR:
+            {
+                if(wParam == UNICODE_NOCHAR)
+                {
+                    return 1;
+                }
+
+                ev.altKey = !!HIBYTE(GetKeyState(VK_MENU));
+                ev.ctrlKey = !!HIBYTE(GetKeyState(VK_CONTROL));
+                ev.shiftKey = !!HIBYTE(GetKeyState(VK_SHIFT));
+                ev.charCode = static_cast<char32_t>(wParam);
+                std::vector<ControlWeakPtr<>> focuseds;
+                auto lfocused = focus().lock();
+                if(lfocused)
+                {
+                    focuseds.push_back(lfocused);
+                }
+                fireEvent(focuseds, &Control::onChar, ev);
+            }
+            return 0;
+
+        case WM_KEYDOWN:
+            {
+                ev.altKey = !!HIBYTE(GetKeyState(VK_MENU));
+                ev.ctrlKey = !!HIBYTE(GetKeyState(VK_CONTROL));
+                ev.shiftKey = !!HIBYTE(GetKeyState(VK_SHIFT));
+                ev.keyCode = static_cast<char>(wParam);
+                std::vector<ControlWeakPtr<>> focuseds;
+                auto lfocused = focus().lock();
+                while(lfocused)
+                {
+                    auto parent = lfocused->parent();
+                    if(!parent)
+                        break;
+                    focuseds.push_back(lfocused);
+                    lfocused = lfocused->parent()->parent().lock();
+                }
+                fireEvent(focuseds, &Control::onKeyDown, ev);
             }
             return 0;
 
