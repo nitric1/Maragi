@@ -345,7 +345,13 @@ namespace Gurigi
         {
             if(glyphRuns_.empty())
             {
-                return false;
+                if(pos > 0)
+                    return false;
+
+                offset.x = 0.0f;
+                offset.y = ascentMax_;
+
+                return true;
             }
 
             GlyphRun tmp;
@@ -1180,7 +1186,7 @@ namespace Gurigi
                 const DWRITE_LINE_BREAKPOINT breakpoint = breakpoints_[nextCluster.textPosition - 1];
 
                 textWidth += getClusterRangeWidth(cluster, nextCluster);
-                if(textWidth > maxWidth && !breakpoint.isWhitespace)
+                if(textWidth > maxWidth)
                 {
                     if(validBreakPosition > start.textPosition)
                         break;
@@ -1217,11 +1223,6 @@ namespace Gurigi
             produceBidiOrdering(start.runIndex, bidiOrdering);
 
             size_t trailingWsPosition = end.textPosition;
-            for(; trailingWsPosition > start.textPosition; -- trailingWsPosition)
-            {
-                if(!breakpoints_[trailingWsPosition - 1].isWhitespace)
-                    break;
-            }
 
             ClusterPosition clusterWsEnd(start);
             setClusterPosition(clusterWsEnd, trailingWsPosition);
