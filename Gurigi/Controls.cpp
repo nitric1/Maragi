@@ -458,7 +458,7 @@ namespace Gurigi
 
         selectionEffect_ = ComPtr<EditDrawingEffect>(new EditDrawingEffect(GetSysColor(COLOR_HIGHLIGHTTEXT)));
 
-        // TODO: temp
+        // TODO: temporary; should be read from config
         editLayout_.fontEmSize(16.0f);
         editLayout_.size(Gurigi::Objects::SizeF(100.0f, 100.0f));
         editLayout_.defaultReadingDirection(DWRITE_READING_DIRECTION_LEFT_TO_RIGHT);
@@ -573,6 +573,7 @@ namespace Gurigi
         brushPlaceholder_.release();
         brushBackground_.release();
         brushSelection_.release();
+        clipLayer_.release();
     }
 
     void Edit::draw(Drawing::Context &ctx)
@@ -601,16 +602,24 @@ namespace Gurigi
         ctx->GetTextRenderingParams(&oldRenderParams);
         ctx->SetTextRenderingParams(renderParams_);
 
+        if(!clipLayer_)
+        {
+            hr = ctx->CreateLayer(nullptr, &clipLayer_);
+            if(FAILED(hr))
+                throw(UIException("CreateLayer failed in Edit::draw."));
+        }
+
         D2D1_MATRIX_3X2_F oldTransform;
         ctx->GetTransform(&oldTransform);
         ctx->SetTransform(clientTransform_);
+
         Objects::RectangleF newRect(Objects::PointF(0.0f, 0.0f), rect().size());
         ctx->FillRectangle(
             newRect,
             brushBackground_
             );
 
-        // TODO: scroll clip layer or geometry
+        ctx->PushLayer(D2D1::LayerParameters(D2D1::InfiniteRect(), clipGeometry_), clipLayer_);
 
         // TODO: border
 
@@ -623,6 +632,7 @@ namespace Gurigi
 
         if(text_.empty())
         {
+            // TODO: use EditLayout
             ctx->DrawTextW(
                 placeholder_.c_str(),
                 static_cast<unsigned>(placeholder_.size()),
@@ -645,6 +655,8 @@ namespace Gurigi
             editLayoutSink_.draw(ctx, Objects::PointF(1.0f, 1.0f));
         }
 
+        ctx->PopLayer();
+
         ctx->SetTransform(oldTransform);
         ctx->SetTextRenderingParams(oldRenderParams);
     }
@@ -662,9 +674,17 @@ namespace Gurigi
         scrollTransform_ = D2D1::Matrix3x2F::Identity(); // TODO: scroll
 
         Objects::SizeF size = rect.size();
+        Objects::SizeF clientSize(size.width - 2.0f, size.height - 2.0f);
 
-        editLayout_.size(Objects::SizeF(size.width - 2.0f, size.height - 2.0f));
+        editLayout_.size(clientSize);
         editLayout_.flow(editLayoutSource_, editLayoutSink_);
+
+        Objects::RectangleF clientRect(1.0f, 1.0f, clientSize.width, clientSize.height);
+
+        HRESULT hr;
+        hr = Drawing::D2DFactory::instance().getD2DFactory()->CreateRectangleGeometry(clientRect, &clipGeometry_);
+        if(FAILED(hr))
+            throw(UIException("CreateRectangleGeometry failed in Edit::onResizeInternal."));
 
         updateSelection();
         updateCaret();
@@ -678,25 +698,6 @@ namespace Gurigi
         {
             editLayout_.flow(editLayoutSource_, editLayoutSink_);
         }
-        /*
-        layout.release();
-
-        Objects::SizeF size = rect().size();
-        const auto &dwfac = Drawing::D2DFactory::instance().getDWriteFactory();
-        HRESULT hr = dwfac->CreateGdiCompatibleTextLayout(
-            text_.c_str(),
-            static_cast<uint32_t>(text_.size()),
-            formatText,
-            size.width - 2.0f, // TODO: padding
-            size.height - 2.0f,
-            1.0f, // XXX: implement?
-            nullptr,
-            FALSE,
-            &layout);
-        if(FAILED(hr))
-            throw(UIException("CreateTextLayout failed in Edit::textRefresh"));
-
-        layout->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);*/
 
         updateSelection();
         updateCaret();
