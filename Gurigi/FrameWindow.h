@@ -50,8 +50,6 @@ namespace Gurigi
         virtual bool show() override;
         virtual bool show(int32_t);
         virtual Objects::SizeI adjustWindowSize(const Objects::SizeF &) const;
-        virtual Objects::PointF screenToClient(const Objects::PointI &) const;
-        virtual Objects::PointI clientToScreen(const Objects::PointF &) const;
         virtual void redraw() override;
 
     public: // external event handlers

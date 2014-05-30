@@ -193,21 +193,6 @@ namespace Gurigi
         return Objects::SizeI(rc.right - rc.left, rc.bottom - rc.top);
     }
 
-    Objects::PointF FrameWindow::screenToClient(const Objects::PointI &pt) const
-    {
-        POINT wpt = { pt.x, pt.y };
-        ScreenToClient(hwnd(), &wpt);
-        return Objects::convertPoint(Objects::PointI(wpt.x, wpt.y));
-    }
-
-    Objects::PointI FrameWindow::clientToScreen(const Objects::PointF &pt) const
-    {
-        Objects::PointI converted = Objects::convertPoint(pt);
-        POINT wpt = { converted.x, converted.y };
-        ClientToScreen(hwnd(), &wpt);
-        return Objects::PointI(wpt.x, wpt.y);
-    }
-
     void FrameWindow::redraw()
     {
         InvalidateRect(hwnd(), nullptr, FALSE);

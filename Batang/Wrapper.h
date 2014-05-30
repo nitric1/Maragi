@@ -62,6 +62,7 @@ namespace Batang
 
             public:
                 typedef T ValueType;
+                static const T InvalidValue = InvalidValue;
                 struct Uninitialized {};
 
                 template<template<typename> class Operator = Operators::NullOperator>
@@ -95,6 +96,10 @@ namespace Batang
                 constexpr const T &operator *() const
                 {
                     return value_;
+                }
+                constexpr operator bool() const
+                {
+                    return value_ != InvalidValue;
                 }
             };
 
