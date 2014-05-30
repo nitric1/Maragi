@@ -161,6 +161,8 @@ namespace Gurigi
         ComPtr<EditRenderer> renderer_;
         ComPtr<EditDrawingEffect> selectionEffect_;
         ComPtr<IDWriteRenderingParams> renderParams_;
+        ComPtr<ID2D1RectangleGeometry> clipGeometry_;
+        ComPtr<ID2D1Layer> clipLayer_;
 
         std::vector<Objects::RectangleF> selectionRects_;
 
