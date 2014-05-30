@@ -233,6 +233,8 @@ namespace Gurigi
     public:
         virtual bool show() = 0;
         virtual void redraw();
+        virtual Objects::PointF screenToClient(const Objects::PointI &) const;
+        virtual Objects::PointI clientToScreen(const Objects::PointF &) const;
 
     protected:
         void fireEvent(const std::vector<ControlWeakPtr<>> &, ControlEvent (Control::*), ControlEventArg);

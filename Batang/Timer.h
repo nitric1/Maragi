@@ -58,6 +58,11 @@ namespace Batang
             std::weak_ptr<ThreadTaskPool> thread,
             const std::chrono::steady_clock::duration &interval,
             const std::function<void ()> &task);
+        Timer::TaskId Timer::installPeriodicTimer(
+            std::weak_ptr<ThreadTaskPool> thread,
+            const std::chrono::steady_clock::duration &initialInterval,
+            const std::chrono::steady_clock::duration &interval,
+            const std::function<void()> &task);
         void uninstallTimer(TaskId taskId);
         void uninstallAllThreadTimers(const ThreadTaskPool *thread);
 

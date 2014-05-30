@@ -286,6 +286,21 @@ namespace Gurigi
         return Objects::convertSize(Objects::SizeI(rc.right - rc.left, rc.bottom - rc.top));
     }
 
+    Objects::PointF Shell::screenToClient(const Objects::PointI &pt) const
+    {
+        POINT wpt = {pt.x, pt.y};
+        ScreenToClient(hwnd(), &wpt);
+        return Objects::convertPoint(Objects::PointI(wpt.x, wpt.y));
+    }
+
+    Objects::PointI Shell::clientToScreen(const Objects::PointF &pt) const
+    {
+        Objects::PointI converted = Objects::convertPoint(pt);
+        POINT wpt = {converted.x, converted.y};
+        ClientToScreen(hwnd(), &wpt);
+        return Objects::PointI(wpt.x, wpt.y);
+    }
+
     const ControlWeakPtr<> &Shell::focus() const
     {
         return focus_;

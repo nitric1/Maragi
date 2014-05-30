@@ -3,6 +3,7 @@
 #include "Batang/Utility.h"
 
 #include "Controls.h"
+#include "Thread.h"
 
 namespace Gurigi
 {
@@ -664,7 +665,7 @@ namespace Gurigi
     Objects::SizeF Edit::computeSize()
     {
         // TODO: implement
-        return Objects::SizeF(64.0f, 64.0f);
+        return Objects::SizeF(64.0f, 20.0f);
     }
 
     void Edit::onResizeInternal(const Objects::RectangleF &rect)
@@ -1067,6 +1068,9 @@ namespace Gurigi
         updateCaret();
     }
 
+    const std::chrono::milliseconds Scrollbar::PagerTimerInitialInterval(400);
+    const std::chrono::milliseconds Scrollbar::PagerTimerInterval(100);
+
     Scrollbar::Scrollbar(const ControlId &id)
         : Control(id)
         , orientation_(Orientation::Vertical)
@@ -1085,7 +1089,9 @@ namespace Gurigi
     }
 
     Scrollbar::~Scrollbar()
-    {}
+    {
+        cancelPagerTimer();
+    }
 
     ControlPtr<Scrollbar> Scrollbar::create(
         Orientation orientation,
@@ -1224,6 +1230,24 @@ namespace Gurigi
         return static_cast<float>((value - scrollMin_) * maxSize / (scrollMax_ - scrollMin_) + posStart);
     }
 
+    void Scrollbar::setPagerTimer()
+    {
+        cancelPagerTimer();
+        pagerTimer_ = Batang::Timer::instance().installPeriodicTimer(Batang::ThreadTaskPool::current(),
+            PagerTimerInitialInterval,
+            PagerTimerInterval,
+            std::bind(&Scrollbar::onTimerPager, this));
+    }
+
+    void Scrollbar::cancelPagerTimer()
+    {
+        if(pagerTimer_)
+        {
+            Batang::Timer::instance().uninstallTimer(pagerTimer_);
+            pagerTimer_ = Batang::Timer::TaskId::InvalidValue;
+        }
+    }
+
     void Scrollbar::onMouseMoveImpl(const ControlEventArg &arg)
     {
         if(dragging_)
@@ -1250,12 +1274,14 @@ namespace Gurigi
             else if(posValue < current_) // page up
             {
                 current(current_ - pageSize_);
-                // TODO: timer
+                clickedPagerToMin_ = true;
+                setPagerTimer();
             }
             else if(current_ + pageSize_ <= posValue) // page down
             {
                 current(current_ + pageSize_);
-                // TODO: timer
+                clickedPagerToMin_ = false;
+                setPagerTimer();
             }
         }
     }
@@ -1265,6 +1291,41 @@ namespace Gurigi
         if(arg.buttonNum == 1)
         {
             dragging_ = false;
+            clickedPagerToMin_ = boost::indeterminate;
+        }
+    }
+
+    void Scrollbar::onTimerPager()
+    {
+        auto lshell = shell().lock();
+        if(lshell)
+        {
+            auto point = lshell->screenToClient(getCursorPos());
+            float pos = (orientation_ == Orientation::Vertical ? point.y : point.x);
+            double posValue = posToValue(pos);
+
+            if(clickedPagerToMin_)
+            {
+                if(posValue < current_)
+                {
+                    current(current_ - pageSize_);
+                }
+            }
+            else if(!clickedPagerToMin_)
+            {
+                if(current_ + pageSize_ <= posValue)
+                {
+                    current(current_ + pageSize_);
+                }
+            }
+            else
+            {
+                cancelPagerTimer();
+            }
+        }
+        else
+        {
+            cancelPagerTimer();
         }
     }
 

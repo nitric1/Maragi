@@ -65,6 +65,17 @@ namespace Batang
         return installTimer(thread, now, now + interval, interval, task);
     }
 
+    Timer::TaskId Timer::installPeriodicTimer(
+        std::weak_ptr<ThreadTaskPool> thread,
+        const std::chrono::steady_clock::duration &initialInterval,
+        const std::chrono::steady_clock::duration &interval,
+        const std::function<void()> &task)
+    {
+        auto now = std::chrono::steady_clock::now();
+
+        return installTimer(thread, now, now + initialInterval, interval, task);
+    }
+
     Timer::TaskId Timer::installTimer(
         std::weak_ptr<ThreadTaskPool> thread,
         const std::chrono::steady_clock::time_point &now,

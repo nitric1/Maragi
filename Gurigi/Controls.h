@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Batang/Event.h"
+#include "Batang/Timer.h"
 #include "Window.h"
 #include "Detail/EditLayout.h"
 
@@ -235,6 +236,10 @@ namespace Gurigi
         };
 
     private:
+        static const std::chrono::milliseconds PagerTimerInitialInterval;
+        static const std::chrono::milliseconds PagerTimerInterval;
+
+    private:
         double scrollMin_, scrollMax_, pageSize_; // [scrollMin, scrollMax - pageSize]
         double current_;
         Orientation orientation_;
@@ -243,6 +248,8 @@ namespace Gurigi
         ComPtr<ID2D1SolidColorBrush> brushThumb_, brushBackground_;
 
         bool dragging_;
+        boost::tribool clickedPagerToMin_;
+        Batang::Timer::TaskId pagerTimer_;
         double draggingThumbValueDiff_;
 
     protected:
@@ -266,11 +273,14 @@ namespace Gurigi
     private:
         double posToValue(float) const;
         float valueToPos(double) const;
+        void setPagerTimer();
+        void cancelPagerTimer();
 
     private:
         void onMouseMoveImpl(const ControlEventArg &);
         void onMouseButtonDownImpl(const ControlEventArg &);
         void onMouseButtonUpImpl(const ControlEventArg &);
+        void onTimerPager();
 
     public:
         Batang::Event<double> onScroll;

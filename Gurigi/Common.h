@@ -9,6 +9,7 @@
 #include <set>
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/logic/tribool.hpp>
 
 #pragma warning(push)
 #pragma warning(disable: 4819) // The file contains a character that cannot be represented in the current code page
