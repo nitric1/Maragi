@@ -22,9 +22,9 @@ namespace Gurigi
             , castPtr_(nullptr)
         {}
 
-        SharedPtr(Base *iptr)
-            : ptr_(iptr, Deleter())
-            , castPtr_(dynamic_cast<T *>(iptr))
+        SharedPtr(Base *ptr)
+            : ptr_(ptr, Deleter())
+            , castPtr_(dynamic_cast<T *>(ptr))
         {}
 
         template<typename Other>
@@ -40,13 +40,13 @@ namespace Gurigi
             castPtr_ = dynamic_cast<T *>(ptr_.get());
         }
 
-        SharedPtr(const std::shared_ptr<Base> &iptr)
-            : ptr_(iptr)
-            , castPtr_(dynamic_cast<T *>(iptr.get()))
+        SharedPtr(const std::shared_ptr<Base> &ptr)
+            : ptr_(ptr)
+            , castPtr_(dynamic_cast<T *>(ptr.get()))
         {}
 
-        SharedPtr(std::shared_ptr<Base> &&iptr)
-            : ptr_(std::move(iptr))
+        SharedPtr(std::shared_ptr<Base> &&ptr)
+            : ptr_(std::move(ptr))
         {
             castPtr_ = dynamic_cast<T *>(ptr_.get());
         }
@@ -126,11 +126,11 @@ namespace Gurigi
 
         template<typename, typename, typename>
         friend class SharedPtr;
-        template<typename, typename, typename, typename>
+        template<typename, typename, typename>
         friend class WeakPtr;
     };
 
-    template<typename Base, typename Deleter, typename SharedPtrReturn, typename T>
+    template<typename Base, typename Deleter, typename T>
     class WeakPtr
     {
         static_assert(std::is_convertible<T *, Base *>::value, "T must be a derived class of Base.");
@@ -147,8 +147,8 @@ namespace Gurigi
             : ptr_()
         {}
 
-        WeakPtr(const std::weak_ptr<Base> &iptr)
-            : ptr_(iptr)
+        WeakPtr(const std::weak_ptr<Base> &ptr)
+            : ptr_(ptr)
         {}
 
         template<typename Other>
@@ -157,12 +157,12 @@ namespace Gurigi
         {}
 
         template<typename Other>
-        WeakPtr(const WeakPtr<Base, Deleter, SharedPtrReturn, Other> &that)
+        WeakPtr(const WeakPtr<Base, Deleter, Other> &that)
             : ptr_(that.ptr_)
         {}
 
     public:
-        SharedPtrReturn lock() const
+        SharedPtr<Base, Deleter, T> lock() const
         {
             return ptr_.lock();
         }
@@ -176,25 +176,25 @@ namespace Gurigi
         }
 
         template<typename Other>
-        WeakPtr &operator =(const WeakPtr<Base, Deleter, SharedPtrReturn, Other> &rhs)
+        WeakPtr &operator =(const WeakPtr<Base, Deleter, Other> &rhs)
         {
             ptr_ = rhs.ptr_;
             return *this;
         }
 
         template<typename Other>
-        bool operator ==(const WeakPtr<Base, Deleter, SharedPtrReturn, Other> &rhs)
+        bool operator ==(const WeakPtr<Base, Deleter, Other> &rhs)
         {
             return lock() == rhs.lock();
         }
 
         template<typename Other>
-        bool operator !=(const WeakPtr<Base, Deleter, SharedPtrReturn, Other> &rhs)
+        bool operator !=(const WeakPtr<Base, Deleter, Other> &rhs)
         {
             return lock() != rhs.lock();
         }
 
-        template<typename Base, typename Deleter, typename SharedPtrReturn, typename Other>
+        template<typename Base, typename Deleter, typename Other>
         friend class WeakPtr;
     };
 
@@ -203,154 +203,20 @@ namespace Gurigi
         void operator ()(Control *) const;
     };
 
-    template<typename = Control>
-    class ControlPtr;
-    template<typename = Control>
-    class ControlWeakPtr;
-
-    template<typename T>
-    class ControlPtr final : public SharedPtr<Control, ControlPtrDeleter, T>
-    {
-    public:
-        ControlPtr()
-            : SharedPtr<Control, ControlPtrDeleter, T>()
-        {}
-
-        ControlPtr(Control *iptr)
-            : SharedPtr<Control, ControlPtrDeleter, T>(iptr)
-        {}
-
-        template<typename Other>
-        ControlPtr(const ControlPtr<Other> &that)
-            : SharedPtr<Control, ControlPtrDeleter, T>(that)
-        {}
-
-        template<typename Other>
-        ControlPtr(ControlPtr<Other> &&that)
-            : SharedPtr<Control, ControlPtrDeleter, T>(std::move(that))
-        {}
-
-        ControlPtr(const std::shared_ptr<Control> &iptr)
-            : SharedPtr<Control, ControlPtrDeleter, T>(iptr)
-        {}
-
-        ControlPtr(std::shared_ptr<Control> &&iptr)
-            : SharedPtr<Control, ControlPtrDeleter, T>(std::move(iptr))
-        {}
-
-        friend class Control;
-        template<typename>
-        friend class ControlPtr;
-        template<typename>
-        friend class ControlWeakPtr;
-    };
-
-    template<typename T>
-    class ControlWeakPtr final : public WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>
-    {
-    public:
-        ControlWeakPtr()
-            : WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>()
-        {}
-
-        ControlWeakPtr(nullptr_t)
-            : WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>(nullptr)
-        {}
-
-        ControlWeakPtr(const std::weak_ptr<Control> &iptr)
-            : WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>(iptr)
-        {}
-
-        template<typename Other>
-        ControlWeakPtr(const ControlPtr<Other> &that)
-            : WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>(that)
-        {}
-
-        template<typename Other>
-        ControlWeakPtr(const ControlWeakPtr<Other> &that)
-            : WeakPtr<Control, ControlPtrDeleter, ControlPtr<T>, T>(that)
-        {}
-
-        template<typename Other>
-        friend class ControlWeakPtr;
-    };
+    template<typename T = Control>
+    using ControlPtr = SharedPtr<Control, ControlPtrDeleter, T>;
+    template<typename T = Control>
+    using ControlWeakPtr = WeakPtr<Control, ControlPtrDeleter, T>;
 
     struct ShellPtrDeleter
     {
         void operator ()(Shell *) const;
     };
 
-    template<typename = Shell>
-    class ShellPtr;
-    template<typename = Shell>
-    class ShellWeakPtr;
-
-    template<typename T>
-    class ShellPtr final : public SharedPtr<Shell, ShellPtrDeleter, T>
-    {
-    public:
-        ShellPtr()
-            : SharedPtr<Shell, ShellPtrDeleter, T>()
-        {}
-
-        ShellPtr(Shell *iptr)
-            : SharedPtr<Shell, ShellPtrDeleter, T>(iptr)
-        {}
-
-        template<typename Other>
-        ShellPtr(const ShellPtr<Other> &that)
-            : SharedPtr<Shell, ShellPtrDeleter, T>(that)
-        {}
-
-        template<typename Other>
-        ShellPtr(ShellPtr<Other> &&that)
-            : SharedPtr<Shell, ShellPtrDeleter, T>(std::move(that))
-        {}
-
-        ShellPtr(const std::shared_ptr<Shell> &iptr)
-            : SharedPtr<Shell, ShellPtrDeleter, T>(iptr)
-        {}
-
-        ShellPtr(std::shared_ptr<Shell> &&iptr)
-            : SharedPtr<Shell, ShellPtrDeleter, T>(std::move(iptr))
-        {}
-
-        friend class Shell;
-        template<typename Other>
-        friend class ShellPtr;
-        template<typename Other>
-        friend class ShellWeakPtr;
-    };
-
-    template<typename T>
-    class ShellWeakPtr final : public WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>
-    {
-    public:
-        ShellWeakPtr()
-            : WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>()
-        {}
-
-        ShellWeakPtr(nullptr_t)
-            : WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>(nullptr)
-        {}
-
-        ShellWeakPtr(const std::weak_ptr<Shell> &iptr)
-            : WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>(iptr)
-        {}
-
-        template<typename Other>
-        ShellWeakPtr(const ShellPtr<Other> &that)
-            : WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>(that)
-        {}
-
-        template<typename Other>
-        ShellWeakPtr(const ShellWeakPtr<Other> &that)
-            : WeakPtr<Shell, ShellPtrDeleter, ShellPtr<T>, T>(that)
-        {}
-
-        template<typename Other>
-        friend class ShellWeakPtr;
-    };
+    template<typename T = Shell>
+    using ShellPtr = SharedPtr<Shell, ShellPtrDeleter, T>;
+    template<typename T = Shell>
+    using ShellWeakPtr = WeakPtr<Shell, ShellPtrDeleter, T>;
 
     class ControlManager final : public Batang::Singleton<ControlManager>
     {

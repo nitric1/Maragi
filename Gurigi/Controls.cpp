@@ -943,6 +943,8 @@ namespace Gurigi
                 charCode = (static_cast<char32_t>(firstSurrogatePair_ & 0x03FF) << 10);
                 charCode += 0x00010000;
                 charCode |= (e.charCode & 0x03FF);
+
+                firstSurrogatePair_ = L'\0';
             }
             else
             {
@@ -984,7 +986,6 @@ namespace Gurigi
     void Edit::onBlurImpl(const ControlEventArg &)
     {
         focused_ = false;
-
         DestroyCaret();
     }
 
@@ -993,9 +994,9 @@ namespace Gurigi
         return text_;
     }
 
-    void Edit::text(const std::wstring &itext)
+    void Edit::text(const std::wstring &text)
     {
-        text_ = itext;
+        text_ = text;
         // TODO: discard IME mode, ...
         textRefresh();
         if(selStart_ != 0 || selEnd_ != 0)
@@ -1061,7 +1062,12 @@ namespace Gurigi
         , current_(0.0)
         , colorThumb_(Objects::ColorF::Black)
         , colorBackground_(Objects::ColorF::LightGray)
+        , dragging_(false)
+        , draggingThumbValueDiff_(0.0)
     {
+        onMouseMove += Batang::delegate(this, &Scrollbar::onMouseMoveImpl);
+        onMouseButtonDown += Batang::delegate(this, &Scrollbar::onMouseButtonDownImpl);
+        onMouseButtonUp += Batang::delegate(this, &Scrollbar::onMouseButtonUpImpl);
     }
 
     Scrollbar::~Scrollbar()
@@ -1119,7 +1125,7 @@ namespace Gurigi
             brushBackground_
             );
 
-        if(scrollMax_ > scrollMin_ && pageSize_ > 0.0)
+        if(scrollMin_ < scrollMax_ && pageSize_ > 0.0)
         {
             // TODO: padding
 
@@ -1145,10 +1151,19 @@ namespace Gurigi
                 // TODO: min length
 
                 ctx->FillRoundedRectangle(
-                    D2D1::RoundedRect(Objects::RectangleF(rc.left + pos, rc.top, rc.right + pos + length, rc.top), rc.height() / 2, rc.height() / 2),
+                    D2D1::RoundedRect(Objects::RectangleF(rc.left + pos, rc.top, rc.left + pos + length, rc.bottom), rc.height() / 2, rc.height() / 2),
                     brushThumb_
                     );
             }
+        }
+        else if(scrollMin_ == scrollMax_)
+        {
+            float minHalf = std::min(rc.width(), rc.height()) / 2;
+
+            ctx->FillRoundedRectangle(
+                D2D1::RoundedRect(Objects::RectangleF(rc.left, rc.top, rc.right, rc.bottom), minHalf, minHalf),
+                brushThumb_
+                );
         }
     }
 
@@ -1165,6 +1180,80 @@ namespace Gurigi
         }
     }
 
+    double Scrollbar::posToValue(float pos) const
+    {
+        auto &rc = rect();
+        float posStart = (orientation_ == Orientation::Vertical ? rc.top : rc.left);
+        float maxSize = (orientation_ == Orientation::Vertical ? rc.height() : rc.width());
+
+        double value = (pos - posStart) * (scrollMax_ - scrollMin_) / maxSize;
+        if(value < scrollMin_)
+            value = scrollMin_;
+        else if(value > scrollMax_)
+            value = scrollMax_;
+        return value;
+    }
+
+    float Scrollbar::valueToPos(double value) const
+    {
+        if(scrollMin_ == scrollMax_)
+            return 0.0f;
+        else if(value < scrollMin_)
+            value = scrollMin_;
+        else if(value > scrollMax_)
+            value = scrollMax_;
+
+        auto &rc = rect();
+        float posStart = (orientation_ == Orientation::Vertical ? rc.top : rc.left);
+        float maxSize = (orientation_ == Orientation::Vertical ? rc.height() : rc.width());
+
+        return static_cast<float>((value - scrollMin_) * maxSize / (scrollMax_ - scrollMin_) + posStart);
+    }
+
+    void Scrollbar::onMouseMoveImpl(const ControlEventArg &arg)
+    {
+        if(dragging_)
+        {
+            float pos = (orientation_ == Orientation::Vertical ? arg.shellClientPoint.y : arg.shellClientPoint.x);
+            double posValue = posToValue(pos);
+            double newCurrent = posValue - draggingThumbValueDiff_;
+            current(newCurrent);
+        }
+    }
+
+    void Scrollbar::onMouseButtonDownImpl(const ControlEventArg &arg)
+    {
+        if(arg.buttonNum == 1)
+        {
+            float pos = (orientation_ == Orientation::Vertical ? arg.shellClientPoint.y : arg.shellClientPoint.x);
+            double posValue = posToValue(pos);
+
+            if(current_ <= posValue && posValue < current_ + pageSize_) // thumb dragging
+            {
+                dragging_ = true;
+                draggingThumbValueDiff_ = posValue - current_;
+            }
+            else if(posValue < current_) // page up
+            {
+                current(current_ - pageSize_);
+                // TODO: timer
+            }
+            else if(current_ + pageSize_ <= posValue) // page down
+            {
+                current(current_ + pageSize_);
+                // TODO: timer
+            }
+        }
+    }
+
+    void Scrollbar::onMouseButtonUpImpl(const ControlEventArg &arg)
+    {
+        if(arg.buttonNum == 1)
+        {
+            dragging_ = false;
+        }
+    }
+
     std::pair<double, double> Scrollbar::range() const
     {
         return { scrollMin_, scrollMax_ };
@@ -1174,6 +1263,13 @@ namespace Gurigi
     {
         scrollMin_ = scrollMin;
         scrollMax_ = scrollMax;
+
+        if(scrollMin_ > scrollMax_)
+            std::swap(scrollMin_, scrollMax_);
+
+        // TODO: cancel dragging
+
+        current(current_);
     }
 
     double Scrollbar::pageSize() const
@@ -1184,6 +1280,10 @@ namespace Gurigi
     void Scrollbar::pageSize(double pageSize)
     {
         pageSize_ = pageSize;
+
+        // TODO: cancel dragging
+
+        current(current_);
     }
 
     double Scrollbar::current() const
@@ -1193,7 +1293,24 @@ namespace Gurigi
 
     void Scrollbar::current(double current)
     {
+        bool toFire = false;
+        if(current_ != current)
+        {
+            toFire = true;
+        }
+
         current_ = current;
-        // TODO: adjust
+
+        if(current_ < scrollMin_)
+            current_ = scrollMin_;
+        else if(current_ > scrollMax_ - pageSize_)
+            current_ = scrollMax_ - pageSize_;
+
+        redraw();
+
+        if(toFire)
+        {
+            onScroll(current);
+        }
     }
 }

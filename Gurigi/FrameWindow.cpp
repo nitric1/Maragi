@@ -170,16 +170,9 @@ namespace Gurigi
                 }
                 else
                 {
-                    if(thread)
+                    if(MsgWaitForMultipleObjects(1, &taskInvokedSemaphore, FALSE, INFINITE, QS_ALLINPUT) == WAIT_OBJECT_0)
                     {
-                        if(MsgWaitForMultipleObjects(1, &taskInvokedSemaphore, FALSE, INFINITE, QS_ALLINPUT) == WAIT_OBJECT_0)
-                        {
-                            onTaskProcessable();
-                        }
-                    }
-                    else
-                    {
-                        WaitMessage();
+                        onTaskProcessable();
                     }
                 }
             }

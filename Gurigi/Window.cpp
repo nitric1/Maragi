@@ -10,8 +10,8 @@ namespace Gurigi
     {
     }
 
-    Slot::Slot(const ControlWeakPtr<> &iparent)
-        : parent_(iparent)
+    Slot::Slot(const ControlWeakPtr<> &parent)
+        : parent_(parent)
     {
     }
 
@@ -185,10 +185,10 @@ namespace Gurigi
         return rect_;
     }
 
-    void Control::rect(const Objects::RectangleF &irect)
+    void Control::rect(const Objects::RectangleF &rect)
     {
-        rect_ = irect;
-        onResizeInternal(irect);
+        rect_ = rect;
+        onResizeInternal(rect);
     }
 
     bool Control::hasFocus()
@@ -209,11 +209,11 @@ namespace Gurigi
         return cursor_;
     }
 
-    void Control::cursor(const Resources::ResourcePtr<Resources::Cursor> &icursor)
+    void Control::cursor(const Resources::ResourcePtr<Resources::Cursor> &cursor)
     {
-        cursor_ = icursor;
-        if(icursor)
-            SetCursor(*icursor);
+        cursor_ = cursor;
+        if(cursor)
+            SetCursor(*cursor);
     }
 
     bool Control::focusable() const
@@ -225,8 +225,8 @@ namespace Gurigi
     {
     }
 
-    Shell::Shell(const ShellWeakPtr<> &iparent) // with parent
-        : parent_(iparent)
+    Shell::Shell(const ShellWeakPtr<> &parent) // with parent
+        : parent_(parent)
     {
     }
 
