@@ -714,6 +714,7 @@ namespace Gurigi
             float fontEmSize;
             if(!editLayoutSink_.getTextPosInfo(selEnd_, trailing_, offset, fontFace, fontEmSize))
             {
+                DestroyCaret();
                 return false;
             }
 
@@ -875,7 +876,7 @@ namespace Gurigi
                 }
                 text_.erase(text_.begin() + sel.first, text_.begin() + sel.second);
             }
-            else if(sel.first > 0 && sel.first < text_.size())
+            else if(sel.first < text_.size())
             {
                 // TODO: consider surrogate pair
                 text_.erase(text_.begin() + sel.first, text_.begin() + sel.first + 1);
@@ -890,17 +891,7 @@ namespace Gurigi
             redraw();
             return;
         }
-    }
-
-    void Edit::onCharImpl(const ControlEventArg &e)
-    {
-        // TODO: split function
-
-        e.stopPropagation();
-
-        char32_t charCode = e.charCode;
-
-        if(charCode == VK_BACK)
+        else if(e.keyCode == VK_BACK)
         {
             // TODO: split function
             auto sel = selection();
@@ -928,6 +919,26 @@ namespace Gurigi
             textRefresh();
             selection(selAfter, false);
             redraw();
+            return;
+        }
+    }
+
+    void Edit::onCharImpl(const ControlEventArg &e)
+    {
+        // TODO: split function
+
+        e.stopPropagation();
+
+        char32_t charCode = e.charCode;
+
+        if(charCode == 1) // Ctrl+A
+        {
+            selection(0, text_.size(), true);
+            redraw();
+            return;
+        }
+        else if(charCode < 32) // cannot insert
+        {
             return;
         }
 
