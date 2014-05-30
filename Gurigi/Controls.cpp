@@ -782,15 +782,17 @@ namespace Gurigi
 
     void Edit::select(size_t pos, bool trailing, bool dragging)
     {
-        if(selection().second == pos && trailing_ == trailing)
-            return;
-
+        auto sel = selection();
         if(dragging)
         {
+            if(sel.second == pos && trailing_ == trailing)
+                return;
             selection(selection().first, pos, trailing);
         }
         else
         {
+            if(sel.first == pos && sel.second == pos && trailing_ == trailing)
+                return;
             selection(pos, trailing);
         }
     }
