@@ -63,16 +63,16 @@ namespace Maragi
             frm->onTaskProcessable += delegate(this, &MainController::process);
 
             using Gurigi::GridSize;
-            auto layout = Gurigi::GridLayout<2, 3>::create(
-                { GridSize(20.0f), GridSize(1) },
-                { GridSize(120.0f), GridSize(1), GridSize(10.0f) }
+            auto layout = Gurigi::GridLayout<3, 2>::create(
+                { GridSize(20.0f), GridSize(3), GridSize(1) },
+                { GridSize(120.0f), GridSize(1) }
                 );
             frm->client()->slot()->attach(layout);
 
             Gurigi::ControlPtr<Gurigi::Label> label;
             Gurigi::ControlPtr<Gurigi::Button> button;
             Gurigi::ControlPtr<Gurigi::Edit> edit;
-            Gurigi::ControlPtr<Gurigi::Scrollbar> scrollbar;
+            Gurigi::ControlPtr<Gurigi::Scrollbar> scrollbarV, scrollbarH;
 
             label = Gurigi::Label::create(L"Label Text", Gurigi::Objects::ColorF(Gurigi::Objects::ColorF::White));
             layout->slot(0, 0)->attach(label);
@@ -93,13 +93,24 @@ namespace Maragi
             };
             layout->slot(0, 1)->attach(button);
 
-            edit = Gurigi::Edit::create(L"Placeholder Now");
-            layout->slot(1, 1)->attach(edit);
+            auto subLayout = Gurigi::GridLayout<2, 2>::create(
+                { GridSize(1), GridSize(10.0f) },
+                { GridSize(1), GridSize(10.0f) }
+                );
 
-            scrollbar = Gurigi::Scrollbar::create(Gurigi::Scrollbar::Orientation::Vertical,
+            edit = Gurigi::Edit::create(L"Placeholder Now");
+            subLayout->slot(0, 0)->attach(edit);
+
+            scrollbarV = Gurigi::Scrollbar::create(Gurigi::Scrollbar::Orientation::Vertical,
                 0.0, 100.0, 10.0);
-            scrollbar->current(30.0);
-            layout->slot(1, 2)->attach(scrollbar);
+            scrollbarV->current(90.0);
+            subLayout->slot(0, 1)->attach(scrollbarV);
+
+            scrollbarH = Gurigi::Scrollbar::create(Gurigi::Scrollbar::Orientation::Horizontal,
+                0.0, 1000.0, 50.0);
+            subLayout->slot(1, 0)->attach(scrollbarH);
+
+            layout->slot(1, 1)->attach(subLayout);
 
             /*std::thread t([this]()
             {

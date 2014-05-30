@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Batang/Event.h"
 #include "Window.h"
 #include "Detail/EditLayout.h"
 
@@ -239,6 +240,9 @@ namespace Gurigi
 
         ComPtr<ID2D1SolidColorBrush> brushThumb_, brushBackground_;
 
+        bool dragging_;
+        double draggingThumbValueDiff_;
+
     protected:
         Scrollbar(const ControlId &);
         virtual ~Scrollbar();
@@ -252,10 +256,22 @@ namespace Gurigi
             );
 
     public:
-        virtual void createDrawingResources(Drawing::Context &);
-        virtual void discardDrawingResources(Drawing::Context &);
-        virtual void draw(Drawing::Context &);
-        virtual Objects::SizeF computeSize();
+        virtual void createDrawingResources(Drawing::Context &) override;
+        virtual void discardDrawingResources(Drawing::Context &) override;
+        virtual void draw(Drawing::Context &) override;
+        virtual Objects::SizeF computeSize() override;
+
+    private:
+        double posToValue(float) const;
+        float valueToPos(double) const;
+
+    private:
+        void onMouseMoveImpl(const ControlEventArg &);
+        void onMouseButtonDownImpl(const ControlEventArg &);
+        void onMouseButtonUpImpl(const ControlEventArg &);
+
+    public:
+        Batang::Event<double> onScroll;
 
     public:
         virtual std::pair<double, double> range() const;

@@ -232,7 +232,7 @@ namespace Batang
                 break;
 
             case IN_PERCENT_FIRST:
-                if(hexDigitToNum(*it))
+                if(hexDigitToNum(*it) < 0)
                 {
                     buf += '%';
                     buf += *it;
