@@ -130,20 +130,10 @@ namespace Gurigi
     {
     }
 
-    ControlPtr<PaddingLayout> PaddingLayout::create(float padAll)
-    {
-        return create(padAll, padAll, padAll, padAll);
-    }
-
-    ControlPtr<PaddingLayout> PaddingLayout::create(float padHorz, float padVert)
-    {
-        return create(padHorz, padVert, padHorz, padVert);
-    }
-
-    ControlPtr<PaddingLayout> PaddingLayout::create(float padLeft, float padTop, float padRight, float padBottom)
+    ControlPtr<PaddingLayout> PaddingLayout::create(const Objects::BoundaryF &boundary)
     {
         ControlPtr<PaddingLayout> layout(new PaddingLayout(ControlManager::instance().getNextId()));
-        layout->padding(padLeft, padTop, padRight, padBottom);
+        layout->padding(boundary);
         return layout;
     }
 
@@ -232,32 +222,21 @@ namespace Gurigi
 
     void PaddingLayout::onResizeInternal(const Objects::RectangleF &rect)
     {
-        Objects::RectangleF childRect(rect.left + padLeft_, rect.top + padTop_, rect.right - padRight_, rect.bottom - padBottom_);
+        Objects::RectangleF childRect(
+            rect.left + boundary_.left, rect.top + boundary_.top,
+            rect.right - boundary_.right, rect.bottom - boundary_.bottom);
         ControlPtr<> lchild = slot_.child().lock();
         lchild->rect(childRect);
     }
 
-    std::tuple<float, float, float, float> PaddingLayout::padding() const
+    Objects::BoundaryF PaddingLayout::padding() const
     {
-        return std::make_tuple(padLeft_, padTop_, padRight_, padBottom_);
+        return boundary_;
     }
 
-    void PaddingLayout::padding(float padAll)
+    void PaddingLayout::padding(const Objects::BoundaryF &boundary)
     {
-        padding(padAll, padAll, padAll, padAll);
-    }
-
-    void PaddingLayout::padding(float padHorz, float padVert)
-    {
-        padding(padHorz, padVert, padHorz, padVert);
-    }
-
-    void PaddingLayout::padding(float padLeft, float padTop, float padRight, float padBottom)
-    {
-        padLeft_ = padLeft;
-        padTop_ = padTop;
-        padRight_ = padRight;
-        padBottom_ = padBottom;
+        boundary_ = boundary;
         redraw();
     }
 

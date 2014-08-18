@@ -237,6 +237,61 @@ namespace Gurigi
         typedef Rectangle<float> RectangleF;
 
         template<typename T>
+        struct Boundary
+        {
+            static const Boundary Invalid;
+
+            T left, top, right, bottom;
+
+            Boundary()
+                : left(), top(), right(), bottom()
+            {}
+
+            template<typename Other>
+            Boundary(const Boundary<Other> &that)
+                : left(static_cast<T>(that.left)), top(static_cast<T>(that.top)), right(static_cast<T>(that.right)), bottom(static_cast<T>(that.bottom))
+            {}
+
+            explicit Boundary(T every)
+                : left(every), top(every), right(every), bottom(every)
+            {}
+
+            Boundary(T horz, T vert)
+                : left(horz), top(vert), right(horz), bottom(vert)
+            {}
+
+            Boundary(T ileft, T itop, T iright, T ibottom)
+                : left(ileft), top(itop), right(iright), bottom(ibottom)
+            {}
+
+            template<typename Other>
+            Boundary &operator =(const Boundary<Other> &rhs)
+            {
+                left = static_cast<T>(rhs.left);
+                top = static_cast<T>(rhs.top);
+                right = static_cast<T>(rhs.right);
+                bottom = static_cast<T>(rhs.bottom);
+            }
+
+            bool operator ==(const Boundary &rhs) const
+            {
+                return left == rhs.left && top == rhs.top && right == rhs.right && bottom == rhs.bottom;
+            }
+
+            bool operator !=(const Boundary &rhs) const
+            {
+                return !(*this == rhs);
+            }
+        };
+
+        template<typename T>
+        const Boundary<T> Boundary<T>::Invalid(
+            std::is_unsigned<T>::value ? std::numeric_limits<T>::max() : std::numeric_limits<T>::min()
+            );
+
+        typedef Boundary<float> BoundaryF;
+
+        template<typename T>
         class Polyline
         {
         public:

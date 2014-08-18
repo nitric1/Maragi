@@ -523,16 +523,14 @@ namespace Gurigi
     {
     private:
         Slot slot_;
-        float padLeft_, padTop_, padRight_, padBottom_;
+        Objects::BoundaryF boundary_;
 
     protected:
         PaddingLayout(const ControlId &);
         virtual ~PaddingLayout();
 
     public:
-        static ControlPtr<PaddingLayout> create(float); // all
-        static ControlPtr<PaddingLayout> create(float, float); // lr, tb
-        static ControlPtr<PaddingLayout> create(float, float, float, float); // l, t, r, b
+        static ControlPtr<PaddingLayout> create(const Objects::BoundaryF &);
 
     public:
         virtual void createDrawingResources(Drawing::Context &) override;
@@ -549,10 +547,8 @@ namespace Gurigi
         virtual void onResizeInternal(const Objects::RectangleF &) override;
 
     public:
-        virtual std::tuple<float, float, float, float> padding() const;
-        virtual void padding(float);
-        virtual void padding(float, float);
-        virtual void padding(float, float, float, float);
+        virtual Objects::BoundaryF padding() const;
+        virtual void padding(const Objects::BoundaryF &);
         virtual Slot *slot();
     };
 }
