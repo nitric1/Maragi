@@ -41,6 +41,11 @@ namespace Batang
             return sig_.connect(ERDelegateWrapper<FunctionType>(dg));
         }
 
+        void disconnect(boost::signals2::connection conn)
+        {
+            return sig_.disconnect(conn);
+        }
+
         void operator ()(const Arg &arg)
         {
             sig_(arg);
@@ -57,6 +62,11 @@ namespace Batang
         boost::signals2::connection operator +=(const ERDelegateWrapper<FunctionType> &rhs)
         {
             return sig_.connect(rhs);
+        }
+
+        void operator -=(boost::signals2::connection rhs)
+        {
+            return sig_.disconnect(rhs);
         }
     };
 
