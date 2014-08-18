@@ -90,7 +90,7 @@ namespace Gurigi
         return show(SW_SHOW);
     }
 
-    bool FrameWindow::show(int32_t showCommand)
+    bool FrameWindow::show(int32_t showCommand, const WINDOWPLACEMENT *wp)
     {
         std::shared_ptr<Batang::ThreadTaskPool> thread = Batang::ThreadTaskPool::current().lock();
         if(!thread)
@@ -130,7 +130,10 @@ namespace Gurigi
             return false;
 
         this->hwnd(hwnd);
-        ShowWindow(hwnd, showCommand);
+        if(!(wp && SetWindowPlacement(hwnd, wp)))
+        {
+            ShowWindow(hwnd, showCommand);
+        }
         UpdateWindow(hwnd);
 
         MSG msg;
@@ -302,6 +305,11 @@ namespace Gurigi
         ev.rawMessage = message;
         ev.wParam = wParam;
         ev.lParam = lParam;
+
+        WindowEventArg wev;
+        wev.rawMessage = message;
+        wev.wParam = wParam;
+        wev.lParam = lParam;
 
         switch(message)
         {
@@ -582,6 +590,14 @@ namespace Gurigi
                     lfocused = lfocused->parent()->parent().lock();
                 }
                 fireEvent(focuseds, &Control::onKeyDown, ev);
+            }
+            return 0;
+
+        case WM_CLOSE:
+            {
+                onClose(wev);
+                if(wev.isPropagatable())
+                    DestroyWindow(hwnd);
             }
             return 0;
 

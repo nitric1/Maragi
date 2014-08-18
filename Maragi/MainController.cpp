@@ -6,6 +6,7 @@
 #include "Gurigi/Window.h"
 #include "Gurigi/FrameWindow.h"
 
+#include "Configure.h"
 #include "MainController.h"
 #include "Tokens.h"
 #include "TwitterClient.h"
@@ -129,14 +130,35 @@ namespace Maragi
                     button->onClick(Gurigi::ControlEventArg());
                 });
 
+            frm->onClose += [&frm](const Gurigi::WindowEventArg &)
+            {
+                WINDOWPLACEMENT wp = {0, };
+                wp.length = sizeof(wp);
+                if(GetWindowPlacement(frm->hwnd(), &wp))
+                {
+                    Configure::instance().setBinary(L"Placement", &wp, sizeof(wp));
+                }
+            };
+
+            WINDOWPLACEMENT wp = {0, };
+            if(Configure::instance().getBinary(L"Placement", &wp, sizeof(wp)) == sizeof(wp))
+            {
+                return frm->show(showCommand, &wp);
+            }
+
             return frm->show(showCommand);
         }
         catch(std::exception &e)
         {
-            std::string str = "Unexpected exception occured: ";
+            std::string str = "Unexpected exception thrown: ";
             str += e.what();
             str += "\nThe program will be terminated.";
-            MessageBoxA(nullptr, str.c_str(), "Error occured", MB_ICONSTOP | MB_OK);
+            MessageBoxA(nullptr, str.c_str(), "Error", MB_ICONSTOP | MB_OK);
+            return false;
+        }
+        catch(...)
+        {
+            MessageBoxW(nullptr, L"Unknown exception thrown; The program will be terminated.", L"Error", MB_ICONSTOP | MB_OK);
             return false;
         }
     }

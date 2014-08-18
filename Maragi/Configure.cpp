@@ -7,20 +7,37 @@
 
 namespace Maragi
 {
-    const std::wstring Configure::confFileName = L"Maragi.conf";
+    const std::wstring Configure::ConfFileName = L"Maragi.conf";
+
+    namespace
+    {
+        struct FileCloser
+        {
+            void operator ()(HANDLE file) const
+            {
+                if(file != INVALID_HANDLE_VALUE)
+                    CloseHandle(file);
+            }
+        };
+    }
 
     Configure::Configure()
-        : changed(false)
+        : changed_(false)
     {
-        HANDLE file = CreateFileW(getConfigurePath().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-        if(file == INVALID_HANDLE_VALUE)
+        std::unique_ptr<void, FileCloser> file(
+            CreateFileW(getConfigurePath().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr));
+        if(file.get() == INVALID_HANDLE_VALUE)
             return;
 
-        size_t fileSize = GetFileSize(file, nullptr);
+        size_t fileSize = GetFileSize(file.get(), nullptr);
+        if(fileSize == 0)
+            return;
 
         std::vector<wchar_t> buffer(fileSize / sizeof(wchar_t));
-        if(!ReadFile(file, &*buffer.begin(), static_cast<ulong32_t>(fileSize), nullptr, nullptr))
+        ulong32_t read = 0;
+        if(!ReadFile(file.get(), &*buffer.begin(), static_cast<ulong32_t>(fileSize), &read, nullptr))
             return;
+        buffer.resize(read / sizeof(wchar_t));
         buffer.push_back(L'\0');
         auto it = buffer.begin();
         if(*it == L'\xFEFF')
@@ -50,11 +67,11 @@ namespace Maragi
 
     Configure::~Configure()
     {
-        if(!changed)
+        if(!changed_)
             return;
 
         std::wstring str(L"\xFEFF");
-        for(auto it = confMap.begin(); it != confMap.end(); ++ it)
+        for(auto it = confMap_.begin(); it != confMap_.end(); ++ it)
         {
             str += it->first;
             str += L"=";
@@ -62,16 +79,18 @@ namespace Maragi
             str += L"\n";
         }
 
-        HANDLE file = CreateFileW(getConfigurePath().c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-        if(file == INVALID_HANDLE_VALUE)
+        std::unique_ptr<void, FileCloser> file(
+            CreateFileW(getConfigurePath().c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr));
+        if(file.get() == INVALID_HANDLE_VALUE)
             return;
 
-        WriteFile(file, str.c_str(), static_cast<ulong32_t>(str.size() * sizeof(wchar_t)), nullptr, nullptr);
+        ulong32_t written = 0;
+        WriteFile(file.get(), str.c_str(), static_cast<ulong32_t>(str.size() * sizeof(wchar_t)), &written, nullptr);
     }
 
     std::wstring Configure::getConfigurePath()
     {
-        return getDataDirectoryPath() + confFileName;
+        return getDataDirectoryPath() + ConfFileName;
     }
 
     namespace
@@ -101,23 +120,23 @@ namespace Maragi
 
     std::map<std::wstring, std::wstring>::iterator Configure::find(const std::wstring &name)
     {
-        return confMap.find(name);
+        return confMap_.find(name);
     }
 
     std::map<std::wstring, std::wstring>::const_iterator Configure::find(const std::wstring &name) const
     {
-        return confMap.find(name);
+        return confMap_.find(name);
     }
 
     bool Configure::exists(const std::wstring &name) const
     {
-        return find(name) != confMap.end();
+        return find(name) != confMap_.end();
     }
 
     std::wstring Configure::get(const std::wstring &name, const std::wstring &def) const
     {
         auto it = find(name);
-        if(it == confMap.end())
+        if(it == confMap_.end())
             return def;
         return it->second;
     }
@@ -150,10 +169,37 @@ namespace Maragi
         return ve;
     }
 
+    size_t Configure::getBinary(const std::wstring &name, void *buf, size_t size) const
+    {
+        std::wstring str = get(name);
+        uint8_t *p = static_cast<uint8_t *>(buf);
+        uint8_t v = 0;
+        bool next = false;
+        size_t retSize = std::min(str.size(), size * 2);
+
+        for(size_t i = 0; i < retSize; ++ i)
+        {
+            if(next)
+            {
+                v <<= 4;
+                v |= hexDigit(str[i]);
+                *p ++ = v;
+                next = false;
+            }
+            else
+            {
+                v = hexDigit(str[i]);
+                next = true;
+            }
+        }
+
+        return retSize / 2;
+    }
+
     void Configure::set(const std::wstring &name, const std::wstring &value, bool setChanged)
     {
-        confMap[name] = value;
-        changed = setChanged;
+        confMap_[name] = value;
+        changed_ = setChanged;
     }
 
     void Configure::setBinary(const std::wstring &name, const std::vector<uint8_t> &ve)
@@ -168,13 +214,26 @@ namespace Maragi
         set(name, str);
     }
 
+    void Configure::setBinary(const std::wstring &name, const void *buf, size_t size)
+    {
+        std::wstring str;
+        str.reserve(size * 2);
+        const uint8_t *p = static_cast<const uint8_t *>(buf);
+        for(; size --; ++ p)
+        {
+            str.push_back(digitHex(*p >> 4));
+            str.push_back(digitHex(*p & 0x0F));
+        }
+        set(name, str);
+    }
+
     void Configure::remove(const std::wstring &name)
     {
         auto it = find(name);
-        if(it != confMap.end())
+        if(it != confMap_.end())
         {
-            confMap.erase(it);
-            changed = true;
+            confMap_.erase(it);
+            changed_ = true;
         }
     }
 }

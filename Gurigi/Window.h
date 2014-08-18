@@ -122,8 +122,6 @@ namespace Gurigi
     private:
         mutable bool propagatable;
 
-        template<typename>
-        friend class Event;
         friend class Shell;
     };
 
@@ -205,12 +203,36 @@ namespace Gurigi
     struct WindowEventArg
     {
         ShellWeakPtr<> shell;
-        uint32_t message;
+        boost::posix_time::ptime time;
+
+        // raw
+        uint32_t rawMessage;
         uintptr_t wParam;
         longptr_t lParam;
+
+        WindowEventArg()
+            : time(boost::posix_time::microsec_clock::local_time())
+            , rawMessage(0)
+            , wParam(0), lParam(0)
+        {}
+
+        void stopPropagation() const
+        {
+            propagatable = false;
+        }
+
+        bool isPropagatable() const
+        {
+            return propagatable;
+        }
+
+    private:
+        mutable bool propagatable;
+
+        friend class Shell;
     };
 
-    typedef Event<WindowEventArg> WindowEvent;
+    typedef Batang::Event<WindowEventArg> WindowEvent;
 
     class Shell : public std::enable_shared_from_this<Shell>
     {
@@ -248,6 +270,9 @@ namespace Gurigi
     public:
         void sendMessage(uint32_t message, uintptr_t wParam, longptr_t lParam);
         void postMessage(uint32_t message, uintptr_t wParam, longptr_t lParam);
+
+    public:
+        WindowEvent onClose;
 
     public:
         virtual const ShellWeakPtr<> &parent() const;
