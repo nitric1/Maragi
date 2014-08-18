@@ -23,7 +23,7 @@ namespace Gurigi
     bool Slot::attach(const ControlWeakPtr<> &newChild)
     {
         ControlPtr<> lnewChild = newChild.lock();
-        if(!child_.lock() && lnewChild && !lnewChild->parent_)
+        if(child_.expired() && lnewChild && !lnewChild->parent_)
         {
             child_ = newChild;
             lnewChild->parent_ = this;

@@ -166,6 +166,10 @@ namespace Gurigi
         {
             return ptr_.lock();
         }
+        bool expired() const
+        {
+            return ptr_.expired();
+        }
 
     public:
         template<typename Other>
