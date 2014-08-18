@@ -48,7 +48,7 @@ namespace Gurigi
 
     public:
         virtual bool show() override;
-        virtual bool show(int32_t);
+        virtual bool show(int32_t, const WINDOWPLACEMENT * = nullptr);
         virtual Objects::SizeI adjustWindowSize(const Objects::SizeF &) const;
         virtual void redraw() override;
 
