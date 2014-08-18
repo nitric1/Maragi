@@ -5,7 +5,7 @@
 namespace Gurigi
 {
     struct ControlIdTag {};
-    typedef Batang::ValueWrapper::Wrapper<size_t, ControlIdTag, 0> ControlId;
+    typedef Batang::ValueWrapper<size_t, ControlIdTag, 0> ControlId;
 
     class UIException : public std::runtime_error
     {

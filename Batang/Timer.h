@@ -16,7 +16,7 @@ namespace Batang
     {
     public:
         struct TaskIdTag {};
-        typedef ValueWrapper::Wrapper<size_t, TaskIdTag, 0> TaskId;
+        typedef ValueWrapper<size_t, TaskIdTag, 0> TaskId;
 
     private:
         struct TimerTask
@@ -40,9 +40,7 @@ namespace Batang
         std::shared_ptr<Detail::TimerThread> timerThread_;
         std::mutex taskMutex_;
         TaskId newTaskId_;
-        std::unordered_map<
-            TaskId::ByValue<ValueWrapper::Operators::SingleBind<ValueWrapper::Operators::EqualityOperator>::Type>,
-            std::shared_ptr<TimerTask>> tasks_;
+        std::unordered_map<TaskId, std::shared_ptr<TimerTask>> tasks_;
         std::vector<std::pair<std::chrono::steady_clock::time_point, std::weak_ptr<TimerTask>>> taskHeap_;
 
     private:
