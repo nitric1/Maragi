@@ -221,9 +221,7 @@ namespace Gurigi
     class ControlManager final : public Batang::Singleton<ControlManager>
     {
     private:
-        std::unordered_map<
-            ControlId::ByValue<Batang::ValueWrapper::Operators::SingleBind<Batang::ValueWrapper::Operators::EqualityOperator>::Type>,
-            ControlWeakPtr<>> controls_;
+        std::unordered_map<ControlId, ControlWeakPtr<>> controls_;
 
         ControlId nextId_;
 
