@@ -8,6 +8,7 @@
 #include "Gurigi/FrameWindow.h"
 
 #include "Configure.h"
+#include "Constants.h"
 #include "MainController.h"
 #include "Tokens.h"
 #include "TwitterClient.h"
@@ -18,6 +19,7 @@
 namespace Maragi
 {
     MainController::MainController()
+        : help_(false)
     {
         registerEvents();
     }
@@ -46,6 +48,12 @@ namespace Maragi
                 return false;
 
             parseCommandLine(commandLine);
+
+            if(help_)
+            {
+                MessageBoxW(nullptr, L"Help Message", Constants::TITLE, MB_OK);
+                return true;
+            }
 
             // TwitterClient tc;
             // tc.authorize();
@@ -200,15 +208,17 @@ namespace Maragi
 
     void MainController::parseCommandLine(const std::wstring &commandLine)
     {
-        cmdLine_.addKey(L"help", false);
-        cmdLine_.addAbbr(L"h", L"help");
-        cmdLine_.addAbbr(L"?", L"help");
+        boostpo::options_description optdesc;
+        optdesc.add_options()
+            ("help,?", "help");
 
-        cmdLine_.parse(commandLine);
+        auto parsed = boostpo::split_winmain(commandLine);
+        boostpo::store(boostpo::wcommand_line_parser(parsed).options(optdesc).run(), cmdLine_);
+        boostpo::notify(cmdLine_);
 
-        if(!cmdLine_.isArgEmpty(L"help"))
+        if(cmdLine_.count("help"))
         {
-            // TODO: Maragi.exe --help
+            help_ = true;
         }
     }
 }
