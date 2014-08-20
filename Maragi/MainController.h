@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "Batang/CommandLineParser.h"
 #include "Batang/Singleton.h"
 #include "Batang/Thread.h"
 
@@ -9,7 +8,8 @@ namespace Maragi
     class MainController final : public Batang::Thread<MainController>, public Batang::Singleton<MainController>
     {
     private:
-        Batang::CommandLineParser cmdLine_;
+        boostpo::variables_map cmdLine_;
+        bool help_;
 
     private:
         MainController();

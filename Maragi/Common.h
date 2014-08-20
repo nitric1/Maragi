@@ -21,7 +21,10 @@
 #include <utility>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/program_options.hpp>
 #include <boost/thread/mutex.hpp>
+
+namespace boostpo = boost::program_options;
 
 // External library inclusion
 
