@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Batang/Error.h"
 #include "Batang/Singleton.h"
 
 namespace Gurigi
@@ -169,7 +170,7 @@ namespace Gurigi
 
         T &operator *() const
         {
-            assert(ptr != nullptr);
+            BATANG_ASSERT(ptr);
             return *ptr;
         }
 

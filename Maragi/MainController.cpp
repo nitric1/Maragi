@@ -1,5 +1,6 @@
 ﻿#include "Common.h"
 
+#include "Batang/Error.h"
 #include "Batang/Timer.h"
 
 #include "Gurigi/Controls.h"
@@ -148,7 +149,21 @@ namespace Maragi
 
             return frm->show(showCommand);
         }
-        catch(std::exception &e)
+        catch(const Batang::AssertError &e)
+        {
+            std::string str = "Assert: ";
+            str += e.what();
+            str += "\nFile: ";
+            str += e.File();
+            str += "\nLine: ";
+            str += boost::lexical_cast<std::string>(e.Line());
+            str += "\nFunction: ";
+            str += e.Function();
+            str += "\nThe program will be terminated.";
+            MessageBoxA(nullptr, str.c_str(), "Error", MB_ICONSTOP | MB_OK);
+            return false;
+        }
+        catch(const std::exception &e)
         {
             std::string str = "Unexpected exception thrown: ";
             str += e.what();

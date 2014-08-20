@@ -4,6 +4,7 @@
 
 #include "Detail/TimerThread.h"
 
+#include "Error.h"
 #include "Wrapper.h"
 
 namespace Batang
@@ -140,8 +141,6 @@ namespace Batang
             }
 
             tasks_.erase(it);
-
-            // TODO: assert(!taskHeap_.empty());
         }
     }
 
@@ -206,7 +205,7 @@ namespace Batang
             }
         }
 
-        // TODO: assert(taskHeap_.empty() == tasks_.empty())
+        BATANG_ASSERT(taskHeap_.empty() == tasks_.empty());
 
         return firstTask;
     }
@@ -242,7 +241,7 @@ namespace Batang
                         {
                             tasks_.erase(next->id_);
                         }
-                        else // periodic
+                        else // periodic; reserve task at next tick
                         {
                             next->tickAt_ += next->interval_;
                             taskHeap_.emplace_back(next->tickAt_, next);
