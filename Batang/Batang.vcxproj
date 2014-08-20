@@ -25,6 +25,7 @@
     <ClInclude Include="Delegate.h" />
     <ClInclude Include="Detail\Task.h" />
     <ClInclude Include="Detail\TimerThread.h" />
+    <ClInclude Include="Error.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="Singleton.h" />
@@ -44,6 +45,7 @@
     </ClCompile>
     <ClCompile Include="Detail\Task.cpp" />
     <ClCompile Include="Detail\TimerThread.cpp" />
+    <ClCompile Include="Error.cpp" />
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="Singleton.cpp" />
     <ClCompile Include="Thread.cpp" />

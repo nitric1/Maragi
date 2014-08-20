@@ -24,6 +24,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <unordered_map>
@@ -31,6 +32,7 @@
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/assert.hpp>
 #include <boost/locale/encoding_utf.hpp>
 #include <boost/operators.hpp>
 

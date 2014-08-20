@@ -20,6 +20,7 @@
 #include <type_traits>
 #include <utility>
 
+#include <boost/lexical_cast.hpp>
 #include <boost/thread/mutex.hpp>
 
 // External library inclusion

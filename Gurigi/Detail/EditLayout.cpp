@@ -1,5 +1,6 @@
 #include "Common.h"
 
+#include "Batang/Error.h"
 #include "Batang/Utility.h"
 
 #include "../Drawing.h"
@@ -255,9 +256,9 @@ namespace Gurigi
             }
             boost::range::copy(glyphClusters, glyphClusters_.begin() + textStartPos);
 
-            assert(glyphIndices.size() == glyphAdvances.size());
-            assert(glyphAdvances.size() == glyphOffsets.size());
-            assert(glyphOffsets.size() == glyphMetrics.size());
+            BATANG_ASSERT(glyphIndices.size() == glyphAdvances.size());
+            BATANG_ASSERT(glyphAdvances.size() == glyphOffsets.size());
+            BATANG_ASSERT(glyphOffsets.size() == glyphMetrics.size());
 
             size_t glyphStartPos = glyphIndices_.size();
             size_t glyphCount = glyphIndices.size();
