@@ -21,7 +21,7 @@ namespace Batang
         static const std::weak_ptr<ThreadTaskPool> &current();
 
     protected:
-        static void current(const std::weak_ptr<ThreadTaskPool> &);
+        static void current(std::weak_ptr<ThreadTaskPool>);
 
     public:
         ThreadTaskPool();
@@ -32,8 +32,8 @@ namespace Batang
 
     public:
         virtual std::shared_ptr<ThreadTaskPool> sharedFromThis() = 0;
-        virtual void invoke(const std::function<void ()> &task);
-        virtual void post(const std::function<void ()> &task);
+        virtual void invoke(std::function<void ()> task);
+        virtual void post(std::function<void ()> task);
 
     protected:
         bool process();
@@ -91,11 +91,11 @@ namespace Batang
         {
             struct SetCurrent
             {
-                void (* setter_)(const std::weak_ptr<ThreadTaskPool> &);
-                SetCurrent(const std::weak_ptr<ThreadTaskPool> &thread, void (* setter)(const std::weak_ptr<ThreadTaskPool> &))
+                void (* setter_)(std::weak_ptr<ThreadTaskPool>);
+                SetCurrent(std::weak_ptr<ThreadTaskPool> thread, void (* setter)(std::weak_ptr<ThreadTaskPool>))
                     : setter_(setter)
                 {
-                    setter(thread);
+                    setter(std::move(thread));
                 }
                 ~SetCurrent() { setter_(std::weak_ptr<ThreadTaskPool>()); }
             } setCurrent(sharedFromThis(), &Thread::current);

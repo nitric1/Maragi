@@ -26,7 +26,7 @@ namespace Batang
             void run();
 
         public:
-            void nextTick(const std::chrono::steady_clock::duration &duration);
+            void nextTick(std::chrono::steady_clock::duration duration);
             void stop();
 
             friend class Thread<TimerThread>;

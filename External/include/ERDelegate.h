@@ -10,7 +10,7 @@ template<typename FunctionType>
 class ERDelegateWrapper;
 
 template<typename Fn>
-struct ERDelegateFunctionTraits : ERDelegateFunctionTraits<decltype(&Fn::operator ())>
+struct ERDelegateFunctionTraits : ERDelegateFunctionTraits<decltype(&std::remove_reference<Fn>::type::operator ())>
 {};
 
 #include <boost/bind.hpp>
@@ -199,7 +199,10 @@ template<typename Return, typename ...Args>
 class ERDelegateWrapper<Return (Args...)> : public ERDelegate<Return (Args...)>
 {
 private:
-    std::shared_ptr<ERDelegate<Return (Args...)>> dg;
+    typedef std::shared_ptr<ERDelegate<Return(Args...)>> ERDelegatePtr;
+
+private:
+    ERDelegatePtr dg;
 
 public:
     ERDelegateWrapper()
@@ -208,11 +211,11 @@ public:
     ERDelegateWrapper(std::nullptr_t)
     {}
 
-    ERDelegateWrapper(const std::shared_ptr<ERDelegate<Return (Args...)>> &idg)
+    ERDelegateWrapper(const ERDelegatePtr &idg)
         : dg(idg)
     {}
 
-    ERDelegateWrapper(std::shared_ptr<ERDelegate<Return (Args...)>> &&idg)
+    ERDelegateWrapper(ERDelegatePtr &&idg)
         : dg(std::move(idg))
     {}
 
@@ -231,13 +234,13 @@ public:
         return *this;
     }
 
-    ERDelegateWrapper &operator =(const std::shared_ptr<ERDelegate<Return (Args...)>> &rhs)
+    ERDelegateWrapper &operator =(const ERDelegatePtr &rhs)
     {
         dg = rhs;
         return *this;
     }
 
-    ERDelegateWrapper &operator =(std::shared_ptr<ERDelegate<Return (Args...)>> &&rhs)
+    ERDelegateWrapper &operator =(ERDelegatePtr &&rhs)
     {
         dg = std::move(rhs);
         return *this;
@@ -275,12 +278,12 @@ public:
         return dg && *dg;
     }
 
-    const std::shared_ptr<ERDelegate<Return (Args...)>> &get()
+    const ERDelegatePtr &get()
     {
         return dg;
     }
 
-    operator std::shared_ptr<ERDelegate<Return (Args...)>>()
+    operator ERDelegatePtr()
     {
         return dg;
     }
@@ -300,13 +303,14 @@ struct ERDelegateFunctionTraits<Return (*)(Args...)>
     template<size_t I>
     struct Arg
     {
-        typedef typename std::tuple_element<I, std::tuple<Args...>>::type type;
-        typedef type Type;
+        typedef typename std::tuple_element<I, std::tuple<Args...>>::type Type;
     };
 
     template<size_t I>
     struct arg : Arg<I>
-    {};
+    {
+        typedef Type type;
+    };
 
     typedef Return (FunctionType)(Args...);
 };

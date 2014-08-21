@@ -12,9 +12,9 @@ namespace Batang
         }
     }
 
-    void SingletonManager::registerInstance(uint32_t destructPriority, const std::shared_ptr<void> &instance)
+    void SingletonManager::registerInstance(uint32_t destructPriority, std::shared_ptr<void> instance)
     {
-        instances_.emplace(destructPriority, instance);
+        instances_.emplace(destructPriority, std::move(instance));
     }
 
     SingletonManager &SingletonManager::instance()

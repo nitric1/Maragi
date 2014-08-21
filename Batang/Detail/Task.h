@@ -19,7 +19,7 @@ namespace Batang
             std::mutex mutex_;
 
         public:
-            void push(const Task &task);
+            void push(Task task);
             Task pop();
             bool empty();
         };

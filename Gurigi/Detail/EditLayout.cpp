@@ -203,9 +203,9 @@ namespace Gurigi
             currentY_ = 0.0f;
         }
 
-        void EditLayoutSource::prepare(const Objects::SizeF &size)
+        void EditLayoutSource::prepare(Objects::SizeF size)
         {
-            size_ = size;
+            size_ = std::move(size);
         }
 
         void EditLayoutSource::getNextArea(float fontHeight, Objects::RectangleF &area)
@@ -610,9 +610,9 @@ namespace Gurigi
             return text_;
         }
 
-        void EditLayout::text(const std::wstring &text)
+        void EditLayout::text(std::wstring text)
         {
-            text_ = text;
+            text_ = std::move(text);
             invalidate();
         }
 
@@ -621,13 +621,7 @@ namespace Gurigi
             return textFormats_;
         }
 
-        void EditLayout::textFormats(const std::vector<ComPtr<IDWriteTextFormat>> &textFormats)
-        {
-            textFormats_ = textFormats;
-            invalidate();
-        }
-
-        void EditLayout::textFormats(std::vector<ComPtr<IDWriteTextFormat>> &&textFormats)
+        void EditLayout::textFormats(std::vector<ComPtr<IDWriteTextFormat>> textFormats)
         {
             textFormats_ = std::move(textFormats);
             invalidate();
@@ -658,9 +652,9 @@ namespace Gurigi
             return size_;
         }
 
-        void EditLayout::size(const Objects::SizeF &size)
+        void EditLayout::size(Objects::SizeF size)
         {
-            size_ = size;
+            size_ = std::move(size);
         }
 
         void EditLayout::analyze()

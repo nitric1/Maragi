@@ -4,7 +4,7 @@
 
 namespace Batang
 {
-    std::wstring &trim(std::wstring &str)
+    std::wstring trim(std::wstring str)
     {
         static auto fn = [](wchar_t ch) -> wchar_t { return ch != L' ' && ch != L'　' && ch != L'\t' && ch != L'\n' && ch != L'\r'; };
         str.erase(str.begin(), find_if(str.begin(), str.end(), fn));
@@ -56,9 +56,8 @@ namespace Batang
         return str;
     }
 
-    std::wstring getDirectoryPath(const std::wstring &ipath)
+    std::wstring getDirectoryPath(std::wstring path)
     {
-        std::wstring path = ipath;
         size_t pos = path.rfind(L'\\');
         if(pos != std::wstring::npos)
             path.erase(++ pos);

@@ -38,8 +38,8 @@ namespace Batang
 
     Timer::TaskId Timer::installRunOnceTimer(
         std::weak_ptr<ThreadTaskPool> thread,
-        const std::chrono::steady_clock::time_point &tickAt,
-        const std::function<void ()> &task)
+        std::chrono::steady_clock::time_point tickAt,
+        std::function<void ()> task)
     {
         auto now = std::chrono::steady_clock::now();
 
@@ -53,41 +53,41 @@ namespace Batang
             return 0;
         }
 
-        return installTimer(thread, now, tickAt, std::chrono::steady_clock::duration(), task);
+        return installTimer(thread, now, tickAt, std::chrono::steady_clock::duration(), std::move(task));
     }
 
     Timer::TaskId Timer::installPeriodicTimer(
         std::weak_ptr<ThreadTaskPool> thread,
-        const std::chrono::steady_clock::duration &interval,
-        const std::function<void ()> &task)
+        std::chrono::steady_clock::duration interval,
+        std::function<void ()> task)
     {
         auto now = std::chrono::steady_clock::now();
 
-        return installTimer(thread, now, now + interval, interval, task);
+        return installTimer(thread, now, now + interval, interval, std::move(task));
     }
 
     Timer::TaskId Timer::installPeriodicTimer(
         std::weak_ptr<ThreadTaskPool> thread,
-        const std::chrono::steady_clock::duration &initialInterval,
-        const std::chrono::steady_clock::duration &interval,
-        const std::function<void()> &task)
+        std::chrono::steady_clock::duration initialInterval,
+        std::chrono::steady_clock::duration interval,
+        std::function<void()> task)
     {
         auto now = std::chrono::steady_clock::now();
 
-        return installTimer(thread, now, now + initialInterval, interval, task);
+        return installTimer(thread, now, now + initialInterval, interval, std::move(task));
     }
 
     Timer::TaskId Timer::installTimer(
         std::weak_ptr<ThreadTaskPool> thread,
-        const std::chrono::steady_clock::time_point &now,
-        const std::chrono::steady_clock::time_point &tickAt,
-        const std::chrono::steady_clock::duration &interval,
-        const std::function<void ()> &task)
+        std::chrono::steady_clock::time_point now,
+        std::chrono::steady_clock::time_point tickAt,
+        std::chrono::steady_clock::duration interval,
+        std::function<void ()> task)
     {
         std::shared_ptr<TimerTask> timerTask(new TimerTask());
         timerTask->tickAt_ = tickAt;
         timerTask->interval_ = interval;
-        timerTask->task_ = task;
+        timerTask->task_ = std::move(task);
         timerTask->thread_ = thread;
 
         {

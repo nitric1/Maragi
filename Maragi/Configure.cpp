@@ -58,8 +58,8 @@ namespace Maragi
             name.assign(str.begin(), str.begin() + pos);
             value.assign(str.begin() + pos + 1, str.end());
 
-            Batang::trim(name);
-            Batang::trim(value);
+            name = Batang::trim(std::move(name));
+            value = Batang::trim(std::move(value));
 
             set(name, value, false);
         }

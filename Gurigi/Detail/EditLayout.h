@@ -57,10 +57,10 @@ namespace Gurigi
             typedef TextAnalysisRun Run;
 
         public:
-            TextAnalysis(const std::wstring &text, const std::wstring &locale,
+            TextAnalysis(std::wstring text, std::wstring locale,
                 IDWriteNumberSubstitution *numberSubstitution, DWRITE_READING_DIRECTION readingDirection)
-                : text_(text)
-                , locale_(locale)
+                : text_(std::move(text))
+                , locale_(std::move(locale))
                 , numberSubstitution_(numberSubstitution)
                 , readingDirection_(readingDirection)
             {}
@@ -110,7 +110,7 @@ namespace Gurigi
 
         public:
             void clear();
-            void prepare(const Objects::SizeF &);
+            void prepare(Objects::SizeF);
             void getNextArea(float, Objects::RectangleF &);
         };
 
@@ -242,16 +242,15 @@ namespace Gurigi
 
         public:
             const std::wstring &text() const;
-            void text(const std::wstring &);
+            void text(std::wstring);
             const std::vector<ComPtr<IDWriteTextFormat>> &textFormats() const;
-            void textFormats(const std::vector<ComPtr<IDWriteTextFormat>> &);
-            void textFormats(std::vector<ComPtr<IDWriteTextFormat>> &&);
+            void textFormats(std::vector<ComPtr<IDWriteTextFormat>>);
             DWRITE_READING_DIRECTION defaultReadingDirection() const;
             void defaultReadingDirection(DWRITE_READING_DIRECTION);
             float fontEmSize() const;
             void fontEmSize(float);
             const Objects::SizeF &size() const;
-            void size(const Objects::SizeF &);
+            void size(Objects::SizeF);
 
         public:
             void analyze();
