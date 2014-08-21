@@ -29,13 +29,13 @@ namespace Gurigi
     {}
 
     ControlPtr<Label> Label::create(
-        const std::wstring &text,
-        const Objects::ColorF &color,
+        std::wstring text,
+        Objects::ColorF color,
         uint32_t align
         )
     {
         ControlPtr<Label> lbl(new Label(ControlManager::instance().getNextId()));
-        lbl->text_ = text;
+        lbl->text_ = std::move(text);
         lbl->color_ = color;
         lbl->align(align);
         return lbl;
@@ -85,9 +85,9 @@ namespace Gurigi
         return text_;
     }
 
-    void Label::text(const std::wstring &text)
+    void Label::text(std::wstring text)
     {
-        text_ = text;
+        text_ = std::move(text);
         redraw();
     }
 
@@ -178,11 +178,11 @@ namespace Gurigi
     {}
 
     ControlPtr<Button> Button::create(
-        const std::wstring &text
+        std::wstring text
         )
     {
         ControlPtr<Button> btn(new Button(ControlManager::instance().getNextId()));
-        btn->text_ = text;
+        btn->text_ = std::move(text);
         return btn;
     }
 
@@ -242,9 +242,9 @@ namespace Gurigi
         return text_;
     }
 
-    void Button::text(const std::wstring &text)
+    void Button::text(std::wstring text)
     {
-        text_ = text;
+        text_ = std::move(text);
         redraw();
     }
 
@@ -543,21 +543,21 @@ namespace Gurigi
     {}
 
     ControlPtr<Edit> Edit::create(
-        const std::wstring &placeholder,
+        std::wstring placeholder,
         const Objects::ColorF &colorText,
         const Objects::ColorF &colorPlaceholder,
         const Objects::ColorF &colorBackground,
-        const std::wstring &text,
+        std::wstring text,
         size_t selStart,
         size_t selEnd
         )
     {
         ControlPtr<Edit> edit(new Edit(ControlManager::instance().getNextId()));
-        edit->placeholder_ = placeholder;
+        edit->placeholder_ = std::move(placeholder);
         edit->colorText_ = colorText;
         edit->colorPlaceholder_ = colorPlaceholder;
         edit->colorBackground_ = colorBackground;
-        edit->text_ = text;
+        edit->text_ = std::move(text);
         edit->selStart_ = selStart;
         edit->selEnd_ = selEnd;
         return edit;
@@ -1009,9 +1009,9 @@ namespace Gurigi
         return text_;
     }
 
-    void Edit::text(const std::wstring &text)
+    void Edit::text(std::wstring text)
     {
-        text_ = text;
+        text_ = std::move(text);
         // TODO: discard IME mode, ...
         textRefresh();
         if(selStart_ != 0 || selEnd_ != 0)
@@ -1025,9 +1025,9 @@ namespace Gurigi
         return placeholder_;
     }
 
-    void Edit::placeholder(const std::wstring &placeholder)
+    void Edit::placeholder(std::wstring placeholder)
     {
-        placeholder_ = placeholder;
+        placeholder_ = std::move(placeholder);
         if(text_.empty())
             redraw();
     }

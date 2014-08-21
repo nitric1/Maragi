@@ -41,8 +41,8 @@ namespace Gurigi
 
     public:
         static ControlPtr<Label> create(
-            const std::wstring &,
-            const Objects::ColorF & = Objects::ColorF(Objects::ColorF::Black),
+            std::wstring,
+            Objects::ColorF = Objects::ColorF(Objects::ColorF::Black),
             uint32_t = LEFT | VCENTER
             );
 
@@ -54,7 +54,7 @@ namespace Gurigi
 
     public:
         virtual const std::wstring &text() const;
-        virtual void text(const std::wstring &);
+        virtual void text(std::wstring);
         virtual const Objects::ColorF &color() const;
         virtual void color(const Objects::ColorF &);
         virtual uint32_t align() const;
@@ -77,7 +77,7 @@ namespace Gurigi
 
     public:
         static ControlPtr<Button> create(
-            const std::wstring &
+            std::wstring
             );
 
     public:
@@ -95,7 +95,7 @@ namespace Gurigi
 
     public:
         virtual const std::wstring &text() const;
-        virtual void text(const std::wstring &);
+        virtual void text(std::wstring);
     };
 
     // TODO: Move to Detail or some other namespace
@@ -177,11 +177,11 @@ namespace Gurigi
 
     public:
         static ControlPtr<Edit> create(
-            const std::wstring & = std::wstring(),
+            std::wstring = std::wstring(),
             const Objects::ColorF & = Objects::ColorF(Objects::ColorF::Black),
             const Objects::ColorF & = Objects::ColorF(Objects::ColorF::DarkGray),
             const Objects::ColorF & = Objects::ColorF(Objects::ColorF::White),
-            const std::wstring & = std::wstring(),
+            std::wstring = std::wstring(),
             size_t = 0,
             size_t = 0
             );
@@ -219,9 +219,9 @@ namespace Gurigi
 
     public:
         virtual const std::wstring &text() const;
-        virtual void text(const std::wstring &);
+        virtual void text(std::wstring);
         virtual const std::wstring &placeholder() const;
-        virtual void placeholder(const std::wstring &);
+        virtual void placeholder(std::wstring);
         virtual std::pair<size_t, size_t> selection() const;
         virtual void selection(size_t, bool);
         virtual void selection(size_t, size_t, bool);

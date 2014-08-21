@@ -46,7 +46,7 @@ namespace Batang
 #endif
         }
 
-        void TimerThread::nextTick(const std::chrono::steady_clock::duration &duration)
+        void TimerThread::nextTick(std::chrono::steady_clock::duration duration)
         {
             {
                 std::lock_guard<std::mutex> lock(timerMutex_);

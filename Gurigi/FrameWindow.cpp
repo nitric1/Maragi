@@ -40,9 +40,9 @@ namespace Gurigi
 
     ShellPtr<FrameWindow> FrameWindow::create(
         const ShellWeakPtr<> &parent,
-        const std::wstring &title,
-        const Resources::ResourcePtr<Resources::Icon> &iconLarge,
-        const Resources::ResourcePtr<Resources::Icon> &iconSmall,
+        std::wstring title,
+        Resources::ResourcePtr<Resources::Icon> iconLarge,
+        Resources::ResourcePtr<Resources::Icon> iconSmall,
         const Objects::ColorF &bgColor,
         const Objects::SizeF &clientSize,
         const Objects::PointI &position,
@@ -56,7 +56,7 @@ namespace Gurigi
         wcex.cbSize = sizeof(wcex);
         wcex.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
         wcex.cbClsExtra = 0;
-        wcex.cbWndExtra    = sizeof(void *);
+        wcex.cbWndExtra = sizeof(void *);
         wcex.hInstance = Batang::Win32Environment::instance().getInstance();
         wcex.hIcon = *iconLarge;
         wcex.hIconSm = *iconSmall;
@@ -71,9 +71,9 @@ namespace Gurigi
         ShellPtr<FrameWindow> frm = new FrameWindow(parent);
 
         frm->className_ = className;
-        frm->initTitle_ = title;
-        frm->iconLarge_ = iconLarge;
-        frm->iconSmall_ = iconSmall;
+        frm->initTitle_ = std::move(title);
+        frm->iconLarge_ = std::move(iconLarge);
+        frm->iconSmall_ = std::move(iconSmall);
         frm->bgColor_ = bgColor;
         frm->initPosition_ = position;
         frm->initClientSize_ = clientSize;
@@ -211,9 +211,9 @@ namespace Gurigi
         return iconLarge_;
     }
 
-    void FrameWindow::iconLarge(const Resources::ResourcePtr<Resources::Icon> &icon)
+    void FrameWindow::iconLarge(Resources::ResourcePtr<Resources::Icon> icon)
     {
-        iconLarge_ = icon;
+        iconLarge_ = std::move(icon);
         // TODO: set icon message
     }
 
@@ -222,9 +222,9 @@ namespace Gurigi
         return iconSmall_;
     }
 
-    void FrameWindow::iconSmall(const Resources::ResourcePtr<Resources::Icon> &icon)
+    void FrameWindow::iconSmall(Resources::ResourcePtr<Resources::Icon> icon)
     {
-        iconSmall_ = icon;
+        iconSmall_ = std::move(icon);
         // TODO: set icon message
     }
 

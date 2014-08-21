@@ -36,9 +36,9 @@ namespace Gurigi
     public:
         static ShellPtr<FrameWindow> create(
             const ShellWeakPtr<> &,
-            const std::wstring &,
-            const Resources::ResourcePtr<Resources::Icon> &,
-            const Resources::ResourcePtr<Resources::Icon> &,
+            std::wstring,
+            Resources::ResourcePtr<Resources::Icon>,
+            Resources::ResourcePtr<Resources::Icon>,
             const Objects::ColorF & = Objects::ColorF(Objects::ColorF::White),
             const Objects::SizeF & = Objects::SizeF::Invalid,
             const Objects::PointI & = Objects::PointI::Invalid,
@@ -58,9 +58,9 @@ namespace Gurigi
     public:
         virtual const ControlPtr<ShellLayout> &client() const;
         virtual const Resources::ResourcePtr<Resources::Icon> &iconLarge() const;
-        virtual void iconLarge(const Resources::ResourcePtr<Resources::Icon> &);
+        virtual void iconLarge(Resources::ResourcePtr<Resources::Icon>);
         virtual const Resources::ResourcePtr<Resources::Icon> &iconSmall() const;
-        virtual void iconSmall(const Resources::ResourcePtr<Resources::Icon> &);
+        virtual void iconSmall(Resources::ResourcePtr<Resources::Icon>);
         virtual const Objects::ColorF &bgColor() const;
         virtual void bgColor(const Objects::ColorF &);
         virtual Objects::SizeF clientSize() const override;

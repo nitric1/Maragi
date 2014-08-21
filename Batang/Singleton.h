@@ -25,7 +25,7 @@ namespace Batang
         ~SingletonManager();
 
     private:
-        void registerInstance(uint32_t destructPriority, const std::shared_ptr<void> &instance);
+        void registerInstance(uint32_t destructPriority, std::shared_ptr<void> instance);
 
     private:
         static SingletonManager &instance();

@@ -13,9 +13,9 @@ namespace Batang
         return *currentTaskPool_.get();
     }
 
-    void ThreadTaskPool::current(const std::weak_ptr<ThreadTaskPool> &current)
+    void ThreadTaskPool::current(std::weak_ptr<ThreadTaskPool> current)
     {
-        currentTaskPool_.reset(new std::weak_ptr<ThreadTaskPool>(current));
+        currentTaskPool_.reset(new std::weak_ptr<ThreadTaskPool>(std::move(current)));
     }
 
     ThreadTaskPool::ThreadTaskPool()
@@ -27,11 +27,11 @@ namespace Batang
         Timer::instance().uninstallAllThreadTimers(this);
     }
 
-    void ThreadTaskPool::invoke(const std::function<void ()> &fn)
+    void ThreadTaskPool::invoke(std::function<void ()> fn)
     {
         Detail::Task task =
         {
-            fn,
+            std::move(fn),
             std::shared_ptr<Detail::Task::InvokeLockTuple>(new Detail::Task::InvokeLockTuple())
         };
 
@@ -51,9 +51,9 @@ namespace Batang
         }
     }
 
-    void ThreadTaskPool::post(const std::function<void ()> &fn)
+    void ThreadTaskPool::post(std::function<void ()> fn)
     {
-        Detail::Task task = { fn, nullptr };
+        Detail::Task task = { std::move(fn), nullptr };
         {
             std::lock_guard<std::mutex> invokedLock(taskPoolMutex_);
             taskPool_.push(task);

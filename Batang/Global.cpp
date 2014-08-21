@@ -17,12 +17,12 @@ namespace Batang
             it->second->uninit();
     }
 
-    void GlobalInitializerManager::add(const std::shared_ptr<Initializer> &init)
+    void GlobalInitializerManager::add(std::shared_ptr<Initializer> init)
     {
         std::lock_guard<std::mutex> lg(lock_);
         if(inits_.find(init->getName()) != inits_.end())
             return;
-        inits_.insert(std::make_pair(init->getName(), init));
+        inits_.emplace(init->getName(), std::move(init));
         init->init();
     }
 }

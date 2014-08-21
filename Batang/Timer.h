@@ -50,27 +50,27 @@ namespace Batang
     public:
         TaskId installRunOnceTimer(
             std::weak_ptr<ThreadTaskPool> thread,
-            const std::chrono::steady_clock::time_point &tickAt,
-            const std::function<void ()> &task);
+            std::chrono::steady_clock::time_point tickAt,
+            std::function<void ()> task);
         TaskId installPeriodicTimer(
             std::weak_ptr<ThreadTaskPool> thread,
-            const std::chrono::steady_clock::duration &interval,
-            const std::function<void ()> &task);
+            std::chrono::steady_clock::duration interval,
+            std::function<void ()> task);
         Timer::TaskId Timer::installPeriodicTimer(
             std::weak_ptr<ThreadTaskPool> thread,
-            const std::chrono::steady_clock::duration &initialInterval,
-            const std::chrono::steady_clock::duration &interval,
-            const std::function<void()> &task);
+            std::chrono::steady_clock::duration initialInterval,
+            std::chrono::steady_clock::duration interval,
+            std::function<void()> task);
         void uninstallTimer(TaskId taskId);
         void uninstallAllThreadTimers(const ThreadTaskPool *thread);
 
     private:
         TaskId installTimer(
             std::weak_ptr<ThreadTaskPool> thread,
-            const std::chrono::steady_clock::time_point &now,
-            const std::chrono::steady_clock::time_point &tickAt,
-            const std::chrono::steady_clock::duration &interval,
-            const std::function<void ()> &task);
+            std::chrono::steady_clock::time_point now,
+            std::chrono::steady_clock::time_point tickAt,
+            std::chrono::steady_clock::duration interval,
+            std::function<void ()> task);
         std::shared_ptr<TimerTask> nextTask();
 
     private:

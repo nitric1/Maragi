@@ -21,24 +21,16 @@ namespace Batang
         boost::signals2::connection connect(Func fn, bool prior = false)
         {
             if(prior)
-                return sig_.connect(0, fn);
-            return sig_.connect(fn);
+                return sig_.connect(0, std::move(fn));
+            return sig_.connect(std::move(fn));
         }
 
         template<typename FunctionType>
-        boost::signals2::connection connect(const ERDelegateWrapper<FunctionType> &dg, bool prior = false)
+        boost::signals2::connection connect(std::shared_ptr<ERDelegate<FunctionType>> dg, bool prior = false)
         {
             if(prior)
-                return sig_.connect(0, dg);
-            return sig_.connect(dg);
-        }
-
-        template<typename FunctionType>
-        boost::signals2::connection connect(const std::shared_ptr<ERDelegate<FunctionType>> &dg, bool prior = false)
-        {
-            if(prior)
-                return sig_.connect(0, ERDelegateWrapper<FunctionType>(dg));
-            return sig_.connect(ERDelegateWrapper<FunctionType>(dg));
+                return sig_.connect(0, ERDelegateWrapper<FunctionType>(std::move(dg)));
+            return sig_.connect(ERDelegateWrapper<FunctionType>(std::move(dg)));
         }
 
         void disconnect(boost::signals2::connection conn)
@@ -55,13 +47,7 @@ namespace Batang
         template<typename Func>
         boost::signals2::connection operator +=(Func rhs)
         {
-            return sig_.connect(rhs);
-        }
-
-        template<typename FunctionType>
-        boost::signals2::connection operator +=(const ERDelegateWrapper<FunctionType> &rhs)
-        {
-            return sig_.connect(rhs);
+            return sig_.connect(std::move(rhs));
         }
 
         void operator -=(boost::signals2::connection rhs)
@@ -87,20 +73,12 @@ namespace Batang
         boost::signals2::connection connect(Func fn, bool prior = false)
         {
             if(prior)
-                return sig_.connect(0, fn);
-            return sig_.connect(fn);
+                return sig_.connect(0, std::move(fn));
+            return sig_.connect(std::move(fn));
         }
 
         template<typename FunctionType>
-        boost::signals2::connection connect(const ERDelegateWrapper<FunctionType> &dg, bool prior = false)
-        {
-            if(prior)
-                return sig_.connect(0, dg);
-            return sig_.connect(dg);
-        }
-
-        template<typename FunctionType>
-        boost::signals2::connection connect(const std::shared_ptr<ERDelegate<FunctionType>> &dg, bool prior = false)
+        boost::signals2::connection connect(std::shared_ptr<ERDelegate<FunctionType>> dg, bool prior = false)
         {
             if(prior)
                 return sig_.connect(0, ERDelegateWrapper<FunctionType>(dg));
@@ -121,13 +99,7 @@ namespace Batang
         template<typename Func>
         boost::signals2::connection operator +=(Func rhs)
         {
-            return sig_.connect(rhs);
-        }
-
-        template<typename FunctionType>
-        boost::signals2::connection operator +=(const ERDelegateWrapper<FunctionType> &rhs)
-        {
-            return sig_.connect(rhs);
+            return sig_.connect(std::move(rhs));
         }
 
         void operator -=(boost::signals2::connection rhs)

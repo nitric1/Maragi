@@ -58,8 +58,8 @@ namespace Batang
         std::function<void ()> initFn_, uninitFn_;
 
     public:
-        SimpleInitializer(const std::string &name, const std::function<void ()> &initFn, const std::function<void ()> &uninitFn)
-            : name_(name), initFn_(initFn), uninitFn_(uninitFn)
+        SimpleInitializer(std::string name, std::function<void ()> initFn, std::function<void ()> uninitFn)
+            : name_(std::move(name)), initFn_(std::move(initFn)), uninitFn_(std::move(uninitFn))
         {}
 
         virtual std::string getName() const override
@@ -86,8 +86,8 @@ namespace Batang
 
     public:
         template<typename InitFn>
-        ScopedInitializer(InitFn &&initFn, const std::function<void()> &uninitFn)
-            : uninitFn_(uninitFn)
+        ScopedInitializer(InitFn &&initFn, std::function<void ()> uninitFn)
+            : uninitFn_(std::move(uninitFn))
             , uninitialized_(false)
         {
             initFn();
@@ -123,10 +123,11 @@ namespace Batang
         GlobalInitializerManager(const GlobalInitializerManager &) = delete;
 
     public:
-        void add(const std::shared_ptr<Initializer> &);
-        void add(const std::string &name, const std::function<void ()> &initFn, const std::function<void ()> &uninitFn) // using SimpleInitializer
+        void add(std::shared_ptr<Initializer>);
+        void add(std::string name, std::function<void ()> initFn, std::function<void ()> uninitFn) // using SimpleInitializer
         {
-            add(std::shared_ptr<Initializer>(new SimpleInitializer(name, initFn, uninitFn)));
+            add(std::shared_ptr<Initializer>(new SimpleInitializer(
+                std::move(name), std::move(initFn), std::move(uninitFn))));
         }
 
         friend class Batang::Singleton<GlobalInitializerManager>;
