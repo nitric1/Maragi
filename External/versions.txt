@@ -1,5 +1,5 @@
 curl=7.36.0
-openssl=1.0.1g
+openssl=1.0.1i
 zlib=1.2.8
 twitcurl=r129
 rapidjson=0.11
