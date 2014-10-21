@@ -422,7 +422,7 @@ namespace Gurigi
     }
 
     Edit::Edit(const ControlId &id)
-        : Control(id)
+        : EmbeddedLayoutHost(id, placer_)
         , colorText_(Objects::ColorF::Black)
         , colorPlaceholder_(Objects::ColorF::DarkGray)
         , colorBackground_(Objects::ColorF::White)
@@ -431,6 +431,7 @@ namespace Gurigi
         , dragging_(false)
         , trailing_(false)
         , firstSurrogatePair_(L'\0')
+        , placer_({ GridSize() }, { GridSize(), GridSize(10.0f) })
     {
         formatPlaceholder_ = Drawing::FontFactory::instance().createFont(
             16.0f,
@@ -560,15 +561,19 @@ namespace Gurigi
         edit->text_ = std::move(text);
         edit->selStart_ = selStart;
         edit->selEnd_ = selEnd;
+
+        edit->scrollbar_ = Scrollbar::create(Scrollbar::Orientation::Vertical,
+            0.0, 100.0, 10.0);
+        edit->attach({0, 1}, edit->scrollbar_);
         return edit;
     }
 
-    void Edit::createDrawingResources(Drawing::Context &ctx)
+    void Edit::createDrawingResourcesSelf(Drawing::Context &ctx)
     {
         ctx->CreateSolidColorBrush(Objects::ColorF(GetSysColor(COLOR_HIGHLIGHT)), &brushSelection_);
     }
 
-    void Edit::discardDrawingResources(Drawing::Context &ctx)
+    void Edit::discardDrawingResourcesSelf(Drawing::Context &ctx)
     {
         brushText_.release();
         brushPlaceholder_.release();
@@ -577,7 +582,7 @@ namespace Gurigi
         clipLayer_.release();
     }
 
-    void Edit::draw(Drawing::Context &ctx)
+    void Edit::drawSelf(Drawing::Context &ctx)
     {
         HRESULT hr;
         if(!brushText_)
@@ -614,7 +619,7 @@ namespace Gurigi
         ctx->GetTransform(&oldTransform);
         ctx->SetTransform(clientTransform_);
 
-        Objects::RectangleF newRect(Objects::PointF(0.0f, 0.0f), rect().size());
+        Objects::RectangleF newRect(Objects::PointF(0.0f, 0.0f), rect().size().expand(-10.0f, 0.0f));
         ctx->FillRectangle(
             newRect,
             brushBackground_
@@ -668,7 +673,7 @@ namespace Gurigi
         return Objects::SizeF(64.0f, 20.0f);
     }
 
-    void Edit::onResizeInternal(const Objects::RectangleF &rect)
+    void Edit::onResizeInternalSelf(const Objects::RectangleF &rect)
     {
         clientTransform_ = D2D1::Matrix3x2F::Translation(rect.left, rect.top);
         paddingTransform_ = D2D1::Matrix3x2F::Translation(1.0f, 1.0f); // TODO: padding implementation by design
@@ -1342,8 +1347,6 @@ namespace Gurigi
         if(scrollMin_ > scrollMax_)
             std::swap(scrollMin_, scrollMax_);
 
-        // TODO: cancel dragging
-
         current(current_);
     }
 
@@ -1355,8 +1358,6 @@ namespace Gurigi
     void Scrollbar::pageSize(double pageSize)
     {
         pageSize_ = pageSize;
-
-        // TODO: cancel dragging
 
         current(current_);
     }

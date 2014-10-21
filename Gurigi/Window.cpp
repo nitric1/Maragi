@@ -6,76 +6,6 @@
 
 namespace Gurigi
 {
-    Slot::Slot()
-    {
-    }
-
-    Slot::Slot(const ControlWeakPtr<> &parent)
-        : parent_(parent)
-    {
-    }
-
-    Slot::~Slot()
-    {
-        detach();
-    }
-
-    bool Slot::attach(const ControlWeakPtr<> &newChild)
-    {
-        ControlPtr<> lnewChild = newChild.lock();
-        if(child_.expired() && lnewChild && !lnewChild->parent_)
-        {
-            child_ = newChild;
-            lnewChild->parent_ = this;
-            ControlPtr<> lparent = parent_.lock();
-            if(lparent)
-            {
-                lnewChild->walk([lparent](const ControlWeakPtr<> &ctl)
-                {
-                    ControlPtr<> lctl = ctl.lock();
-                    if(lctl)
-                        lctl->shell_ = lparent->shell_;
-                });
-            }
-            return true;
-        }
-        return false;
-    }
-
-    ControlWeakPtr<> Slot::detach()
-    {
-        ControlPtr<> lchild = child_.lock();
-        if(lchild)
-        {
-            lchild->parent_ = nullptr;
-            lchild->walk([](const ControlWeakPtr<> &ctl)
-            {
-                ControlPtr<> lctl = ctl.lock();
-                if(lctl)
-                    lctl->shell_ = nullptr;
-            });
-            ControlWeakPtr<> child = child_;
-            child_ = nullptr;
-            return child;
-        }
-        return nullptr;
-    }
-
-    const ControlWeakPtr<> &Slot::parent() const
-    {
-        return parent_;
-    }
-
-    void Slot::parent(const ControlWeakPtr<> &iparent)
-    {
-        parent_ = iparent;
-    }
-
-    const ControlWeakPtr<> &Slot::child() const
-    {
-        return child_;
-    }
-
     Control::Control(const ControlId &iid)
         : parent_(nullptr)
         , id_(iid)
@@ -170,7 +100,7 @@ namespace Gurigi
         return shell_;
     }
 
-    Slot *Control::parent() const
+    const ControlWeakPtr<> &Control::parent() const
     {
         return parent_;
     }
@@ -199,9 +129,14 @@ namespace Gurigi
         return false;
     }
 
-    void Control::shell(const ShellWeakPtr<> &ishell)
+    void Control::shell(const ShellWeakPtr<> &shell)
     {
-        shell_ = ishell;
+        shell_ = shell;
+    }
+
+    void Control::parent(const ControlWeakPtr<> &parent)
+    {
+        parent_ = parent;
     }
 
     const Resources::ResourcePtr<Resources::Cursor> &Control::cursor() const

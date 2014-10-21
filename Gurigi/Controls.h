@@ -3,6 +3,7 @@
 #include "Batang/Event.h"
 #include "Batang/Timer.h"
 #include "Window.h"
+#include "Layouts.h"
 #include "Detail/EditLayout.h"
 
 namespace Gurigi
@@ -139,7 +140,7 @@ namespace Gurigi
         virtual HRESULT __stdcall IsPixelSnappingDisabled(void *, BOOL *);
     };
 
-    class Edit : public Control
+    class Edit : public EmbeddedLayoutHost<Placer::Grid<1, 2>>
     {
     public:
         enum class ReadingDirection : uint8_t
@@ -171,6 +172,9 @@ namespace Gurigi
         bool focused_, dragging_, trailing_;
         wchar_t firstSurrogatePair_;
 
+        Placer::Grid<1, 2> placer_;
+        ControlPtr<Scrollbar> scrollbar_;
+
     protected:
         Edit(const ControlId &);
         virtual ~Edit();
@@ -187,13 +191,13 @@ namespace Gurigi
             );
 
     public:
-        virtual void createDrawingResources(Drawing::Context &) override;
-        virtual void discardDrawingResources(Drawing::Context &) override;
-        virtual void draw(Drawing::Context &) override;
+        virtual void createDrawingResourcesSelf(Drawing::Context &) override;
+        virtual void discardDrawingResourcesSelf(Drawing::Context &) override;
+        virtual void drawSelf(Drawing::Context &) override;
         virtual Objects::SizeF computeSize() override;
 
     public:
-        virtual void onResizeInternal(const Objects::RectangleF &);
+        virtual void onResizeInternalSelf(const Objects::RectangleF &);
 
     private:
         void textRefresh();
