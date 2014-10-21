@@ -9,6 +9,30 @@ namespace Gurigi
     {
     }
 
+    void Layout::setParent(const ControlPtr<> &control)
+    {
+        setParent(control, sharedFromThis());
+    }
+
+    void Layout::setParent(const ControlPtr<> &control, const ControlWeakPtr<> &parent)
+    {
+        if(parent.expired())
+            return;
+        control->shell(parent.lock()->shell());
+        control->parent(parent);
+    }
+
+    void Layout::clearParent(const ControlPtr<> &control)
+    {
+        control->shell(nullptr);
+        control->parent(nullptr);
+    }
+
+    void Layout::setShell(const ControlPtr<> &control, const ShellWeakPtr<> &shell)
+    {
+        control->shell(shell);
+    }
+
     ShellLayout::ShellLayout(const ShellWeakPtr<> &ishell, const ControlId &id)
         : Layout(id)
     {
@@ -24,44 +48,38 @@ namespace Gurigi
         )
     {
         ControlPtr<ShellLayout> layout(new ShellLayout(shell, ControlManager::instance().getNextId()));
-        layout->slot_.parent(layout);
         return layout;
     }
 
     void ShellLayout::createDrawingResources(Drawing::Context &ctx)
     {
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            lchild->createDrawingResources(ctx);
+        if(child_)
+            child_->createDrawingResources(ctx);
     }
 
     void ShellLayout::discardDrawingResources(Drawing::Context &ctx)
     {
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            lchild->discardDrawingResources(ctx);
+        if(child_)
+            child_->discardDrawingResources(ctx);
     }
 
     void ShellLayout::draw(Drawing::Context &ctx)
     {
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            lchild->draw(ctx);
+        if(child_)
+            child_->draw(ctx);
     }
 
     Objects::SizeF ShellLayout::computeSize()
     {
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            return lchild->computeSize();
+        if(child_)
+            return child_->computeSize();
         return Objects::SizeF();
     }
 
     ControlWeakPtr<> ShellLayout::findByPoint(const Objects::PointF &pt)
     {
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            return lchild->findByPoint(pt);
+        if(child_)
+            return child_->findByPoint(pt);
         return nullptr;
     }
 
@@ -70,10 +88,9 @@ namespace Gurigi
         if(!rect().isIn(pt))
             return std::vector<ControlWeakPtr<>>();
 
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
+        if(child_)
         {
-            std::vector<ControlWeakPtr<>> ve = lchild->findTreeByPoint(pt);
+            std::vector<ControlWeakPtr<>> ve = child_->findTreeByPoint(pt);
             ve.insert(ve.begin(), sharedFromThis());
             return ve;
         }
@@ -85,10 +102,9 @@ namespace Gurigi
         if(!rect().isIn(pt))
             return std::vector<ControlWeakPtr<>>();
 
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
+        if(child_)
         {
-            std::vector<ControlWeakPtr<>> ve = lchild->findReverseTreeByPoint(pt);
+            std::vector<ControlWeakPtr<>> ve = child_->findReverseTreeByPoint(pt);
             ve.push_back(sharedFromThis());
             return ve;
         }
@@ -98,28 +114,43 @@ namespace Gurigi
     void ShellLayout::walk(const std::function<void (const ControlWeakPtr<> &)> &fn)
     {
         fn(sharedFromThis());
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            lchild->walk(fn);
+        if(child_)
+            child_->walk(fn);
     }
 
     void ShellLayout::walkReverse(const std::function<void (const ControlWeakPtr<> &)> &fn)
     {
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            lchild->walkReverse(fn);
+        if(child_)
+            child_->walkReverse(fn);
         fn(sharedFromThis());
     }
 
     void ShellLayout::onResizeInternal(const Objects::RectangleF &rect)
     {
-        ControlPtr<> lchild = slot_.child().lock();
-        lchild->rect(rect);
+        child_->rect(rect);
     }
 
-    Slot *ShellLayout::slot()
+    void ShellLayout::shell(const ShellWeakPtr<> &shell)
     {
-        return &slot_;
+        Layout::shell(shell);
+        if(child_)
+            setShell(child_, shell);
+    }
+
+    void ShellLayout::attach(const ControlPtr<> &control)
+    {
+        if(child_)
+            detach();
+        child_ = control;
+        setParent(control);
+    }
+
+    ControlPtr<> ShellLayout::detach()
+    {
+        auto control = child_;
+        child_ = nullptr;
+        clearParent(control);
+        return control;
     }
 
     PaddingLayout::PaddingLayout(const ControlId &id)
@@ -139,38 +170,33 @@ namespace Gurigi
 
     void PaddingLayout::createDrawingResources(Drawing::Context &ctx)
     {
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            lchild->createDrawingResources(ctx);
+        if(child_)
+            child_->createDrawingResources(ctx);
     }
 
     void PaddingLayout::discardDrawingResources(Drawing::Context &ctx)
     {
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            lchild->discardDrawingResources(ctx);
+        if(child_)
+            child_->discardDrawingResources(ctx);
     }
 
     void PaddingLayout::draw(Drawing::Context &ctx)
     {
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            lchild->draw(ctx);
+        if(child_)
+            child_->draw(ctx);
     }
 
     Objects::SizeF PaddingLayout::computeSize()
     {
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            return lchild->computeSize();
+        if(child_)
+            return child_->computeSize();
         return Objects::SizeF();
     }
 
     ControlWeakPtr<> PaddingLayout::findByPoint(const Objects::PointF &pt)
     {
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            return lchild->findByPoint(pt);
+        if(child_)
+            return child_->findByPoint(pt);
         return nullptr;
     }
 
@@ -179,10 +205,9 @@ namespace Gurigi
         if(!rect().isIn(pt))
             return std::vector<ControlWeakPtr<>>();
 
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
+        if(child_)
         {
-            std::vector<ControlWeakPtr<>> ve = lchild->findTreeByPoint(pt);
+            std::vector<ControlWeakPtr<>> ve = child_->findTreeByPoint(pt);
             ve.insert(ve.begin(), sharedFromThis());
             return ve;
         }
@@ -194,10 +219,9 @@ namespace Gurigi
         if(!rect().isIn(pt))
             return std::vector<ControlWeakPtr<>>();
 
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
+        if(child_)
         {
-            std::vector<ControlWeakPtr<>> ve = lchild->findReverseTreeByPoint(pt);
+            std::vector<ControlWeakPtr<>> ve = child_->findReverseTreeByPoint(pt);
             ve.push_back(sharedFromThis());
             return ve;
         }
@@ -207,16 +231,14 @@ namespace Gurigi
     void PaddingLayout::walk(const std::function<void (const ControlWeakPtr<> &)> &fn)
     {
         fn(sharedFromThis());
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            lchild->walk(fn);
+        if(child_)
+            child_->walk(fn);
     }
 
     void PaddingLayout::walkReverse(const std::function<void (const ControlWeakPtr<> &)> &fn)
     {
-        ControlPtr<> lchild = slot_.child().lock();
-        if(lchild)
-            lchild->walkReverse(fn);
+        if(child_)
+            child_->walkReverse(fn);
         fn(sharedFromThis());
     }
 
@@ -225,8 +247,14 @@ namespace Gurigi
         Objects::RectangleF childRect(
             rect.left + boundary_.left, rect.top + boundary_.top,
             rect.right - boundary_.right, rect.bottom - boundary_.bottom);
-        ControlPtr<> lchild = slot_.child().lock();
-        lchild->rect(childRect);
+        child_->rect(childRect);
+    }
+
+    void PaddingLayout::shell(const ShellWeakPtr<> &shell)
+    {
+        Layout::shell(shell);
+        if(child_)
+            setShell(child_, shell);
     }
 
     Objects::BoundaryF PaddingLayout::padding() const
@@ -240,8 +268,19 @@ namespace Gurigi
         redraw();
     }
 
-    Slot *PaddingLayout::slot()
+    void PaddingLayout::attach(const ControlPtr<> &control)
     {
-        return &slot_;
+        if(child_)
+            detach();
+        child_ = control;
+        setParent(control);
+    }
+
+    ControlPtr<> PaddingLayout::detach()
+    {
+        auto control = child_;
+        child_ = nullptr;
+        clearParent(control);
+        return control;
     }
 }

@@ -77,7 +77,7 @@ namespace Maragi
                 { GridSize(20.0f), GridSize(3), GridSize(1) },
                 { GridSize(120.0f), GridSize(1) }
                 );
-            frm->client()->slot()->attach(layout);
+            frm->client()->attach(layout);
 
             Gurigi::ControlPtr<Gurigi::Label> label;
             Gurigi::ControlPtr<Gurigi::Button> button;
@@ -85,7 +85,7 @@ namespace Maragi
             Gurigi::ControlPtr<Gurigi::Scrollbar> scrollbarV, scrollbarH;
 
             label = Gurigi::Label::create(L"Label Text", Gurigi::Objects::ColorF(Gurigi::Objects::ColorF::White));
-            layout->slot(0, 0)->attach(label);
+            layout->attach(0, 0, label);
 
             button = Gurigi::Button::create(L"Button Text");
             button->onClick += [&edit](const Gurigi::ControlEventArg &)
@@ -101,26 +101,10 @@ namespace Maragi
                 else
                     edit->text(L"");
             };
-            layout->slot(0, 1)->attach(button);
-
-            auto subLayout = Gurigi::GridLayout<2, 2>::create(
-                { GridSize(1), GridSize(10.0f) },
-                { GridSize(1), GridSize(10.0f) }
-                );
+            layout->attach(0, 1, button);
 
             edit = Gurigi::Edit::create(L"Placeholder Now");
-            subLayout->slot(0, 0)->attach(edit);
-
-            scrollbarV = Gurigi::Scrollbar::create(Gurigi::Scrollbar::Orientation::Vertical,
-                0.0, 100.0, 10.0);
-            scrollbarV->current(90.0);
-            subLayout->slot(0, 1)->attach(scrollbarV);
-
-            scrollbarH = Gurigi::Scrollbar::create(Gurigi::Scrollbar::Orientation::Horizontal,
-                0.0, 1000.0, 50.0);
-            subLayout->slot(1, 0)->attach(scrollbarH);
-
-            layout->slot(1, 1)->attach(subLayout);
+            layout->attach(1, 1, edit);
 
             /*std::thread t([this]()
             {

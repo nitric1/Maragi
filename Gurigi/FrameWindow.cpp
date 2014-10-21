@@ -583,11 +583,8 @@ namespace Gurigi
                 auto lfocused = focus().lock();
                 while(lfocused)
                 {
-                    auto parent = lfocused->parent();
-                    if(!parent)
-                        break;
                     focuseds.push_back(lfocused);
-                    lfocused = lfocused->parent()->parent().lock();
+                    lfocused = lfocused->parent().lock();
                 }
                 fireEvent(focuseds, &Control::onKeyDown, ev);
             }

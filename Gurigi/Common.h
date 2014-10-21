@@ -5,6 +5,7 @@
 // All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ library & boost library inclusion
 
+#include <array>
 #include <numeric>
 #include <set>
 

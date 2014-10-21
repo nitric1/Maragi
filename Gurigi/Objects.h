@@ -48,9 +48,21 @@ namespace Gurigi
                 return *this;
             }
 
-            const Point operator +(const Point &rhs) const
+            Point &operator -=(const Point &rhs)
             {
-                return Point(*this) += rhs;
+                x += rhs.x;
+                y += rhs.y;
+                return *this;
+            }
+
+            friend const Point operator +(Point lhs, Point rhs)
+            {
+                return lhs += rhs;
+            }
+
+            friend const Point operator -(Point lhs, Point rhs)
+            {
+                return lhs -= rhs;
             }
 
             operator D2D1_POINT_2U() const
@@ -92,6 +104,18 @@ namespace Gurigi
             Size(T iwidth, T iheight)
                 : width(iwidth), height(iheight)
             {}
+
+            Size &expandAssign(T iwidth, T iheight)
+            {
+                width += iwidth;
+                height += iheight;
+                return *this;
+            }
+
+            Size expand(T width, T height)
+            {
+                return Size(*this).expandAssign(width, height);
+            }
 
             template<typename Other>
             Size &operator =(const Size<Other> &rhs)

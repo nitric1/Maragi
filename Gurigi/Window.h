@@ -43,32 +43,6 @@ namespace Gurigi
         };
     }*/
 
-    class Slot
-    {
-    private:
-        ControlWeakPtr<> parent_;
-        ControlWeakPtr<> child_;
-
-    public:
-        Slot();
-        explicit Slot(const ControlWeakPtr<> &);
-        virtual ~Slot();
-
-    private:
-        Slot(const Slot &) = delete;
-
-    public:
-        virtual bool attach(const ControlWeakPtr<> &);
-        virtual ControlWeakPtr<> detach();
-
-    public:
-        virtual const ControlWeakPtr<> &parent() const;
-        virtual void parent(const ControlWeakPtr<> &); // TODO: should be fixed
-        virtual const ControlWeakPtr<> &child() const;
-
-        friend class Control;
-    };
-
     typedef Batang::Event<void> CommonEvent;
 
     struct ControlEventArg
@@ -131,7 +105,7 @@ namespace Gurigi
     {
     private:
         ShellWeakPtr<> shell_;
-        Slot *parent_;
+        ControlWeakPtr<> parent_;
         ControlId id_;
         Objects::RectangleF rect_;
         Resources::ResourcePtr<Resources::Cursor> cursor_;
@@ -183,7 +157,7 @@ namespace Gurigi
 
     public:
         virtual const ShellWeakPtr<> &shell() const;
-        virtual Slot *parent() const;
+        virtual const ControlWeakPtr<> &parent() const;
         virtual const ControlId &id() const;
         virtual const Objects::RectangleF &rect() const;
         virtual void rect(const Objects::RectangleF &);
@@ -191,11 +165,12 @@ namespace Gurigi
 
     protected:
         virtual void shell(const ShellWeakPtr<> &);
+        virtual void parent(const ControlWeakPtr<> &);
         virtual const Resources::ResourcePtr<Resources::Cursor> &cursor() const;
         virtual void cursor(const Resources::ResourcePtr<Resources::Cursor> &);
         virtual bool focusable() const;
 
-        friend class Slot;
+        friend class Layout;
         friend class Shell;
         friend struct ControlPtrDeleter;
     };

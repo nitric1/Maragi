@@ -10,7 +10,7 @@ namespace Gurigi
     template<typename Base, typename Deleter, typename T>
     class SharedPtr
     {
-        static_assert(std::is_convertible<T *, Base *>::value, "T must be a derived class of Base.");
+        //static_assert(std::is_convertible<T *, Base *>::value, "T must be a derived class of Base.");
 
     private:
         std::shared_ptr<Base> ptr_;
@@ -133,7 +133,7 @@ namespace Gurigi
     template<typename Base, typename Deleter, typename T>
     class WeakPtr
     {
-        static_assert(std::is_convertible<T *, Base *>::value, "T must be a derived class of Base.");
+        //static_assert(std::is_convertible<T *, Base *>::value, "T must be a derived class of Base.");
 
     protected:
         std::weak_ptr<Base> ptr_;

@@ -99,8 +99,8 @@ namespace Batang
             timerTask->id_ = newTaskId_;
             newTaskId_ = TaskId(*newTaskId_ + 1);
             tasks_.emplace(timerTask->id_, timerTask);
-            taskHeap_.emplace_back(tickAt, timerTask);
 
+            taskHeap_.emplace_back(tickAt, timerTask);
             std::push_heap(taskHeap_.begin(), taskHeap_.end(), PairFirstComparer());
 
             if(changeNextTick)
@@ -200,12 +200,13 @@ namespace Batang
             }
             else
             {
+                // clean ownerless schedule
                 std::pop_heap(taskHeap_.begin(), taskHeap_.end(), PairFirstComparer());
                 taskHeap_.pop_back();
             }
         }
 
-        BATANG_ASSERT(taskHeap_.empty() == tasks_.empty());
+        //BATANG_ASSERT(taskHeap_.empty() == tasks_.empty());
 
         return firstTask;
     }
