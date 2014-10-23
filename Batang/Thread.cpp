@@ -8,9 +8,31 @@ namespace Batang
 {
     boost::thread_specific_ptr<std::weak_ptr<ThreadTaskPool>> ThreadTaskPool::currentTaskPool_;
 
+    namespace
+    {
+        class EmptyThread : public Thread<EmptyThread>
+        {
+        public:
+            void run()
+            {
+            }
+        };
+    }
+
     const std::weak_ptr<ThreadTaskPool> &ThreadTaskPool::current()
     {
-        return *currentTaskPool_.get();
+        auto current = currentTaskPool_.get();
+        if(!current) // thread not created with Thread
+        {
+            static boost::thread_specific_ptr<std::shared_ptr<EmptyThread>> emptyThread;
+            auto currentEmptyThread = new std::shared_ptr<EmptyThread>(new EmptyThread());
+            emptyThread.reset(currentEmptyThread);
+
+            ThreadTaskPool::current(*currentEmptyThread);
+            current = currentTaskPool_.get();
+        }
+
+        return *current;
     }
 
     void ThreadTaskPool::current(std::weak_ptr<ThreadTaskPool> current)
@@ -27,36 +49,16 @@ namespace Batang
         Timer::instance().uninstallAllThreadTimers(this);
     }
 
-    void ThreadTaskPool::invoke(std::function<void ()> fn)
+    void ThreadTaskPool::post(std::function<void ()> task)
     {
-        Detail::Task task =
-        {
-            std::move(fn),
-            std::shared_ptr<Detail::Task::InvokeLockTuple>(new Detail::Task::InvokeLockTuple())
-        };
-
-        {
-            std::lock_guard<std::mutex> invokedLock(taskPoolMutex_);
-            taskPool_.push(task);
-            onTaskInvoked();
-        }
-        invokedCv_.notify_one();
-
-        {
-            std::unique_lock<std::mutex> invokeLock(std::get<0>(*task.invokeWaiter_));
-            if(!std::get<2>(*task.invokeWaiter_))
-            {
-                std::get<1>(*task.invokeWaiter_).wait(invokeLock);
-            }
-        }
+        post(std::unique_ptr<Detail::Task>(new Detail::PostTask(task)));
     }
 
-    void ThreadTaskPool::post(std::function<void ()> fn)
+    void ThreadTaskPool::post(std::unique_ptr<Detail::Task> task)
     {
-        Detail::Task task = { std::move(fn), nullptr };
         {
             std::lock_guard<std::mutex> invokedLock(taskPoolMutex_);
-            taskPool_.push(task);
+            taskPool_.push(std::move(task));
             onTaskInvoked();
         }
         invokedCv_.notify_one();
@@ -64,12 +66,12 @@ namespace Batang
 
     bool ThreadTaskPool::process()
     {
-        Detail::Task task;
-
         while(true)
         {
             if(toQuit_)
                 return false;
+
+            std::unique_ptr<Detail::Task> task;
 
             {
                 std::lock_guard<std::mutex> lock(taskPoolMutex_);
@@ -80,16 +82,7 @@ namespace Batang
                 task = taskPool_.pop();
             }
 
-            task.fn_();
-
-            if(task.invokeWaiter_)
-            {
-                {
-                    std::lock_guard<std::mutex> invokeLock(std::get<0>(*task.invokeWaiter_));
-                    std::get<2>(*task.invokeWaiter_) = true;
-                }
-                std::get<1>(*task.invokeWaiter_).notify_one();
-            }
+            (*task)();
         }
         return true;
     }

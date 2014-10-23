@@ -6,20 +6,26 @@ namespace Batang
 {
     namespace Detail
     {
-        Task::Task(Task &&task)
-            : fn_(std::move(task.fn_)), invokeWaiter_(std::move(task.invokeWaiter_))
-        {}
+        PostTask::PostTask(std::function<void ()> fn)
+            : fn_(std::move(fn))
+        {
+        }
 
-        void TaskPool::push(Task task)
+        void PostTask::operator ()()
+        {
+            fn_();
+        }
+
+        void TaskPool::push(std::unique_ptr<Task> task)
         {
             std::lock_guard<std::mutex> lock(mutex_);
             queue_.emplace_back(std::move(task));
         }
 
-        Task TaskPool::pop()
+        std::unique_ptr<Task> TaskPool::pop()
         {
             std::lock_guard<std::mutex> lock(mutex_);
-            Task task = std::move(queue_.front());
+            std::unique_ptr<Task> task = std::move(queue_.front());
             queue_.pop_front();
             return task;
         }

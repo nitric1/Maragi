@@ -32,8 +32,23 @@ namespace Batang
 
     public:
         virtual std::shared_ptr<ThreadTaskPool> sharedFromThis() = 0;
-        virtual void invoke(std::function<void ()> task);
-        virtual void post(std::function<void ()> task);
+        template<typename Func>
+        auto invoke(Func &&fn) -> std::future<decltype(fn())>
+        {
+            typedef decltype(fn()) ReturnType;
+
+            {
+                if(current().lock() == sharedFromThis())
+                    throw(std::logic_error("ThreadTaskPool::invoke cannot be called from same thread"));
+            }
+
+            auto task = new Detail::InvokeTask<ReturnType>(std::forward<Func>(fn));
+            auto future = task->future();
+
+            post(std::unique_ptr<Detail::Task>(task));
+            return future;
+        }
+        void post(std::function<void ()> task);
 
     protected:
         bool process();
@@ -43,6 +58,9 @@ namespace Batang
 
     protected:
         void onPreRun();
+
+    private:
+        void post(std::unique_ptr<Detail::Task>);
     };
 
     template<typename Derived>
