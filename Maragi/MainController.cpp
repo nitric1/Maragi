@@ -106,17 +106,18 @@ namespace Maragi
             edit = Gurigi::Edit::create(L"Placeholder Now");
             layout->attach(1, 1, edit);
 
-            /*std::thread t([this]()
+            std::thread t([this]()
             {
                 for(int i = 0; i < 5; ++ i)
                 {
-                    post([]() { MessageBoxW(nullptr, L"Invoked", L"Invoked", MB_OK); });
+                    auto future = invoke([]() { MessageBoxW(nullptr, L"Invoked", L"Invoked", MB_OK); });
                     std::this_thread::sleep_for(std::chrono::seconds(5));
+                    future.wait();
                 }
             });
-            t.detach();*/
+            t.detach();
 
-            Batang::Timer::instance().installRunOnceTimer(shared_from_this(),
+            Batang::Timer::instance().installRunOnceTimer(sharedFromThis(),
                 std::chrono::steady_clock::now(),
                 [&button]()
                 {

@@ -4,28 +4,27 @@
 
 namespace Gurigi
 {
+    // TODO: minimize lock
     class UiThread
     {
     public:
         static bool post(const std::function<void ()> &task)
         {
-            std::shared_ptr<Batang::ThreadTaskPool> luiThread;
-            {
-                std::lock_guard<std::mutex> lock(mutex_);
-                luiThread = uiThread_.lock();
-            }
-            if(luiThread)
-                luiThread->post(task);
+            std::lock_guard<std::mutex> lock(mutex_);
+            auto luiThread = uiThread_.lock();
+            if(!luiThread)
+                return false;
+            luiThread->post(task);
+            return true;
         }
-        static bool invoke(const std::function<void ()> &task)
+        template<typename Func>
+        static auto invoke(Func &&fn) -> boost::optional<std::future<decltype(fn())>>
         {
-            std::shared_ptr<Batang::ThreadTaskPool> luiThread;
-            {
-                std::lock_guard<std::mutex> lock(mutex_);
-                luiThread = uiThread_.lock();
-            }
-            if(luiThread)
-                luiThread->invoke(task);
+            std::lock_guard<std::mutex> lock(mutex_);
+            auto luiThread = uiThread_.lock();
+            if(!luiThread)
+                return {};
+            return luiThread->invoke(fn);
         }
 
     private:

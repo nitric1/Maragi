@@ -21,6 +21,7 @@
 #include <condition_variable>
 #include <deque>
 #include <functional>
+#include <future>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -33,6 +34,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/assert.hpp>
+#include <boost/integer/static_min_max.hpp>
 #include <boost/locale/encoding_utf.hpp>
 #include <boost/operators.hpp>
 
