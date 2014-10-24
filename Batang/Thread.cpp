@@ -7,15 +7,14 @@
 namespace Batang
 {
     boost::thread_specific_ptr<std::weak_ptr<ThreadTaskPool>> ThreadTaskPool::currentTaskPool_;
+    boost::thread_specific_ptr<std::shared_ptr<ThreadTaskPool>> ThreadTaskPool::emptyThread_;
 
     namespace
     {
         class EmptyThread : public Thread<EmptyThread>
         {
         public:
-            void run()
-            {
-            }
+            void run() {}
         };
     }
 
@@ -24,10 +23,8 @@ namespace Batang
         auto current = currentTaskPool_.get();
         if(!current) // thread not created with Thread
         {
-            static boost::thread_specific_ptr<std::shared_ptr<EmptyThread>> emptyThread;
-            auto currentEmptyThread = new std::shared_ptr<EmptyThread>(new EmptyThread());
-            emptyThread.reset(currentEmptyThread);
-
+            auto currentEmptyThread = new std::shared_ptr<ThreadTaskPool>(new EmptyThread());
+            emptyThread_.reset(currentEmptyThread);
             ThreadTaskPool::current(*currentEmptyThread);
             current = currentTaskPool_.get();
         }

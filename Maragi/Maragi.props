@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(ProjectDir);$(SolutionDir);$(SolutionDir)External\include;$(IncludePath)</IncludePath>
-    <SourcePath>$(SolutionDir)External\src;$(SourcePath)</SourcePath>
+    <IncludePath>$(ProjectDir);$(SolutionDir);$(ProjectDir)..\External\include;$(SolutionDir)External\include;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)..\External\src;$(SolutionDir)External\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>

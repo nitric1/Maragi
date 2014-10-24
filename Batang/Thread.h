@@ -10,6 +10,7 @@ namespace Batang
     {
     private:
         static boost::thread_specific_ptr<std::weak_ptr<ThreadTaskPool>> currentTaskPool_;
+        static boost::thread_specific_ptr<std::shared_ptr<ThreadTaskPool>> emptyThread_;
 
     private:
         Detail::TaskPool taskPool_;
