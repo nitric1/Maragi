@@ -16,7 +16,7 @@ namespace Batang
             template<typename First, typename Second>
             bool operator()(const std::pair<First, Second> &lhs, const std::pair<First, Second> &rhs) const
             {
-                return lhs.first < rhs.first;
+                return lhs.first > rhs.first;
             }
         };
     }

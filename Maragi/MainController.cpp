@@ -23,7 +23,7 @@ namespace Maragi
     {
         registerEvents();
     }
-    
+
     MainController::~MainController()
     {
     }

@@ -3,11 +3,11 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)External\include64;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\External\include64;$(SolutionDir)External\include64;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup>
-    <LibraryPath>$(SolutionDir)External\bin64;$(SolutionDir)External\bin64\$(Configuration);$(LibraryPath)</LibraryPath>
-    <ReferencePath>$(SolutionDir)External\bin64;$(SolutionDir)External\bin64\$(Configuration);$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(ProjectDir)..\External\bin64;$(SolutionDir)External\bin64;$(ProjectDir)..\External\bin64\$(Configuration);$(SolutionDir)External\bin64\$(Configuration);$(LibraryPath)</LibraryPath>
+    <ReferencePath>$(ProjectDir)..\External\bin64;$(SolutionDir)External\bin64;$(ProjectDir)..\External\bin64\$(Configuration);$(SolutionDir)External\bin64\$(Configuration);$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup />

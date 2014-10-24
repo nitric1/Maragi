@@ -129,4 +129,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Gurigi.props" />
+    <None Include="Gurigi.Win32.props" />
+    <None Include="Gurigi.x64.props" />
+  </ItemGroup>
 </Project>

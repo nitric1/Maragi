@@ -283,6 +283,9 @@
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Maragi.props" />
+    <None Include="Maragi.Win32.props" />
+    <None Include="Maragi.x64.props" />
     <None Include="PreBuild.bat" />
     <None Include="TextReplacer.pl" />
     <None Include="Tokens.h.in" />
