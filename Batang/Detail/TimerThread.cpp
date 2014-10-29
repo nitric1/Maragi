@@ -41,7 +41,7 @@ namespace Batang
                 Timer::instance().onTimerTick();
             }
 
-#ifdef _MSC_VER // In VC, thread hangs if thread routine exits normally after main() is end.
+#if defined(_MSC_VER) && _MSC_VER <= 1800 // In VC12, thread hangs if thread routine exits normally after main() is end.
             _endthreadex(0);
 #endif
         }
