@@ -210,6 +210,7 @@ namespace Gurigi
         void onMouseMoveImpl(const ControlEventArg &);
         void onMouseButtonDownImpl(const ControlEventArg &);
         void onMouseButtonUpImpl(const ControlEventArg &);
+        void onMouseWheelImpl(const ControlEventArg &);
         void onKeyDownImpl(const ControlEventArg &);
         void onCharImpl(const ControlEventArg &);
         void onImeEndCompositionImpl(const ControlEventArg &);

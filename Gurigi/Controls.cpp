@@ -453,6 +453,7 @@ namespace Gurigi
         onMouseMove += Batang::delegate(this, &Edit::onMouseMoveImpl);
         onMouseButtonDown += Batang::delegate(this, &Edit::onMouseButtonDownImpl);
         onMouseButtonUp += Batang::delegate(this, &Edit::onMouseButtonUpImpl);
+        onMouseWheel += Batang::delegate(this, &Edit::onMouseWheelImpl);
         onKeyDown += Batang::delegate(this, &Edit::onKeyDownImpl);
         onChar += Batang::delegate(this, &Edit::onCharImpl);
         onFocus += Batang::delegate(this, &Edit::onFocusImpl);
@@ -564,7 +565,7 @@ namespace Gurigi
 
         edit->scrollbar_ = Scrollbar::create(Scrollbar::Orientation::Vertical,
             0.0, 100.0, 10.0);
-        edit->attach({0, 1}, edit->scrollbar_);
+        edit->attach({0, 1}, edit->scrollbar_); // TODO: in rtl orientation, scrollbar should go left
         return edit;
     }
 
@@ -658,7 +659,7 @@ namespace Gurigi
                 newRect
                 );*/
             editLayoutSink_.brush(brushText_);
-            editLayoutSink_.draw(ctx, Objects::PointF(1.0f, 1.0f));
+            editLayoutSink_.draw(ctx, Objects::PointF(1.0f, 1.0f)); // TODO: if scrollbar went left, point must be added
         }
 
         ctx->PopLayer();
@@ -680,7 +681,7 @@ namespace Gurigi
         scrollTransform_ = D2D1::Matrix3x2F::Identity(); // TODO: scroll
 
         Objects::SizeF size = rect.size();
-        Objects::SizeF clientSize(size.width - 2.0f, size.height - 2.0f);
+        Objects::SizeF clientSize(size.width - 2.0f - scrollbar_->rect().width(), size.height - 2.0f);
 
         editLayout_.size(clientSize);
         editLayout_.flow(editLayoutSource_, editLayoutSink_);
@@ -844,6 +845,10 @@ namespace Gurigi
         {
             dragging_ = false;
         }
+    }
+
+    void Edit::onMouseWheelImpl(const ControlEventArg &arg)
+    {
     }
 
     void Edit::onKeyDownImpl(const ControlEventArg &e)
