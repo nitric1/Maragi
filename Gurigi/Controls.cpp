@@ -564,7 +564,7 @@ namespace Gurigi
         edit->selEnd_ = selEnd;
 
         edit->scrollbar_ = Scrollbar::create(Scrollbar::Orientation::Vertical,
-            0.0, 100.0, 10.0);
+            0.0, 1.0, 1.0);
         edit->attach({0, 1}, edit->scrollbar_); // TODO: in rtl orientation, scrollbar should go left
         return edit;
     }
