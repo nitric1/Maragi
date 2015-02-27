@@ -179,6 +179,11 @@ namespace Gurigi
             return &ptr;
         }
 
+        T *const *operator &() const
+        {
+            return &ptr;
+        }
+
         T *operator ->() const
         {
             return ptr;
@@ -196,6 +201,7 @@ namespace Gurigi
         ComPtr &operator =(nullptr_t)
         {
             release();
+            return *this;
         }
 
         ComPtr &operator =(const ComPtr &rhs)

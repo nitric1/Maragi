@@ -5,6 +5,8 @@
 #include "Thread.h"
 #include "Wrapper.h"
 
+// steady_clock becomes true steady from VC2014 CTP2, so I have no plan to use boost one.
+
 namespace Batang
 {
     namespace Detail

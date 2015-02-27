@@ -106,7 +106,7 @@ namespace Maragi
             edit = Gurigi::Edit::create(L"Placeholder Now");
             layout->attach(1, 1, edit);
 
-            std::thread t([this]()
+            /*std::thread t([this]()
             {
                 for(int i = 0; i < 5; ++ i)
                 {
@@ -115,7 +115,7 @@ namespace Maragi
                     future.wait();
                 }
             });
-            t.detach();
+            t.detach();*/
 
             Batang::Timer::instance().installRunOnceTimer(sharedFromThis(),
                 std::chrono::steady_clock::now(),
