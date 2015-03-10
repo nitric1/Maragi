@@ -133,7 +133,7 @@ namespace Batang
             case NEW_WORD:
                 if(*it == L'"')
                     charToken = IN_QUOTATION;
-                else if(*it != ' ')
+                else if(*it != L' ')
                 {
                     str += *it;
                     charToken = IN_WORD;
@@ -143,7 +143,7 @@ namespace Batang
             case IN_WORD:
                 if(*it == L'"')
                     charToken = IN_QUOTATION;
-                else if(*it != ' ')
+                else if(*it != L' ')
                     str += *it;
                 else
                 {
