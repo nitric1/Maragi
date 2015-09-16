@@ -64,7 +64,7 @@ namespace Batang
             std::chrono::steady_clock::duration interval,
             std::function<void()> task);
         void uninstallTimer(TaskId taskId);
-        void uninstallAllThreadTimers(const ThreadTaskPool *thread);
+        void uninstallAllThreadTimers(const ThreadTaskPool &thread);
 
     private:
         TaskId installTimer(

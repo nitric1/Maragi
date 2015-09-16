@@ -43,7 +43,7 @@ namespace Batang
 
     ThreadTaskPool::~ThreadTaskPool()
     {
-        Timer::instance().uninstallAllThreadTimers(this);
+        Timer::instance().uninstallAllThreadTimers(*this);
     }
 
     void ThreadTaskPool::post(std::function<void ()> task)
