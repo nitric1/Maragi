@@ -1,20 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Maragi", "Maragi\Maragi.vcxproj", "{C785E965-297F-45B2-82C7-60D8FA69EB60}"
-	ProjectSection(ProjectDependencies) = postProject
-		{BCA16472-2EAD-4A5F-99ED-C4E98A17999D} = {BCA16472-2EAD-4A5F-99ED-C4E98A17999D}
-		{D6DFB37D-3E02-4242-A81C-DD3A426A17B3} = {D6DFB37D-3E02-4242-A81C-DD3A426A17B3}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Batang", "Batang\Batang.vcxproj", "{BCA16472-2EAD-4A5F-99ED-C4E98A17999D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gurigi", "Gurigi\Gurigi.vcxproj", "{D6DFB37D-3E02-4242-A81C-DD3A426A17B3}"
-	ProjectSection(ProjectDependencies) = postProject
-		{BCA16472-2EAD-4A5F-99ED-C4E98A17999D} = {BCA16472-2EAD-4A5F-99ED-C4E98A17999D}
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{76FB16C3-B412-4299-9E5C-929D7D7D5B51}"
 	ProjectSection(SolutionItems) = preProject

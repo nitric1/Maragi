@@ -869,7 +869,7 @@ namespace Gurigi
                     std::vector<uint16_t> indices(u32str.size());
 
                     HRESULT hr = textFormatInfo.fontFace->GetGlyphIndices(
-                        &*u32str.begin(), static_cast<uint32_t>(u32str.size()), &*indices.begin());
+                        reinterpret_cast<const uint32_t *>(&*u32str.begin()), static_cast<uint32_t>(u32str.size()), &*indices.begin());
                     if(FAILED(hr))
                     {
                         return false;
