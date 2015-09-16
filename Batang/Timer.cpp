@@ -34,6 +34,7 @@ namespace Batang
     Timer::~Timer()
     {
         timerThread_->stop();
+        timerThread_ = nullptr; // delete preemptively
     }
 
     Timer::TaskId Timer::installRunOnceTimer(
@@ -144,46 +145,43 @@ namespace Batang
         }
     }
 
-    void Timer::uninstallAllThreadTimers(const ThreadTaskPool *thread)
+    void Timer::uninstallAllThreadTimers(const ThreadTaskPool &thread)
     {
-        if(thread)
+        std::lock_guard<std::mutex> lock(taskMutex_);
+
+        bool changeNextTick = false;
+        auto next = nextTask();
+
+        for(auto it = tasks_.begin(); it != tasks_.end();)
         {
-            std::lock_guard<std::mutex> lock(taskMutex_);
-
-            bool changeNextTick = false;
-            auto next = nextTask();
-
-            for(auto it = tasks_.begin(); it != tasks_.end();)
+            auto taskThread = it->second->thread_.lock();
+            if(!taskThread || (taskThread && taskThread.get() == &thread))
             {
-                auto taskThread = it->second->thread_.lock();
-                if(!taskThread || (taskThread && taskThread.get() == thread))
+                if(!changeNextTick && it->second == next)
                 {
-                    if(!changeNextTick && it->second == next)
-                    {
-                        changeNextTick = true;
-                        std::pop_heap(taskHeap_.begin(), taskHeap_.end(), PairFirstComparer());
-                        taskHeap_.pop_back();
-                    }
+                    changeNextTick = true;
+                    std::pop_heap(taskHeap_.begin(), taskHeap_.end(), PairFirstComparer());
+                    taskHeap_.pop_back();
+                }
 
-                    it = tasks_.erase(it);
-                }
-                else
-                {
-                    ++ it;
-                }
+                it = tasks_.erase(it);
             }
-
-            if(changeNextTick)
+            else
             {
-                next = nextTask();
-                if(next)
-                {
-                    timerThread_->nextTick(next->tickAt_ - std::chrono::steady_clock::now());
-                }
-                else
-                {
-                    timerThread_->nextTick(MaxEmptyTimeout);
-                }
+                ++ it;
+            }
+        }
+
+        if(changeNextTick)
+        {
+            next = nextTask();
+            if(next)
+            {
+                timerThread_->nextTick(next->tickAt_ - std::chrono::steady_clock::now());
+            }
+            else
+            {
+                timerThread_->nextTick(MaxEmptyTimeout);
             }
         }
     }
