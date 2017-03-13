@@ -28,16 +28,16 @@ namespace Gurigi
         }
 
     private:
-        static void set(const std::weak_ptr<Batang::ThreadTaskPool> &uiThread)
+        static void set(std::weak_ptr<Batang::ThreadTaskPool> uiThread)
         {
             std::lock_guard<std::mutex> lock(mutex_);
-            uiThread_ = uiThread;
+            uiThread_ = std::move(uiThread);
         }
-        static std::weak_ptr<Batang::ThreadTaskPool> exchange(const std::weak_ptr<Batang::ThreadTaskPool> &uiThread)
+        static std::weak_ptr<Batang::ThreadTaskPool> exchange(std::weak_ptr<Batang::ThreadTaskPool> uiThread)
         {
             std::lock_guard<std::mutex> lock(mutex_);
             auto oldUiThread = uiThread_;
-            uiThread_ = uiThread;
+            uiThread_ = std::move(uiThread);
             return oldUiThread;
         }
 

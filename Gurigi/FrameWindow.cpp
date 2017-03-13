@@ -103,6 +103,7 @@ namespace Gurigi
 
         if(initPosition_ == initPosition_.Invalid)
             initPosition_ = Objects::PointI(CW_USEDEFAULT, CW_USEDEFAULT);
+
         if(initClientSize_ == initClientSize_.Invalid)
             windowSize = Objects::SizeF(CW_USEDEFAULT, CW_USEDEFAULT);
         else
@@ -198,7 +199,7 @@ namespace Gurigi
 
     void FrameWindow::redraw()
     {
-        InvalidateRect(hwnd(), nullptr, FALSE);
+        RedrawWindow(hwnd(), nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW);
     }
 
     const ControlPtr<ShellLayout> &FrameWindow::client() const

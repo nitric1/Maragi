@@ -8,6 +8,7 @@
 #include <array>
 #include <numeric>
 #include <set>
+// #include <variant>
 
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/logic/tribool.hpp>
