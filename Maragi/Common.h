@@ -30,7 +30,7 @@ namespace boostpo = boost::program_options;
 
 #include <curl/curl.h>
 #include <openssl/sha.h>
-#include <twitcurl/twitcurl.h>
+// #include <twitcurl/twitcurl.h>
 #define RAPIDJSON_SSE2
 #include <rapidjson/rapidjson.h>
 

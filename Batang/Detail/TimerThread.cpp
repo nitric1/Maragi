@@ -40,10 +40,6 @@ namespace Batang
 
                 Timer::instance().onTimerTick();
             }
-
-#if defined(_MSC_VER) && _MSC_VER <= 1800 // In VC12, thread hangs if thread routine exits normally after main() is end.
-            _endthreadex(0);
-#endif
         }
 
         void TimerThread::nextTick(std::chrono::steady_clock::duration duration)

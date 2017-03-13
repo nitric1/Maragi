@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -22,21 +22,21 @@
     <ProjectGuid>{C785E965-297F-45B2-82C7-60D8FA69EB60}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Maragi</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <UseNativeEnvironment>true</UseNativeEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <UseNativeEnvironment>true</UseNativeEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -44,7 +44,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <UseNativeEnvironment>true</UseNativeEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -52,7 +52,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <UseNativeEnvironment>true</UseNativeEnvironment>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -95,29 +95,37 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>Common.h</PrecompiledHeaderFile>
       <DisableSpecificWarnings>4503</DisableSpecificWarnings>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d2d1.lib;dwrite.lib;crypt32.lib;libcurl_imp.lib;libeay32.lib;ssleay32.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>$(ProjectDir)PreBuild.bat "$(ProjectDir)"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>Common.h</PrecompiledHeaderFile>
       <DisableSpecificWarnings>4503</DisableSpecificWarnings>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d2d1.lib;dwrite.lib;crypt32.lib;libcurl_imp.lib;libeay32.lib;ssleay32.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>$(ProjectDir)PreBuild.bat "$(ProjectDir)"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -125,7 +133,6 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
@@ -133,13 +140,18 @@
       <DisableSpecificWarnings>4503</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>d2d1.lib;dwrite.lib;crypt32.lib;libcurl_imp.lib;libeay32.lib;ssleay32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>$(ProjectDir)PreBuild.bat "$(ProjectDir)"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -147,7 +159,6 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
@@ -155,13 +166,18 @@
       <DisableSpecificWarnings>4503</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>d2d1.lib;dwrite.lib;crypt32.lib;libcurl_imp.lib;libeay32.lib;ssleay32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>$(ProjectDir)PreBuild.bat "$(ProjectDir)"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Configure.cpp" />
@@ -183,103 +199,6 @@
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\External\include\curl\curl.h" />
-    <ClInclude Include="..\External\include\curl\curlbuild.h" />
-    <ClInclude Include="..\External\include\curl\curlrules.h" />
-    <ClInclude Include="..\External\include\curl\curlver.h" />
-    <ClInclude Include="..\External\include\curl\easy.h" />
-    <ClInclude Include="..\External\include\curl\mprintf.h" />
-    <ClInclude Include="..\External\include\curl\multi.h" />
-    <ClInclude Include="..\External\include\curl\stdcheaders.h" />
-    <ClInclude Include="..\External\include\curl\typecheck-gcc.h" />
-    <ClInclude Include="..\External\include\openssl\aes.h" />
-    <ClInclude Include="..\External\include\openssl\asn1.h" />
-    <ClInclude Include="..\External\include\openssl\asn1t.h" />
-    <ClInclude Include="..\External\include\openssl\asn1_mac.h" />
-    <ClInclude Include="..\External\include\openssl\bio.h" />
-    <ClInclude Include="..\External\include\openssl\blowfish.h" />
-    <ClInclude Include="..\External\include\openssl\bn.h" />
-    <ClInclude Include="..\External\include\openssl\buffer.h" />
-    <ClInclude Include="..\External\include\openssl\camellia.h" />
-    <ClInclude Include="..\External\include\openssl\cast.h" />
-    <ClInclude Include="..\External\include\openssl\cmac.h" />
-    <ClInclude Include="..\External\include\openssl\cms.h" />
-    <ClInclude Include="..\External\include\openssl\comp.h" />
-    <ClInclude Include="..\External\include\openssl\conf.h" />
-    <ClInclude Include="..\External\include\openssl\conf_api.h" />
-    <ClInclude Include="..\External\include\openssl\crypto.h" />
-    <ClInclude Include="..\External\include\openssl\des.h" />
-    <ClInclude Include="..\External\include\openssl\des_old.h" />
-    <ClInclude Include="..\External\include\openssl\dh.h" />
-    <ClInclude Include="..\External\include\openssl\dsa.h" />
-    <ClInclude Include="..\External\include\openssl\dso.h" />
-    <ClInclude Include="..\External\include\openssl\dtls1.h" />
-    <ClInclude Include="..\External\include\openssl\ebcdic.h" />
-    <ClInclude Include="..\External\include\openssl\ec.h" />
-    <ClInclude Include="..\External\include\openssl\ecdh.h" />
-    <ClInclude Include="..\External\include\openssl\ecdsa.h" />
-    <ClInclude Include="..\External\include\openssl\engine.h" />
-    <ClInclude Include="..\External\include\openssl\err.h" />
-    <ClInclude Include="..\External\include\openssl\evp.h" />
-    <ClInclude Include="..\External\include\openssl\e_os2.h" />
-    <ClInclude Include="..\External\include\openssl\hmac.h" />
-    <ClInclude Include="..\External\include\openssl\idea.h" />
-    <ClInclude Include="..\External\include\openssl\krb5_asn.h" />
-    <ClInclude Include="..\External\include\openssl\kssl.h" />
-    <ClInclude Include="..\External\include\openssl\lhash.h" />
-    <ClInclude Include="..\External\include\openssl\md4.h" />
-    <ClInclude Include="..\External\include\openssl\md5.h" />
-    <ClInclude Include="..\External\include\openssl\mdc2.h" />
-    <ClInclude Include="..\External\include\openssl\modes.h" />
-    <ClInclude Include="..\External\include\openssl\objects.h" />
-    <ClInclude Include="..\External\include\openssl\obj_mac.h" />
-    <ClInclude Include="..\External\include\openssl\ocsp.h" />
-    <ClInclude Include="..\External\include\openssl\opensslv.h" />
-    <ClInclude Include="..\External\include\openssl\ossl_typ.h" />
-    <ClInclude Include="..\External\include\openssl\pem.h" />
-    <ClInclude Include="..\External\include\openssl\pem2.h" />
-    <ClInclude Include="..\External\include\openssl\pkcs12.h" />
-    <ClInclude Include="..\External\include\openssl\pkcs7.h" />
-    <ClInclude Include="..\External\include\openssl\pqueue.h" />
-    <ClInclude Include="..\External\include\openssl\rand.h" />
-    <ClInclude Include="..\External\include\openssl\rc2.h" />
-    <ClInclude Include="..\External\include\openssl\rc4.h" />
-    <ClInclude Include="..\External\include\openssl\ripemd.h" />
-    <ClInclude Include="..\External\include\openssl\rsa.h" />
-    <ClInclude Include="..\External\include\openssl\safestack.h" />
-    <ClInclude Include="..\External\include\openssl\seed.h" />
-    <ClInclude Include="..\External\include\openssl\sha.h" />
-    <ClInclude Include="..\External\include\openssl\srp.h" />
-    <ClInclude Include="..\External\include\openssl\srtp.h" />
-    <ClInclude Include="..\External\include\openssl\ssl.h" />
-    <ClInclude Include="..\External\include\openssl\ssl2.h" />
-    <ClInclude Include="..\External\include\openssl\ssl23.h" />
-    <ClInclude Include="..\External\include\openssl\ssl3.h" />
-    <ClInclude Include="..\External\include\openssl\stack.h" />
-    <ClInclude Include="..\External\include\openssl\symhacks.h" />
-    <ClInclude Include="..\External\include\openssl\tls1.h" />
-    <ClInclude Include="..\External\include\openssl\ts.h" />
-    <ClInclude Include="..\External\include\openssl\txt_db.h" />
-    <ClInclude Include="..\External\include\openssl\ui.h" />
-    <ClInclude Include="..\External\include\openssl\ui_compat.h" />
-    <ClInclude Include="..\External\include\openssl\whrlpool.h" />
-    <ClInclude Include="..\External\include\openssl\x509.h" />
-    <ClInclude Include="..\External\include\openssl\x509v3.h" />
-    <ClInclude Include="..\External\include\openssl\x509_vfy.h" />
-    <ClInclude Include="..\External\include\rapidjson\document.h" />
-    <ClInclude Include="..\External\include\rapidjson\filestream.h" />
-    <ClInclude Include="..\External\include\rapidjson\internal\pow10.h" />
-    <ClInclude Include="..\External\include\rapidjson\internal\stack.h" />
-    <ClInclude Include="..\External\include\rapidjson\internal\strfunc.h" />
-    <ClInclude Include="..\External\include\rapidjson\prettywriter.h" />
-    <ClInclude Include="..\External\include\rapidjson\rapidjson.h" />
-    <ClInclude Include="..\External\include\rapidjson\reader.h" />
-    <ClInclude Include="..\External\include\rapidjson\stringbuffer.h" />
-    <ClInclude Include="..\External\include\rapidjson\writer.h" />
-    <ClInclude Include="..\External\include\twitcurl\oauthlib.h" />
-    <ClInclude Include="..\External\include\twitcurl\twitcurl.h" />
-    <ClInclude Include="..\External\include\zconf.h" />
-    <ClInclude Include="..\External\include\zlib.h" />
     <ClInclude Include="Configure.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Common.h" />
