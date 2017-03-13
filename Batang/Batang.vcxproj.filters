@@ -105,9 +105,4 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Batang.props" />
-    <None Include="Batang.Win32.props" />
-    <None Include="Batang.x64.props" />
-  </ItemGroup>
 </Project>

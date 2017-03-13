@@ -3,20 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(ProjectDir);$(SolutionDir);$(ProjectDir)..\External\include;$(SolutionDir)External\include;$(IncludePath)</IncludePath>
-    <SourcePath>$(ProjectDir)..\External\src;$(SolutionDir)External\src;$(SourcePath)</SourcePath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)External\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <ItemDefinitionGroup>
-    <Link>
-      <AdditionalDependencies>d2d1.lib;dwrite.lib;crypt32.lib;libcurl.lib;libeay32.lib;ssleay32.lib;zlibwapi.lib;twitcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <ClCompile>
-      <PreprocessorDefinitions>JSON_IS_AMALGAMATION;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <WarningLevel>Level3</WarningLevel>
-    </ClCompile>
-    <PreBuildEvent>
-      <Command>$(ProjectDir)PreBuild.bat "$(ProjectDir)"</Command>
-    </PreBuildEvent>
-  </ItemDefinitionGroup>
+  <ItemDefinitionGroup />
   <ItemGroup />
 </Project>

@@ -43,10 +43,10 @@ namespace Batang
                     throw(std::logic_error("ThreadTaskPool::invoke cannot be called from same thread"));
             }
 
-            auto task = new Detail::InvokeTask<ReturnType>(std::forward<Func>(fn));
+            auto task = std::make_unique<Detail::InvokeTask<ReturnType>>(std::forward<Func>(fn));
             auto future = task->future();
 
-            post(std::unique_ptr<Detail::Task>(task));
+            post(std::move(task));
             return future;
         }
         void post(std::function<void ()> task);

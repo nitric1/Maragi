@@ -2,13 +2,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup>
-    <IncludePath>$(ProjectDir)..\External\include64;$(SolutionDir)External\include64;$(IncludePath)</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup>
-    <LibraryPath>$(ProjectDir)..\External\bin64;$(SolutionDir)External\bin64;$(ProjectDir)..\External\bin64\$(Configuration);$(SolutionDir)External\bin64\$(Configuration);$(LibraryPath)</LibraryPath>
-    <ReferencePath>$(ProjectDir)..\External\bin64;$(SolutionDir)External\bin64;$(ProjectDir)..\External\bin64\$(Configuration);$(SolutionDir)External\bin64\$(Configuration);$(ReferencePath)</ReferencePath>
-  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup />
   <ItemDefinitionGroup />
   <ItemGroup />
 </Project>
