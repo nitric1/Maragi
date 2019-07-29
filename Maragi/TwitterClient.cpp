@@ -1,9 +1,9 @@
 ﻿#include "Common.h"
 
-#include "Batang/Singleton.h"
-#include "Batang/Utility.h"
+#include "../Batang/Singleton.h"
+#include "../Batang/Utility.h"
 
-#include "Gurigi/Dialog.h"
+#include "../Gurigi/Dialog.h"
 
 #include "Configure.h"
 #include "Constants.h"

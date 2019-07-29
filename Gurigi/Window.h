@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "Batang/Delegate.h"
-#include "Batang/Event.h"
-#include "Batang/Singleton.h"
+#include "../Batang/Delegate.h"
+#include "../Batang/Event.h"
+#include "../Batang/Singleton.h"
 
 #include "Drawing.h"
 #include "Global.h"

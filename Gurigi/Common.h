@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 
-#include "Batang/Common.h"
+#include "../Batang/Common.h"
 
 // All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ library & boost library inclusion

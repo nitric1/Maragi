@@ -1,8 +1,9 @@
 ﻿#pragma once
 
+#include "../Batang/Singleton.h"
+
 #include "ComUtility.h"
 #include "Objects.h"
-#include "Batang/Singleton.h"
 
 namespace Gurigi
 {

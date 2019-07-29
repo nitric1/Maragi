@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 
-#include "Batang/Thread.h"
+#include "../Batang/Thread.h"
 
 namespace Gurigi
 {

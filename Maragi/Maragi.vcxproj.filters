@@ -77,9 +77,6 @@
     <None Include="Tokens.txt" />
     <None Include="TextReplacer.pl" />
     <None Include="PreBuild.bat" />
-    <None Include="Maragi.props" />
-    <None Include="Maragi.Win32.props" />
-    <None Include="Maragi.x64.props" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Maragi.rc">

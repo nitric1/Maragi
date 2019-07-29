@@ -1,7 +1,7 @@
 ﻿#include "Common.h"
 
-#include "Batang/Global.h"
-#include "Batang/Thread.h"
+#include "../Batang/Global.h"
+#include "../Batang/Thread.h"
 
 #include "FrameWindow.h"
 #include "Global.h"

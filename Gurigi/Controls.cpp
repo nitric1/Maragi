@@ -1,6 +1,6 @@
 ﻿#include "Common.h"
 
-#include "Batang/Utility.h"
+#include "../Batang/Utility.h"
 
 #include "Controls.h"
 #include "Thread.h"

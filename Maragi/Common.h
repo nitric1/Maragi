@@ -2,8 +2,8 @@
 
 #pragma execution_character_set("UTF-8")
 
-#include "Batang/Common.h"
-#include "Gurigi/Common.h"
+#include "../Batang/Common.h"
+#include "../Gurigi/Common.h"
 
 // All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ library & boost library inclusion
@@ -23,8 +23,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
 #include <boost/thread/mutex.hpp>
-
-namespace boostpo = boost::program_options;
 
 // External library inclusion
 

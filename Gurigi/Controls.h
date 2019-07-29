@@ -1,7 +1,8 @@
 ﻿#pragma once
 
-#include "Batang/Event.h"
-#include "Batang/Timer.h"
+#include "../Batang/Event.h"
+#include "../Batang/Timer.h"
+
 #include "Window.h"
 #include "Layouts.h"
 #include "Detail/EditLayout.h"
