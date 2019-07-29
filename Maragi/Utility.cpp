@@ -9,10 +9,10 @@ namespace Maragi
 {
     std::wstring getCurrentDirectoryPath()
     {
-        std::vector<wchar_t> buffer(512);
+        std::array<wchar_t, 512> buffer;
         size_t pathlen;
 
-        pathlen = GetModuleFileNameW(nullptr, &*buffer.begin(), static_cast<ulong32_t>(buffer.size()));
+        pathlen = GetModuleFileNameW(nullptr, buffer.data(), static_cast<ulong32_t>(buffer.size()));
 
         std::wstring path(buffer.begin(), buffer.begin() + pathlen);
         return Batang::getDirectoryPath(path);
@@ -20,10 +20,10 @@ namespace Maragi
 
     std::wstring getDataDirectoryPath()
     {
-        std::vector<wchar_t> buffer(512);
+        std::array<wchar_t, 512> buffer;
         size_t pathlen;
 
-        pathlen = GetEnvironmentVariableW(L"AppData", &*buffer.begin(), static_cast<ulong32_t>(buffer.size()));
+        pathlen = GetEnvironmentVariableW(L"AppData", buffer.data(), static_cast<ulong32_t>(buffer.size()));
         
         std::wstring path(buffer.begin(), buffer.begin() + pathlen);
         if(path.back() != L'\\')
