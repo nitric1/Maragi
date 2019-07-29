@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "Batang/Event.h"
-#include "Batang/Thread.h"
+#include "../Batang/Event.h"
+#include "../Batang/Thread.h"
 
 #include "Url.h"
 #include "TwitterClientError.h"

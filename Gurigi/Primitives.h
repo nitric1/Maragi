@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Batang/Wrapper.h"
+#include "../Batang/Wrapper.h"
 
 namespace Gurigi
 {

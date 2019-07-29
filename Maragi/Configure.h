@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Batang/Singleton.h"
+#include "../Batang/Singleton.h"
 
 namespace Maragi
 {
