@@ -1,7 +1,7 @@
-#include "Common.h"
+﻿#include "Common.h"
 
-#include "Batang/Error.h"
-#include "Batang/Utility.h"
+#include "../../Batang/Error.h"
+#include "../../Batang/Utility.h"
 
 #include "../Drawing.h"
 #include "EditLayout.h"

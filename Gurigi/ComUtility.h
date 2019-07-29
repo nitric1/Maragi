@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "Batang/Error.h"
-#include "Batang/Singleton.h"
+#include "../Batang/Error.h"
+#include "../Batang/Singleton.h"
 
 namespace Gurigi
 {

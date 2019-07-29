@@ -1,14 +1,14 @@
 ﻿#pragma once
 
-#include "Batang/Singleton.h"
-#include "Batang/Thread.h"
+#include "../Batang/Singleton.h"
+#include "../Batang/Thread.h"
 
 namespace Maragi
 {
     class MainController final : public Batang::Thread<MainController>, public Batang::Singleton<MainController>
     {
     private:
-        boostpo::variables_map cmdLine_;
+        boost::program_options::variables_map cmdLine_;
         bool help_;
 
     private:

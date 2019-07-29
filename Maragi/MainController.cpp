@@ -1,11 +1,11 @@
 ﻿#include "Common.h"
 
-#include "Batang/Error.h"
-#include "Batang/Timer.h"
+#include "../Batang/Error.h"
+#include "../Batang/Timer.h"
 
-#include "Gurigi/Controls.h"
-#include "Gurigi/Window.h"
-#include "Gurigi/FrameWindow.h"
+#include "../Gurigi/Controls.h"
+#include "../Gurigi/Window.h"
+#include "../Gurigi/FrameWindow.h"
 
 #include "Configure.h"
 #include "Constants.h"
@@ -15,6 +15,8 @@
 
 #pragma warning(push)
 #pragma warning(disable:4702)
+
+namespace boostpo = boost::program_options;
 
 namespace Maragi
 {

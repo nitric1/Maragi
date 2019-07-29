@@ -1,6 +1,6 @@
 ﻿#include "Common.h"
 
-#include "Batang/Utility.h"
+#include "../Batang/Utility.h"
 
 #include "Drawing.h"
 #include "Global.h"

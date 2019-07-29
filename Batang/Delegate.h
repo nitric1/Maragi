@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "ERDelegate.h"
+#include "../External/include/ERDelegate.h"
 
 namespace Batang
 {
