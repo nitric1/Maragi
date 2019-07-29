@@ -33,9 +33,11 @@ namespace Maragi
         if(fileSize == 0)
             return;
 
-        std::vector<wchar_t> buffer(fileSize / sizeof(wchar_t));
+        std::vector<wchar_t> buffer(fileSize / sizeof(wchar_t) + 1);
         ulong32_t read = 0;
-        if(!ReadFile(file.get(), &*buffer.begin(), static_cast<ulong32_t>(fileSize), &read, nullptr))
+        if(!ReadFile(file.get(), buffer.data(), static_cast<ulong32_t>(fileSize), &read, nullptr))
+            return;
+        if(read % sizeof(wchar_t) != 0)
             return;
         buffer.resize(read / sizeof(wchar_t));
         buffer.push_back(L'\0');
