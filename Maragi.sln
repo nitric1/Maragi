@@ -11,6 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gurigi", "Gurigi\Gurigi.vcx
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{76FB16C3-B412-4299-9E5C-929D7D7D5B51}"
 	ProjectSection(SolutionItems) = preProject
+		.clang-format = .clang-format
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
