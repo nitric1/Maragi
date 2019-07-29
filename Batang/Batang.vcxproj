@@ -58,7 +58,7 @@
     <ProjectGuid>{BCA16472-2EAD-4A5F-99ED-C4E98A17999D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Batang</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
