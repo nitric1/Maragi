@@ -10,6 +10,7 @@ namespace Gurigi
     template<typename Base, typename Deleter, typename T>
     class SharedPtr
     {
+        // This will not work well because T may be a forward-declared-only class in some cases.
         //static_assert(std::is_convertible<T *, Base *>::value, "T must be a derived class of Base.");
 
     private:
