@@ -4,11 +4,10 @@
 #define _VARIADIC_MAX 10
 #define _SCL_SECURE_NO_WARNINGS
 
-#define WINVER 0x0600 // Windows Vista
-#define _WIN32_WINDOWS 0x0600
-#define _WIN32_WINNT 0x0600
-#define _WIN32_IE 0x0800
-#define NTDDI_VERSION 0x06000100
+#define _WIN32_WINNT 0x0A00 // _WIN32_WINNT_WIN10
+#define WINVER _WIN32_WINNT
+#define _WIN32_IE 0x0A00 // _WIN32_IE_WIN10
+#define NTDDI_VERSION 0x0A000002 // NTDDI_WIN10_RS1
 
 // All inclusion listing is dictionary order; Ordering is case insensitive.
 // Standard C/C++ library & boost library inclusion
