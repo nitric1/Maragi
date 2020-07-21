@@ -496,8 +496,8 @@ namespace Gurigi
                 Objects::SizeF(static_cast<float>(caretWidth), editLayoutSink_.textHeight()));
 
             D2D1_POINT_2F caretPosF = transform.TransformPoint(caretRect.leftTop());
-            Objects::PointI caretPosI = Objects::convertPoint(Objects::PointF(caretPosF.x, caretPosF.y));
-            Objects::SizeI caretSize = Objects::convertSize(caretRect.size());
+            Objects::PointI caretPosI = Objects::convertPoint(*lshell, Objects::PointF(caretPosF.x, caretPosF.y));
+            Objects::SizeI caretSize = Objects::convertSize(*lshell, caretRect.size());
 
             CreateCaret(lshell->hwnd(), nullptr, caretWidth, caretSize.height);
             SetCaretPos(caretPosI.x, caretPosI.y);
@@ -837,5 +837,13 @@ namespace Gurigi
             redraw();
         }
         updateCaret();
+    }
+
+    void Edit::shell(const ShellWeakPtr<> &shell)
+    {
+        Control::shell(shell);
+
+        editLayout_.shell(shell);
+        textRefresh();
     }
 }

@@ -190,7 +190,7 @@ namespace Gurigi
 
     Objects::SizeI FrameWindow::adjustWindowSize(const Objects::SizeF &size) const
     {
-        Objects::SizeI converted = Objects::convertSize(size);
+        Objects::SizeI converted = Objects::convertSize(*this, size);
         RECT rc = { 0, 0, converted.width, converted.height };
         // TODO: menu
         AdjustWindowRectEx(&rc, WindowStyle, FALSE, WindowStyleEx);
@@ -244,7 +244,7 @@ namespace Gurigi
     {
         RECT rc;
         GetClientRect(hwnd(), &rc);
-        return Objects::convertSize(Objects::SizeI(rc.right - rc.left, rc.bottom - rc.top));
+        return Objects::convertSize(*this, Objects::SizeI(rc.right - rc.left, rc.bottom - rc.top));
     }
 
     void FrameWindow::clientSize(const Objects::SizeF &size)
@@ -316,7 +316,7 @@ namespace Gurigi
         {
         case WM_SIZE:
             {
-                Objects::SizeF size(Objects::convertSize(Objects::SizeI(LOWORD(lParam), HIWORD(lParam))));
+                Objects::SizeF size(Objects::convertSize(*this, Objects::SizeI(LOWORD(lParam), HIWORD(lParam))));
                 context_.resize(size);
                 client_->rect(Objects::RectangleF(Objects::PointF(), size));
             }

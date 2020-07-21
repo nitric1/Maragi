@@ -1,7 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include "../ComUtility.h"
 #include "../Objects.h"
+#include "../Forwards.h"
 
 namespace Gurigi
 {
@@ -177,7 +178,7 @@ namespace Gurigi
             Objects::RectangleF getRunTextSelectionRect(const GlyphRun &, size_t, size_t) const;
         };
 
-        struct EditLayoutRun: TextAnalysisRun
+        struct EditLayoutRun : TextAnalysisRun
         {
             struct TextFormatInfo
             {
@@ -228,6 +229,7 @@ namespace Gurigi
             Objects::SizeF size_;
             std::wstring locale_;
             IDWriteNumberSubstitution *numberSubstitution_;
+            ShellWeakPtr<> shell_;
 
             std::vector<DWRITE_LINE_BREAKPOINT> breakpoints_;
             std::vector<uint16_t> glyphIndices_;
@@ -251,6 +253,7 @@ namespace Gurigi
             void fontEmSize(float);
             const Objects::SizeF &size() const;
             void size(Objects::SizeF);
+            void shell(const ShellWeakPtr<> &);
 
         public:
             void analyze();

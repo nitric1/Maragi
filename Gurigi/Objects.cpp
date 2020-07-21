@@ -5,6 +5,7 @@
 #include "Drawing.h"
 #include "Global.h"
 #include "Objects.h"
+#include "Window.h"
 
 namespace Gurigi
 {
@@ -12,11 +13,9 @@ namespace Gurigi
     {
         namespace
         {
-            std::pair<float, float> getDpi()
+            uint32_t getDpi(const Shell &shell)
             {
-                float dpiX, dpiY;
-                Drawing::D2DFactory::instance().getD2DFactory()->GetDesktopDpi(&dpiX, &dpiY);
-                return std::make_pair(dpiX, dpiY);
+                return GetDpiForWindow(shell.hwnd());
             }
 
             int32_t toRawPixel(float val, float dpi)
@@ -30,44 +29,44 @@ namespace Gurigi
             }
         }
 
-        PointI convertPoint(const PointF &pt)
+        PointI convertPoint(const Shell &shell, const PointF &pt)
         {
-            auto dpi = getDpi();
-            return PointI(toRawPixel(pt.x, dpi.first), toRawPixel(pt.y, dpi.second));
+            auto dpi = getDpi(shell);
+            return PointI(toRawPixel(pt.x, dpi), toRawPixel(pt.y, dpi));
         }
 
-        PointF convertPoint(const PointI &pt)
+        PointF convertPoint(const Shell &shell, const PointI &pt)
         {
-            auto dpi = getDpi();
-            return PointF(fromRawPixel(pt.x, dpi.first), fromRawPixel(pt.y, dpi.second));
+            auto dpi = getDpi(shell);
+            return PointF(fromRawPixel(pt.x, dpi), fromRawPixel(pt.y, dpi));
         }
 
-        SizeI convertSize(const SizeF &size)
+        SizeI convertSize(const Shell &shell, const SizeF &size)
         {
-            auto dpi = getDpi();
-            return SizeI(toRawPixel(size.width, dpi.first), toRawPixel(size.height, dpi.second));
+            auto dpi = getDpi(shell);
+            return SizeI(toRawPixel(size.width, dpi), toRawPixel(size.height, dpi));
         }
 
-        SizeF convertSize(const SizeI &size)
+        SizeF convertSize(const Shell &shell, const SizeI &size)
         {
-            auto dpi = getDpi();
-            return SizeF(fromRawPixel(size.width, dpi.first), fromRawPixel(size.height, dpi.second));
+            auto dpi = getDpi(shell);
+            return SizeF(fromRawPixel(size.width, dpi), fromRawPixel(size.height, dpi));
         }
 
-        RectangleI convertRectangle(const RectangleF &rect)
+        RectangleI convertRectangle(const Shell &shell, const RectangleF &rect)
         {
-            auto dpi = getDpi();
+            auto dpi = getDpi(shell);
             return RectangleI(
-                toRawPixel(rect.left, dpi.first), toRawPixel(rect.top, dpi.second),
-                toRawPixel(rect.right, dpi.first), toRawPixel(rect.bottom, dpi.second));
+                toRawPixel(rect.left, dpi), toRawPixel(rect.top, dpi),
+                toRawPixel(rect.right, dpi), toRawPixel(rect.bottom, dpi));
         }
 
-        RectangleF convertRectangle(const RectangleI &rect)
+        RectangleF convertRectangle(const Shell &shell, const RectangleI &rect)
         {
-            auto dpi = getDpi();
+            auto dpi = getDpi(shell);
             return RectangleF(
-                fromRawPixel(rect.left, dpi.first), fromRawPixel(rect.top, dpi.second),
-                fromRawPixel(rect.right, dpi.first), fromRawPixel(rect.bottom, dpi.second));
+                fromRawPixel(rect.left, dpi), fromRawPixel(rect.top, dpi),
+                fromRawPixel(rect.right, dpi), fromRawPixel(rect.bottom, dpi));
         }
     }
 }

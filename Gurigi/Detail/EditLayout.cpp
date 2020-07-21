@@ -4,6 +4,7 @@
 #include "../../Batang/Utility.h"
 
 #include "../Drawing.h"
+#include "../Window.h"
 #include "EditLayout.h"
 
 namespace Gurigi
@@ -657,6 +658,11 @@ namespace Gurigi
             size_ = std::move(size);
         }
 
+        void EditLayout::shell(const ShellWeakPtr<> &shell)
+        {
+            shell_ = shell;
+        }
+
         void EditLayout::analyze()
         {
             invalidated_ = false;
@@ -1042,8 +1048,16 @@ namespace Gurigi
             glyphOffsets_.resize(std::max(glyphStart + actualGlyphCount, glyphOffsets_.size()));
             glyphMetrics_.resize(std::max(glyphStart + actualGlyphCount, glyphOffsets_.size()));
 
-            float dpiX = 0.0f, dpiY = 0.0f;
-            Drawing::D2DFactory::instance().getD2DFactory()->GetDesktopDpi(&dpiX, &dpiY);
+            auto lshell = shell_.lock();
+            uint32_t dpi;
+            if(lshell)
+            {
+                dpi = GetDpiForWindow(lshell->hwnd());
+            }
+            else
+            {
+                dpi = GetDpiForSystem();
+            }
 
             hr = textAnalyzer->GetGdiCompatibleGlyphPlacements(
                 &text_[textStart],
@@ -1055,7 +1069,7 @@ namespace Gurigi
                 actualGlyphCount,
                 run.textFormatInfo->fontFace,
                 fontEmSize_,
-                dpiX / 96.0f,
+                dpi / 96.0f,
                 nullptr,
                 FALSE,
                 run.isSideways,
@@ -1074,7 +1088,7 @@ namespace Gurigi
 
             hr = run.textFormatInfo->fontFace->GetGdiCompatibleGlyphMetrics(
                 fontEmSize_,
-                dpiX / 96.0f,
+                dpi / 96.0f,
                 nullptr,
                 FALSE,
                 &glyphIndices_[glyphStart],
