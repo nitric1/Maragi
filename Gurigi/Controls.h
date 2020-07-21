@@ -231,6 +231,8 @@ namespace Gurigi
         virtual std::pair<size_t, size_t> selection() const;
         virtual void selection(size_t, bool);
         virtual void selection(size_t, size_t, bool);
+        using Control::shell;
+        virtual void shell(const ShellWeakPtr<> &) override;
     };
 
     class Scrollbar : public Control

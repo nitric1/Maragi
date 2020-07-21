@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Forwards.h"
+
 namespace Gurigi
 {
     namespace Objects
@@ -421,11 +423,11 @@ namespace Gurigi
             }
         };
 
-        PointI convertPoint(const PointF &);
-        PointF convertPoint(const PointI &);
-        SizeI convertSize(const SizeF &);
-        SizeF convertSize(const SizeI &);
-        RectangleI convertRectangle(const RectangleF &);
-        RectangleF convertRectangle(const RectangleI &);
+        PointI convertPoint(const Shell &shell, const PointF &);
+        PointF convertPoint(const Shell &shell, const PointI &);
+        SizeI convertSize(const Shell &shell, const SizeF &);
+        SizeF convertSize(const Shell &shell, const SizeI &);
+        RectangleI convertRectangle(const Shell &shell, const RectangleF &);
+        RectangleF convertRectangle(const Shell &shell, const RectangleI &);
     }
 }
