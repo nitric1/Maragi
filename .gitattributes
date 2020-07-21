@@ -2,7 +2,6 @@
 *.vcxproj           eol=crlf
 *.vcxproj.filters   eol=crlf
 *.props             eol=crlf
-*.rc                eol=crlf
 
 *.bat   text
 *.c     text
@@ -12,3 +11,5 @@
 *.in    text
 *.pl    text
 *.txt   text
+# rc files are currently using UTF-16 LE
+*.rc    binary
