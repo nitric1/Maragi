@@ -104,6 +104,9 @@
     <PreBuildEvent>
       <Command>$(ProjectDir)PreBuild.bat "$(ProjectDir)"</Command>
     </PreBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>Maragi.manifest</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -122,6 +125,9 @@
     <PreBuildEvent>
       <Command>$(ProjectDir)PreBuild.bat "$(ProjectDir)"</Command>
     </PreBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>Maragi.manifest</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -148,6 +154,9 @@
     <PreBuildEvent>
       <Command>$(ProjectDir)PreBuild.bat "$(ProjectDir)"</Command>
     </PreBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>Maragi.manifest</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -174,6 +183,9 @@
     <PreBuildEvent>
       <Command>$(ProjectDir)PreBuild.bat "$(ProjectDir)"</Command>
     </PreBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>Maragi.manifest</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Configure.cpp" />
@@ -222,6 +234,9 @@
     <ProjectReference Include="..\Gurigi\Gurigi.vcxproj">
       <Project>{d6dfb37d-3e02-4242-a81c-dd3a426a17b3}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="Maragi.manifest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
