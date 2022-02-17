@@ -262,6 +262,8 @@ namespace Gurigi
         typedef Rectangle<int32_t> RectangleI;
         typedef Rectangle<float> RectangleF;
 
+        // Defines boundary size which expresses border, margin, or padding size of four sides.
+        // Refer to CSS border, margin, or padding.
         template<typename T>
         struct Boundary
         {
@@ -317,6 +319,7 @@ namespace Gurigi
 
         typedef Boundary<float> BoundaryF;
 
+        // Defines open polygonal line. The last point to the first point is not connected.
         template<typename T>
         class Polyline
         {
@@ -349,6 +352,7 @@ namespace Gurigi
         template<typename T>
         const Polyline<T> Polyline<T>::Invalid;
 
+        // Defines closed polygon region. The last point to the first point is considered to be connected.
         template<typename T>
         class Region
         {
