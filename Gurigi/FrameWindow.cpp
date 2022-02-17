@@ -366,7 +366,8 @@ namespace Gurigi
 
             if(!context_)
             {
-                context_.create(hwnd, clientSize());
+                uint32_t dpi = Win32DpiUtil::instance().getDpiForWindow(hwnd);
+                context_.create(hwnd, clientSize(), dpi);
                 client_->createDrawingResources(context_);
             }
 
