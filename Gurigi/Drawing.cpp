@@ -57,6 +57,12 @@ namespace Gurigi
                 rt_->Resize(size);
         }
 
+        void Context::dpi(uint32_t dpi)
+        {
+            if(rt_)
+                rt_->SetDpi(static_cast<float>(dpi), static_cast<float>(dpi));
+        }
+
         void Context::beginDraw()
         {
             if(rt_)
