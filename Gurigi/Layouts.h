@@ -176,17 +176,14 @@ namespace Gurigi
                 }
 
                 // calculate ratios
-                const size_t rows = Rows;
-                const size_t cols = Cols;
-
-                auto setHeights = [this, rows, cols](auto&& cb)
+                auto setHeights = [this](auto &&cb)
                 {
-                    for(size_t i = 0; i < rows; ++ i)
+                    for(size_t i = 0; i < Rows; ++ i)
                     {
                         if(rowsSize_[i].mode == Gurigi::Placer::GridSize::Mode::Ratio && rowsSize_[i].ratio == 0)
                         {
                             float maxHeight = 0.0f;
-                            for(size_t j = 0; j < cols; ++ j)
+                            for(size_t j = 0; j < Cols; ++ j)
                             {
                                 auto control = get({i, j});
                                 auto lcontrol = control.lock();
@@ -208,6 +205,7 @@ namespace Gurigi
                         }
                     }
                 };
+
                 if(totalHeightRatio == 0)
                 {
                     setHeights([&ratio0TotalHeight](float height)
@@ -235,14 +233,14 @@ namespace Gurigi
                     }
                 }
 
-                auto setWidths = [this, cols, rows](auto&& cb)
+                auto setWidths = [this](auto &&cb)
                 {
-                    for(size_t i = 0; i < cols; ++ i)
+                    for(size_t i = 0; i < Cols; ++ i)
                     {
                         if(colsSize_[i].mode == Gurigi::Placer::GridSize::Mode::Ratio && colsSize_[i].ratio == 0)
                         {
                             float maxWidth = 0.0f;
-                            for(size_t j = 0; j < rows; ++ j)
+                            for(size_t j = 0; j < Rows; ++ j)
                             {
                                 auto control = get({j, i});
                                 auto lcontrol = control.lock();
@@ -264,6 +262,7 @@ namespace Gurigi
                         }
                     }
                 };
+
                 if(totalWidthRatio == 0)
                 {
                     setWidths([&ratio0TotalWidth](float width)
