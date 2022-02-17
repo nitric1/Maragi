@@ -157,11 +157,13 @@ namespace Gurigi
     }
 
     Shell::Shell() // no parent
+        : hwnd_(nullptr)
     {
     }
 
     Shell::Shell(const ShellWeakPtr<> &parent) // with parent
         : parent_(parent)
+        , hwnd_(nullptr)
     {
     }
 

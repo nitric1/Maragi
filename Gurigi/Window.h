@@ -81,6 +81,7 @@ namespace Gurigi
             , keyCode('\0')
             , charCode(L'\0')
             , repeated(0)
+            , propagatable(true)
         {}
 
         void stopPropagation() const
@@ -189,6 +190,7 @@ namespace Gurigi
             : time(boost::posix_time::microsec_clock::local_time())
             , rawMessage(0)
             , wParam(0), lParam(0)
+            , propagatable(true)
         {}
 
         void stopPropagation() const

@@ -98,6 +98,10 @@ namespace Gurigi
 
         public:
             Grid(const std::vector<GridSize> &rowsSize, const std::vector<GridSize> &colsSize)
+                : widths_()
+                , widthSubtotal_()
+                , heights_()
+                , heightSubtotal_()
             {
                 if(rowsSize.size() != Rows || colsSize.size() != Cols)
                     throw(std::logic_error("GridSize of rowsSize and GridSize of colsSize must match with rows and cols."));
