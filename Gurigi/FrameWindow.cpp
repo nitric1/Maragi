@@ -316,8 +316,10 @@ namespace Gurigi
         {
         case WM_SIZE:
             {
-                Objects::SizeF size(Objects::convertSize(*this, Objects::SizeI(LOWORD(lParam), HIWORD(lParam))));
-                context_.resize(size);
+                Objects::SizeI rawSize(LOWORD(lParam), HIWORD(lParam));
+                context_.resize(rawSize);
+
+                Objects::SizeF size(Objects::convertSize(*this, rawSize));
                 client_->rect(Objects::RectangleF(Objects::PointF(), size));
             }
             return 0;
@@ -382,7 +384,8 @@ namespace Gurigi
 
         case WM_MOUSEMOVE:
             {
-                Objects::PointF pt(static_cast<float>(GET_X_LPARAM(lParam)), static_cast<float>(GET_Y_LPARAM(lParam)));
+                Objects::PointI rawPt(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                Objects::PointF pt(Objects::convertPoint(*this, rawPt));
                 std::vector<ControlWeakPtr<>> hovereds;
                 if(captureds_.empty())
                     hovereds = client_->findReverseTreeByPoint(pt);
@@ -413,7 +416,8 @@ namespace Gurigi
 
         case WM_MOUSEWHEEL:
             {
-                Objects::PointF pt(static_cast<float>(GET_X_LPARAM(lParam)), static_cast<float>(GET_Y_LPARAM(lParam)));
+                Objects::PointI rawPt(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                Objects::PointF pt(Objects::convertPoint(*this, rawPt));
                 std::vector<ControlWeakPtr<>> hovereds;
                 if(captureds_.empty())
                     hovereds = client_->findReverseTreeByPoint(pt);
@@ -455,7 +459,8 @@ namespace Gurigi
         case WM_XBUTTONUP:
         case WM_XBUTTONDBLCLK:
             {
-                Objects::PointF pt(static_cast<float>(GET_X_LPARAM(lParam)), static_cast<float>(GET_Y_LPARAM(lParam)));
+                Objects::PointI rawPt(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                Objects::PointF pt(Objects::convertPoint(*this, rawPt));
                 std::vector<ControlWeakPtr<>> hovereds;
                 if(captureds_.empty())
                     hovereds = client_->findReverseTreeByPoint(pt);
