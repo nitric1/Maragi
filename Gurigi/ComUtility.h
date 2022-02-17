@@ -105,15 +105,15 @@ namespace Gurigi
         T *ptr;
 
     public:
-        ComPtr()
+        ComPtr() noexcept
             : ptr(nullptr)
         {}
 
-        ComPtr(nullptr_t)
+        ComPtr(nullptr_t) noexcept
             : ptr(nullptr)
         {}
 
-        explicit ComPtr(T *iptr)
+        explicit ComPtr(T *iptr) noexcept
             : ptr(iptr)
         {}
 
@@ -131,14 +131,14 @@ namespace Gurigi
             ptr->AddRef();
         }
 
-        ComPtr(ComPtr &&that)
+        ComPtr(ComPtr &&that) noexcept
             : ptr(that.ptr)
         {
             that.ptr = nullptr;
         }
 
         template<typename U>
-        ComPtr(ComPtr<U> &&that)
+        ComPtr(ComPtr<U> &&that) noexcept
             : ptr(that.ptr)
         {
             static_assert(std::is_convertible<U *, T *>::value, "Type of pointer in argument must be T or a subclass of T.");
@@ -152,39 +152,39 @@ namespace Gurigi
         }
 
     public:
-        T *get() const
+        T *get() const noexcept
         {
             return ptr;
         }
 
-        T **getPtr()
+        T **getPtr() noexcept
         {
             return &ptr;
         }
 
     public:
-        operator T *() const
+        operator T *() const noexcept
         {
             return ptr;
         }
 
-        T &operator *() const
+        T &operator *() const noexcept
         {
             BATANG_ASSERT(ptr);
             return *ptr;
         }
 
-        T **operator &()
+        T **operator &() noexcept
         {
             return &ptr;
         }
 
-        T *const *operator &() const
+        T *const *operator &() const noexcept
         {
             return &ptr;
         }
 
-        T *operator ->() const
+        T *operator ->() const noexcept
         {
             return ptr;
         }
