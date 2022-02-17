@@ -24,6 +24,7 @@ namespace Gurigi
         std::wstring initTitle_;
         Objects::PointI initPosition_;
         Objects::SizeF initClientSize_;
+        bool inInitializingWindow_;
         bool inDestroy_;
         int32_t capturedButtons_;
         std::vector<ControlWeakPtr<>> captureds_, prevHovereds_;

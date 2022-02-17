@@ -16,6 +16,7 @@ namespace Gurigi
     FrameWindow::FrameWindow()
         : Shell()
         , bgColor_(Objects::ColorF::White)
+        , inInitializingWindow_(false)
         , inDestroy_(false)
         , capturedButtons_(0)
     {
@@ -24,6 +25,7 @@ namespace Gurigi
     FrameWindow::FrameWindow(const ShellWeakPtr<> &parent)
         : Shell(parent)
         , bgColor_(Objects::ColorF::White)
+        , inInitializingWindow_(false)
         , inDestroy_(false)
         , capturedButtons_(0)
     {
@@ -98,46 +100,59 @@ namespace Gurigi
             return false;
         }
 
-        // TODO: menu
-        Objects::SizeI windowSize;
-
-        if(initPosition_ == initPosition_.Invalid)
-            initPosition_ = Objects::PointI(CW_USEDEFAULT, CW_USEDEFAULT);
-
-        if(initClientSize_ == initClientSize_.Invalid)
-            windowSize = Objects::SizeF(CW_USEDEFAULT, CW_USEDEFAULT);
-        else
         {
-            // TODO: get DPI from initPosition_
-            // hwnd is null here so GetDpiForWindow does not work correctly
-            windowSize = adjustWindowSize(initClientSize_);
+            Batang::ScopedInitializer initializingWindowFlag(
+                [this]()
+                {
+                    inInitializingWindow_ = true;
+                },
+                [this]()
+                {
+                    inInitializingWindow_ = false;
+                });
 
-            // XXX: scrollbars?
+            // TODO: menu
+            Objects::SizeI windowSize;
+
+            if(initPosition_ == initPosition_.Invalid)
+                initPosition_ = Objects::PointI(CW_USEDEFAULT, CW_USEDEFAULT);
+
+            if(initClientSize_ == initClientSize_.Invalid)
+                windowSize = Objects::SizeF(CW_USEDEFAULT, CW_USEDEFAULT);
+            else
+            {
+                // TODO: get DPI from initPosition_
+                // hwnd is null here so GetDpiForWindow does not work correctly
+                windowSize = adjustWindowSize(initClientSize_);
+
+                // XXX: scrollbars?
+            }
+
+            ShellPtr<> lparent = parent().lock();
+
+            HWND hwnd = CreateWindowExW(
+                WindowStyleEx,
+                className_.c_str(),
+                initTitle_.c_str(),
+                WindowStyle,
+                initPosition_.x,
+                initPosition_.y,
+                windowSize.width,
+                windowSize.height,
+                lparent ? lparent->hwnd() : nullptr,
+                nullptr,
+                Batang::Win32Environment::instance().getInstance(),
+                &static_cast<ShellWeakPtr<>>(sharedFromThis()));
+            if(hwnd == nullptr)
+                return false;
+
+            this->hwnd(hwnd);
+            if(!(wp && SetWindowPlacement(hwnd, wp)))
+            {
+                ShowWindow(hwnd, showCommand);
+            }
+            UpdateWindow(hwnd);
         }
-
-        ShellPtr<> lparent = parent().lock();
-
-        HWND hwnd = CreateWindowExW(
-            WindowStyleEx,
-            className_.c_str(),
-            initTitle_.c_str(),
-            WindowStyle,
-            initPosition_.x, initPosition_.y,
-            windowSize.width, windowSize.height,
-            lparent ? lparent->hwnd() : nullptr,
-            nullptr,
-            Batang::Win32Environment::instance().getInstance(),
-            &static_cast<ShellWeakPtr<>>(sharedFromThis())
-            );
-        if(hwnd == nullptr)
-            return false;
-
-        this->hwnd(hwnd);
-        if(!(wp && SetWindowPlacement(hwnd, wp)))
-        {
-            ShowWindow(hwnd, showCommand);
-        }
-        UpdateWindow(hwnd);
 
         MSG msg;
         bool done = false;
@@ -331,15 +346,20 @@ namespace Gurigi
                 uint32_t newDpi = HIWORD(wParam);
                 context_.dpi(newDpi);
 
-                const RECT *newWindowPos = reinterpret_cast<const RECT *>(lParam);
-                SetWindowPos(
-                    hwnd,
-                    nullptr,
-                    newWindowPos->left,
-                    newWindowPos->top,
-                    newWindowPos->right - newWindowPos->left,
-                    newWindowPos->bottom - newWindowPos->top,
-                    SWP_NOZORDER | SWP_NOACTIVATE);
+                // Ignore the suggested position during calling SetWindowPlacement,
+                // WM_DPICHANGED suggests wrong position in the progress.
+                if(!inInitializingWindow_)
+                {
+                    const RECT *newWindowPos = reinterpret_cast<const RECT *>(lParam);
+                    SetWindowPos(
+                        hwnd,
+                        nullptr,
+                        newWindowPos->left,
+                        newWindowPos->top,
+                        newWindowPos->right - newWindowPos->left,
+                        newWindowPos->bottom - newWindowPos->top,
+                        SWP_NOZORDER | SWP_NOACTIVATE);
+                }
             }
             return 0;
 
