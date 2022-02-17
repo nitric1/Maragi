@@ -37,13 +37,18 @@ namespace Gurigi
         {
         }
 
-        void Context::create(HWND hwnd, const Objects::SizeI &size)
+        void Context::create(HWND hwnd, const Objects::SizeI &size, uint32_t dpi)
         {
             rt_.release();
             HRESULT hr;
 
             hr = D2DFactory::instance().getD2DFactory()->CreateHwndRenderTarget(
-                D2D1::RenderTargetProperties(),
+                D2D1::RenderTargetProperties(
+                    D2D1_RENDER_TARGET_TYPE_DEFAULT,
+                    D2D1::PixelFormat(),
+                    static_cast<float>(dpi),
+                    static_cast<float>(dpi)
+                ),
                 D2D1::HwndRenderTargetProperties(hwnd, size),
                 &rt_
                 );
