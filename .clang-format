@@ -35,6 +35,7 @@ Cpp11BracedListStyle: true
 FixNamespaceComments: false
 IncludeBlocks: Preserve
 IndentCaseLabels: false
+IndentCaseBlocks: true
 IndentPPDirectives: AfterHash
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 2

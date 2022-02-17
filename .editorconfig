@@ -8,5 +8,9 @@ indent_style = space
 indent_size = 4
 charset = utf-8-bom
 
+cpp_indent_case_contents = true
+cpp_indent_case_labels = false
+cpp_indent_case_contents_when_block = true
+
 [*.rc]
 charset = utf-16le
