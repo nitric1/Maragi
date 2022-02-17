@@ -799,7 +799,7 @@ namespace Gurigi
             onResizeInternalSelf(rect);
         }
 
-    public:
+    protected:
         using Control::shell;
         virtual void shell(const ShellWeakPtr<> &shell) override
         {
@@ -810,7 +810,6 @@ namespace Gurigi
             }
         }
 
-    protected:
         void attach(PlaceKey placeKey, const ControlPtr<> &control)
         {
             auto it = children_.find(placeKey);
