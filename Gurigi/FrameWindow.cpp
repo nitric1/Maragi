@@ -326,8 +326,21 @@ namespace Gurigi
             }
             return 0;
 
-        case WM_DISPLAYCHANGE:
-            InvalidateRect(hwnd, nullptr, FALSE);
+        case WM_DPICHANGED:
+            {
+                uint32_t newDpi = HIWORD(wParam);
+                context_.dpi(newDpi);
+
+                const RECT *newWindowPos = reinterpret_cast<const RECT *>(lParam);
+                SetWindowPos(
+                    hwnd,
+                    nullptr,
+                    newWindowPos->left,
+                    newWindowPos->top,
+                    newWindowPos->right - newWindowPos->left,
+                    newWindowPos->bottom - newWindowPos->top,
+                    SWP_NOZORDER | SWP_NOACTIVATE);
+            }
             return 0;
 
         case WM_GETMINMAXINFO:
