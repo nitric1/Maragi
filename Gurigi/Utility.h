@@ -266,4 +266,27 @@ namespace Gurigi
 
         friend class Batang::Singleton<ShellManager>;
     };
+
+    class Win32DpiUtil final : public Batang::Singleton<Win32DpiUtil>
+    {
+    private:
+        typedef UINT(__stdcall *GetDpiForWindowPtr)(HWND);
+        typedef HRESULT(__stdcall *GetDpiForMonitorPtr)(HMONITOR, UINT, UINT *, UINT *);
+
+    private:
+        HMODULE moduleUser32_;
+        HMODULE moduleShcore_;
+
+        GetDpiForWindowPtr getDpiForWindowFn_;
+        GetDpiForMonitorPtr getDpiForMonitorFn_;
+
+    private:
+        Win32DpiUtil();
+        ~Win32DpiUtil();
+
+    public:
+        uint32_t getDpiForWindow(HWND);
+
+        friend class Batang::Singleton<Win32DpiUtil>;
+    };
 }

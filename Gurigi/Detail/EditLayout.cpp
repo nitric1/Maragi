@@ -1049,15 +1049,8 @@ namespace Gurigi
             glyphMetrics_.resize(std::max(glyphStart + actualGlyphCount, glyphOffsets_.size()));
 
             auto lshell = shell_.lock();
-            uint32_t dpi;
-            if(lshell)
-            {
-                dpi = GetDpiForWindow(lshell->hwnd());
-            }
-            else
-            {
-                dpi = GetDpiForSystem();
-            }
+            HWND hwnd = lshell ? lshell->hwnd() : nullptr;
+            uint32_t dpi = Win32DpiUtil::instance().getDpiForWindow(lshell->hwnd());
 
             hr = textAnalyzer->GetGdiCompatibleGlyphPlacements(
                 &text_[textStart],

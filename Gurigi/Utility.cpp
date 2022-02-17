@@ -139,4 +139,73 @@ namespace Gurigi
     {
         shells_.erase(hwnd);
     }
+
+    Win32DpiUtil::Win32DpiUtil()
+    {
+        moduleUser32_ = LoadLibraryW(L"user32.dll");
+        if(moduleUser32_ == nullptr)
+        {
+            auto lastError = GetLastError();
+            throw(std::runtime_error((boost::format("user32.dll cannot be loaded; GetLastError=%08X") % lastError).str()));
+        }
+
+        moduleShcore_ = LoadLibraryW(L"shcore.dll");
+        if(moduleShcore_ == nullptr)
+        {
+            auto lastError = GetLastError();
+            throw(std::runtime_error((boost::format("shcore.dll cannot be loaded; GetLastError=%08X") % lastError).str()));
+        }
+
+        getDpiForWindowFn_ = reinterpret_cast<GetDpiForWindowPtr>(GetProcAddress(moduleUser32_, "GetDpiForWindow"));
+        getDpiForMonitorFn_ = reinterpret_cast<GetDpiForMonitorPtr>(GetProcAddress(moduleShcore_, "GetDpiForMonitor"));
+    }
+
+    Win32DpiUtil::~Win32DpiUtil()
+    {
+        if(moduleUser32_)
+        {
+            FreeLibrary(moduleUser32_);
+        }
+
+        if(moduleShcore_)
+        {
+            FreeLibrary(moduleShcore_);
+        }
+    }
+
+    uint32_t Win32DpiUtil::getDpiForWindow(HWND hwnd)
+    {
+        if(getDpiForWindowFn_ != nullptr && hwnd != nullptr)
+        {
+            return getDpiForWindowFn_(hwnd);
+        }
+
+        if(getDpiForMonitorFn_ != nullptr)
+        {
+            HMONITOR monitor = nullptr;
+            if(hwnd != nullptr)
+            {
+                monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY);
+            }
+            if(monitor == nullptr)
+            {
+                monitor = MonitorFromPoint(POINT{0, 0}, MONITOR_DEFAULTTOPRIMARY);
+            }
+
+            UINT dpiX = 0, dpiY = 0;
+            const int MDT_EFFECTIVE_DPI = 0; // from MONITOR_DPI_TYPE in <shellscalingapi.h>
+            HRESULT result = getDpiForMonitorFn_(monitor, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
+
+            if(SUCCEEDED(result))
+            {
+                return dpiY;
+            }
+        }
+
+        HDC hdc = GetDC(hwnd);
+        uint32_t dpi = GetDeviceCaps(hdc, LOGPIXELSY);
+        ReleaseDC(hwnd, hdc);
+
+        return dpi;
+    }
 }

@@ -108,6 +108,8 @@ namespace Gurigi
             windowSize = Objects::SizeF(CW_USEDEFAULT, CW_USEDEFAULT);
         else
         {
+            // TODO: get DPI from initPosition_
+            // hwnd is null here so GetDpiForWindow does not work correctly
             windowSize = adjustWindowSize(initClientSize_);
 
             // XXX: scrollbars?
