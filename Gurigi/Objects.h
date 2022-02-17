@@ -339,11 +339,7 @@ namespace Gurigi
                 : points_(std::move(that.points_))
             {}
 
-            explicit Polyline(const std::vector<Point<T>> &points)
-                : points_(points)
-            {}
-
-            explicit Polyline(std::vector<Point<T>> &&points)
+            explicit Polyline(std::vector<Point<T>> points)
                 : points_(std::move(points))
             {}
 
@@ -375,11 +371,7 @@ namespace Gurigi
                 : points_(std::move(that.points_))
             {}
 
-            explicit Region(const std::vector<Point<T>> &points)
-                : points_(points)
-            {}
-
-            explicit Region(std::vector<Point<T>> &&points)
+            explicit Region(std::vector<Point<T>> points)
                 : points_(std::move(points))
             {}
 
