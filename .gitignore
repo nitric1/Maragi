@@ -1,3 +1,5 @@
+# Files
+
 *.vcxproj.user
 *.aps
 *.APS
@@ -9,8 +11,11 @@
 
 LocMetrics*
 
+# Directories
+
 .vs
 Debug
 Release
 x64
 ipch
+vcpkg_installed

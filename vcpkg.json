@@ -1,0 +1,15 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+    "name": "maragi",
+    "builtin-baseline": "78ba9711d30c64a6b40462c72f356c681e2255f3",
+    "dependencies": [
+        "curl",
+        "openssl",
+        "rapidjson",
+        "boost-algorithm",
+        "boost-locale",
+        "boost-program-options",
+        "boost-range",
+        "boost-signals2"
+    ]
+}
