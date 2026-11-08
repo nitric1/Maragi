@@ -343,8 +343,8 @@ namespace Gurigi
 
         case WM_DPICHANGED:
             {
-                uint32_t newDpi = HIWORD(wParam);
-                context_.dpi(newDpi);
+                uint32_t newDpiX = LOWORD(wParam), newDpiY = HIWORD(wParam);
+                context_.dpi(newDpiX, newDpiY);
 
                 // Ignore the suggested position during calling SetWindowPlacement,
                 // WM_DPICHANGED suggests wrong position in the progress.
@@ -387,7 +387,7 @@ namespace Gurigi
             if(!context_)
             {
                 uint32_t dpi = Win32DpiUtil::instance().getDpiForWindow(hwnd);
-                context_.create(hwnd, clientSize(), dpi);
+                context_.create(hwnd, clientSize(), dpi, dpi);
                 client_->createDrawingResources(context_);
             }
 

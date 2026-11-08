@@ -42,9 +42,9 @@ namespace Gurigi
             Context();
 
         public:
-            void create(HWND, const Objects::SizeI &, uint32_t dpi);
+            void create(HWND, const Objects::SizeI &, uint32_t dpiX, uint32_t dpiY);
             void resize(const Objects::SizeI &);
-            void dpi(uint32_t);
+            void dpi(uint32_t dpiX, uint32_t dpiY);
             void beginDraw();
             bool endDraw();
 

@@ -37,7 +37,7 @@ namespace Gurigi
         {
         }
 
-        void Context::create(HWND hwnd, const Objects::SizeI &size, uint32_t dpi)
+        void Context::create(HWND hwnd, const Objects::SizeI &size, uint32_t dpiX, uint32_t dpiY)
         {
             rt_.release();
             HRESULT hr;
@@ -46,8 +46,8 @@ namespace Gurigi
                 D2D1::RenderTargetProperties(
                     D2D1_RENDER_TARGET_TYPE_DEFAULT,
                     D2D1::PixelFormat(),
-                    static_cast<float>(dpi),
-                    static_cast<float>(dpi)
+                    static_cast<float>(dpiX),
+                    static_cast<float>(dpiY)
                 ),
                 D2D1::HwndRenderTargetProperties(hwnd, size),
                 &rt_
@@ -62,10 +62,10 @@ namespace Gurigi
                 rt_->Resize(size);
         }
 
-        void Context::dpi(uint32_t dpi)
+        void Context::dpi(uint32_t dpiX, uint32_t dpiY)
         {
             if(rt_)
-                rt_->SetDpi(static_cast<float>(dpi), static_cast<float>(dpi));
+                rt_->SetDpi(static_cast<float>(dpiX), static_cast<float>(dpiY));
         }
 
         void Context::beginDraw()
