@@ -210,6 +210,8 @@ namespace Gurigi
             ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushHovered_);
         else
             ctx->FillRoundedRectangle(D2D1::RoundedRect(rect, 4.0f, 4.0f), brushUp_);
+
+        // TODO: text
     }
 
     Objects::SizeF Button::computeSize()
@@ -471,7 +473,7 @@ namespace Gurigi
         if(arg.buttonNum == 1)
         {
             dragging_ = false;
-            clickedPagerToMin_ = boost::indeterminate;
+            clickedPagerToMin_ = std::nullopt;
         }
     }
 
@@ -484,18 +486,21 @@ namespace Gurigi
             float pos = (orientation_ == Orientation::Vertical ? point.y : point.x);
             double posValue = posToValue(pos);
 
-            if(clickedPagerToMin_)
+            if(clickedPagerToMin_.has_value())
             {
-                if(posValue < current_)
+                if(clickedPagerToMin_.value())
                 {
-                    current(current_ - pageSize_);
+                    if(posValue < current_)
+                    {
+                        current(current_ - pageSize_);
+                    }
                 }
-            }
-            else if(!clickedPagerToMin_)
-            {
-                if(current_ + pageSize_ <= posValue)
+                else
                 {
-                    current(current_ + pageSize_);
+                    if(current_ + pageSize_ <= posValue)
+                    {
+                        current(current_ + pageSize_);
+                    }
                 }
             }
             else

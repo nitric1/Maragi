@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 namespace Batang
 {
@@ -87,13 +87,6 @@ namespace Batang
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif // _MSC_VER
-
-        // for boost::hash
-        template<typename T, typename Tag, T InvalidValue>
-        size_t hash_value(const ValueWrapper<T, Tag, InvalidValue> &wrapper)
-        {
-            return boost::hash_value(*wrapper);
-        }
     }
 
     using Detail::ValueWrapper;

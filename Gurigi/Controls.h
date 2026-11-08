@@ -258,7 +258,7 @@ namespace Gurigi
         ComPtr<ID2D1SolidColorBrush> brushThumb_, brushBackground_;
 
         bool dragging_;
-        boost::tribool clickedPagerToMin_;
+        std::optional<bool> clickedPagerToMin_;
         Batang::Timer::TaskId pagerTimer_;
         double draggingThumbValueDiff_;
 

@@ -134,7 +134,7 @@ namespace Gurigi
 
     namespace
     {
-        boost::thread_specific_ptr<ERDelegateWrapper<intptr_t (HWND, unsigned, uintptr_t, longptr_t)>> procMessageFn;
+        thread_local std::unique_ptr<ERDelegateWrapper<intptr_t (HWND, unsigned, uintptr_t, longptr_t)>> procMessageFn;
         void setProcMessageFn(const ERDelegateWrapper<intptr_t (HWND, unsigned, uintptr_t, longptr_t)> &fn)
         {
             procMessageFn.reset(new ERDelegateWrapper<intptr_t (HWND, unsigned, uintptr_t, longptr_t)>(fn));

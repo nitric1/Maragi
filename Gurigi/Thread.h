@@ -18,7 +18,7 @@ namespace Gurigi
             return true;
         }
         template<typename Func>
-        static auto invoke(Func &&fn) -> boost::optional<std::future<decltype(fn())>>
+        static auto invoke(Func &&fn) -> std::optional<std::future<decltype(fn())>>
         {
             std::lock_guard<std::mutex> lock(mutex_);
             auto luiThread = uiThread_.lock();

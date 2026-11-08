@@ -6,17 +6,11 @@
 // Standard C/C++ library & boost library inclusion
 
 #include <array>
+#include <format>
 #include <numeric>
+#include <optional>
 #include <set>
 // #include <variant>
-
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/logic/tribool.hpp>
-
-#pragma warning(push)
-#pragma warning(disable: 4819) // The file contains a character that cannot be represented in the current code page
-#include <boost/format.hpp>
-#pragma warning(pop)
 
 #include <boost/range/algorithm/copy.hpp>
 #include <boost/range/any_range.hpp>

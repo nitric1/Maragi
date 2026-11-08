@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Event.h"
 
@@ -9,8 +9,8 @@ namespace Batang
     class ThreadTaskPool
     {
     private:
-        static boost::thread_specific_ptr<std::weak_ptr<ThreadTaskPool>> currentTaskPool_;
-        static boost::thread_specific_ptr<std::shared_ptr<ThreadTaskPool>> emptyThread_;
+        thread_local static std::unique_ptr<std::weak_ptr<ThreadTaskPool>> currentTaskPool_;
+        thread_local static std::shared_ptr<ThreadTaskPool> emptyThread_;
 
     private:
         Detail::TaskPool taskPool_;
@@ -71,7 +71,7 @@ namespace Batang
         template<typename ...Args>
         struct RunReturnTypeDeduce
         {
-            typedef typename std::result_of<decltype(&Derived::run)(Derived, Args...)>::type Type;
+            typedef std::invoke_result_t<decltype(&Derived::run)(Derived, Args...)> Type;
         };
 
     private:

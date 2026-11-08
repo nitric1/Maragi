@@ -11,6 +11,7 @@
 #include <cstring>
 
 #include <exception>
+#include <format>
 #include <new>
 #include <numeric>
 #include <random>
@@ -20,9 +21,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
-#include <boost/thread/mutex.hpp>
 
 // External library inclusion
 

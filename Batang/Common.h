@@ -32,10 +32,7 @@
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/assert.hpp>
-#include <boost/integer/static_min_max.hpp>
 #include <boost/locale/encoding_utf.hpp>
-#include <boost/operators.hpp>
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -47,11 +44,6 @@
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif // _MSC_VER
-
-#include <boost/thread/once.hpp>
-#include <boost/thread/tss.hpp>
-#include <boost/type_traits/function_traits.hpp>
-#include <boost/filesystem.hpp>
 
 using std::max; using std::min;
 

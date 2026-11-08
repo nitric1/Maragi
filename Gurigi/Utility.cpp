@@ -119,7 +119,7 @@ namespace Gurigi
     std::wstring ShellManager::getNextClassName()
     {
         ++ nextId_;
-        return (boost::wformat(Constants::SHELL_CLASSNAME_TEMPLATE) % nextId_).str();
+        return std::format(Constants::SHELL_CLASSNAME_TEMPLATE, nextId_);
     }
 
     void ShellManager::add(HWND hwnd, const ShellWeakPtr<> &shell)
@@ -146,14 +146,14 @@ namespace Gurigi
         if(moduleUser32_ == nullptr)
         {
             auto lastError = GetLastError();
-            throw(std::runtime_error((boost::format("user32.dll cannot be loaded; GetLastError=%08X") % lastError).str()));
+            throw(std::runtime_error(std::format("user32.dll cannot be loaded; GetLastError={:08X}", lastError)));
         }
 
         moduleShcore_ = LoadLibraryW(L"shcore.dll");
         if(moduleShcore_ == nullptr)
         {
             auto lastError = GetLastError();
-            throw(std::runtime_error((boost::format("shcore.dll cannot be loaded; GetLastError=%08X") % lastError).str()));
+            throw(std::runtime_error(std::format("shcore.dll cannot be loaded; GetLastError={:08X}", lastError)));
         }
 
         getDpiForWindowFn_ = reinterpret_cast<GetDpiForWindowPtr>(GetProcAddress(moduleUser32_, "GetDpiForWindow"));

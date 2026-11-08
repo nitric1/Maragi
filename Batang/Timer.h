@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Singleton.h"
 
@@ -56,7 +56,7 @@ namespace Batang
             std::weak_ptr<ThreadTaskPool> thread,
             std::chrono::steady_clock::duration interval,
             std::function<void ()> task);
-        Timer::TaskId Timer::installPeriodicTimer(
+        Timer::TaskId installPeriodicTimer(
             std::weak_ptr<ThreadTaskPool> thread,
             std::chrono::steady_clock::duration initialInterval,
             std::chrono::steady_clock::duration interval,

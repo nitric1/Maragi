@@ -1,4 +1,4 @@
-#include "Common.h"
+﻿#include "Common.h"
 
 #include "Thread.h"
 
@@ -6,8 +6,8 @@
 
 namespace Batang
 {
-    boost::thread_specific_ptr<std::weak_ptr<ThreadTaskPool>> ThreadTaskPool::currentTaskPool_;
-    boost::thread_specific_ptr<std::shared_ptr<ThreadTaskPool>> ThreadTaskPool::emptyThread_;
+    thread_local std::unique_ptr<std::weak_ptr<ThreadTaskPool>> ThreadTaskPool::currentTaskPool_;
+    thread_local std::shared_ptr<ThreadTaskPool> ThreadTaskPool::emptyThread_;
 
     namespace
     {
@@ -20,16 +20,13 @@ namespace Batang
 
     const std::weak_ptr<ThreadTaskPool> &ThreadTaskPool::current()
     {
-        auto current = currentTaskPool_.get();
-        if(!current) // thread not created with Thread
+        if(!currentTaskPool_) // thread not created with Thread
         {
-            auto currentEmptyThread = new std::shared_ptr<ThreadTaskPool>(new EmptyThread());
-            emptyThread_.reset(currentEmptyThread);
-            ThreadTaskPool::current(*currentEmptyThread);
-            current = currentTaskPool_.get();
+            emptyThread_ = std::shared_ptr<ThreadTaskPool>(new EmptyThread());
+            ThreadTaskPool::current(emptyThread_);
         }
 
-        return *current;
+        return *currentTaskPool_;
     }
 
     void ThreadTaskPool::current(std::weak_ptr<ThreadTaskPool> current)

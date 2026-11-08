@@ -48,7 +48,7 @@ namespace Gurigi
     struct ControlEventArg
     {
         ControlWeakPtr<> control;
-        boost::posix_time::ptime time;
+        std::chrono::steady_clock::time_point time;
 
         // raw
         uint32_t rawMessage;
@@ -71,7 +71,7 @@ namespace Gurigi
         uint32_t repeated;
 
         ControlEventArg()
-            : time(boost::posix_time::microsec_clock::local_time())
+            : time(std::chrono::steady_clock::now())
             , rawMessage(0)
             , wParam(0), lParam(0)
             , buttonNum(0)
@@ -179,7 +179,7 @@ namespace Gurigi
     struct WindowEventArg
     {
         ShellWeakPtr<> shell;
-        boost::posix_time::ptime time;
+        std::chrono::steady_clock::time_point time;
 
         // raw
         uint32_t rawMessage;
@@ -187,7 +187,7 @@ namespace Gurigi
         longptr_t lParam;
 
         WindowEventArg()
-            : time(boost::posix_time::microsec_clock::local_time())
+            : time(std::chrono::steady_clock::now())
             , rawMessage(0)
             , wParam(0), lParam(0)
             , propagatable(true)

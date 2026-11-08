@@ -146,23 +146,22 @@ namespace Maragi
         }
         catch(const Batang::AssertError &e)
         {
-            std::string str = "Assert: ";
-            str += e.what();
-            str += "\nFile: ";
-            str += e.File();
-            str += "\nLine: ";
-            str += boost::lexical_cast<std::string>(e.Line());
-            str += "\nFunction: ";
-            str += e.Function();
-            str += "\nThe program will be terminated.";
+            std::string str = std::format(
+                "Assert: {}\nFile: {}\nLine: {}\nFunction: {}\nThe program will be terminated",
+                e.what(),
+                e.File(),
+                e.Line(),
+                e.Function()
+            );
             MessageBoxA(nullptr, str.c_str(), "Error", MB_ICONSTOP | MB_OK);
             return false;
         }
         catch(const std::exception &e)
         {
-            std::string str = "Unexpected exception thrown: ";
-            str += e.what();
-            str += "\nThe program will be terminated.";
+            std::string str = std::format(
+                "Unexpected exception thrown: {}\nThe program will be terminated.",
+                e.what()
+            );
             MessageBoxA(nullptr, str.c_str(), "Error", MB_ICONSTOP | MB_OK);
             return false;
         }
